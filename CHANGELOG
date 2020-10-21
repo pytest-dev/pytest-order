@@ -1,10 +1,23 @@
 Unreleased
 ---
+
+Imported version from pytest-ordering, including some PRs (manually merged).
+
 ### Added
-- #50 Add ``--indulgent-ordering`` to request that the sort from
+- PR #37 (imported)
+  Add support for markers like run(before=...), run(after=), run("first") etc.
+- PR #50 (imported)
+  Add ``--indulgent-ordering`` to request that the sort from
   pytest-ordering be run before other plugins.  This allows the built-in
   ``--failed-first`` implementation to override the ordering.
+- PR #68 (imported)
+  Include LICENSE file in distribution
+
+### Infrastructure
+- PR #74 (imported)
+  Add more pytest versions, fix pytest-cov compatibility issue,
+  remove Python 3.4, add Python 3.8
 
 0.6
 ---
-- #44 fix deprecation warnings
+- version imported from pytest-ordering

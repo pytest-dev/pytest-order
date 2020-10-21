@@ -424,4 +424,4 @@ def test_markers_registered(capsys):
     assert '@pytest.mark.run' in out
     assert '@pytest.mark.first' in out
     assert '@pytest.mark.last' in out
-    assert out.count('Provided by pytest-ordering') == 17
+    assert out.count('Provided by pytest-ordering2') == 17

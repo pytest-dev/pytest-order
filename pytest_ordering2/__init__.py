@@ -32,7 +32,7 @@ def pytest_configure(config):
     options"""
 
     provided_by_pytest_ordering = (
-        'Provided by pytest-ordering. '
+        'Provided by pytest-ordering2. '
         'See also: http://pytest-ordering.readthedocs.org/'
     )
 

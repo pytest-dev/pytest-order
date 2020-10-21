@@ -5,23 +5,24 @@ import os
 
 __here__ = os.path.abspath(os.path.dirname(__file__))
 
-# define __version__
-# execfile doesn't exist in python 3
-# see: http://stackoverflow.com/questions/6357361/alternative-to-execfile-in-python-3-2
-exec(open(os.path.join(__here__, 'pytest_ordering', '_version.py')).read())
+from pytest_ordering2 import __version__
+
+with open(os.path.join(__here__, 'README.md')) as f:
+    LONG_DESCRIPTION = f.read()
 
 
 setup(
-    name='pytest-ordering',
+    name='pytest-ordering2',
     description='pytest plugin to run your tests in a specific order',
+    long_description=LONG_DESCRIPTION,
     version=__version__,
-    author='Frank Tobia',
-    author_email='frank.tobia@gmail.com',
-    url='https://github.com/ftobia/pytest-ordering',
-    packages=['pytest_ordering'],
-    entry_points = {
+    author='mrbean-bremane',
+    author_email='hansemrbean@googlemail.com',
+    url='https://github.com/mrbean-bremen/pytest-ordering2',
+    packages=['pytest_ordering2'],
+    entry_points={
         'pytest11': [
-            'pytest_ordering = pytest_ordering',
+            'pytest_ordering2 = pytest_ordering2',
         ]
     },
     install_requires=['pytest>=3.6'],

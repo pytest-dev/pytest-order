@@ -57,7 +57,8 @@ copyright = u'2014, Frank Tobia'
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-exec(open(os.path.join(__here__, '..', '..', 'pytest_ordering', '_version.py')).read())
+exec(open(os.path.join(__here__, '..', '..', 'pytest_ordering2',
+                       '_version.py')).read())
 # The short X.Y version.
 version = __version__
 # The full version, including alpha/beta/rc tags.

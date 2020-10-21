@@ -1,9 +1,18 @@
-pytest-ordering
-===============
+pytest-ordering2
+================
+This is a fork of [pytest-ordering](https://github.com/ftobia/pytest-ordering).
+That project is not maintained anymore, and there are several helpful PRs
+waiting for merge. Therefore I decided to create this fork that tries to
+combine the original code with most of the provided PRs.   
+My hope is that the original project will be moved to the pytest
+organization as outlined in 
+[this issue](https://github.com/ftobia/pytest-ordering/issues/32). When this
+happens, this fork will be obsolete. 
 
-pytest plugin to run your tests in a specific order
 
-[![Build Status](https://travis-ci.org/ftobia/pytest-ordering.svg?branch=develop)](https://travis-ci.org/ftobia/pytest-ordering)
+pytest-ordering is a pytest plugin to run your tests in a specific order.
+
+[![Build Status](https://travis-ci.org/mrbean-bremen/pytest-ordering2.svg?branch=master)](https://travis-ci.org/mrbean-bremen/pytest-ordering2)
 
 Have you ever wanted to easily run one of your tests before any others run?
 Or run some tests last? Or run this one test before that other test? Or
@@ -13,7 +22,7 @@ Now you can.
 
 Install with:
 
-    pip install pytest-ordering
+    pip install pytest-ordering2
 
 This defines some pytest markers that you can use in your code.
 
@@ -42,4 +51,3 @@ Yields this output:
 
     =========================== 2 passed in 0.01 seconds ===========================
 
-Check out the docs: http://pytest-ordering.readthedocs.org/
