@@ -12,7 +12,6 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
 import os
 
 __here__ = os.path.abspath(os.path.dirname(__file__))
@@ -35,6 +34,7 @@ extensions = [
     'sphinx.ext.doctest',
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
+    'sphinx.ext.githubpages',  # puts .nojekyll file into source
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -50,7 +50,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'pytest-ordering'
+project = u'pytest-ordering2'
 copyright = u'2014, Frank Tobia'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -171,7 +171,7 @@ html_static_path = ['_static']
 #html_show_sourcelink = True
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
-#html_show_sphinx = True
+html_show_sphinx = False
 
 # If true, "(C) Copyright ..." is shown in the HTML footer. Default is True.
 #html_show_copyright = True
@@ -205,7 +205,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'pytest-ordering.tex', u'pytest-ordering Documentation',
+  ('index', 'pytest-ordering.tex', u'pytest-ordering2 Documentation',
    u'Frank Tobia', 'manual'),
 ]
 
@@ -235,7 +235,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'pytest-ordering', u'pytest-ordering Documentation',
+    ('index', 'pytest-ordering2', u'pytest-ordering2 Documentation',
      [u'Frank Tobia'], 1)
 ]
 
@@ -249,8 +249,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'pytest-ordering', u'pytest-ordering Documentation',
-   u'Frank Tobia', 'pytest-ordering', 'One line description of project.',
+  ('index', 'pytest-ordering2', u'pytest-ordering2 Documentation',
+   u'Frank Tobia', 'pytest-ordering2', 'One line description of project.',
    'Miscellaneous'),
 ]
 
