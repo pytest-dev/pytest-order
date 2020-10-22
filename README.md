@@ -51,3 +51,4 @@ Yields this output:
 
     =========================== 2 passed in 0.01 seconds ===========================
 
+You can find more information in the [documentation](https://mrbean-bremen.github.io/pytest-ordering2/).
