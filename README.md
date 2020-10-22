@@ -10,7 +10,7 @@ organization as outlined in
 happens, this fork will be obsolete. 
 
 
-pytest-ordering is a pytest plugin to run your tests in a specific order.
+pytest-ordering2 is a pytest plugin to run your tests in a specific order.
 
 [![Build Status](https://travis-ci.org/mrbean-bremen/pytest-ordering2.svg?branch=master)](https://travis-ci.org/mrbean-bremen/pytest-ordering2)
 
