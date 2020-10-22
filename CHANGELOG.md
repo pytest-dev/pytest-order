@@ -1,6 +1,8 @@
 # pytest-ordering2 Release Notes
 
-## Version 0.7.0
+## Unreleased
+
+## [Version 0.7.0](https://pypi.org/project/pytest-ordering2/0.7.0/)
 Imported version from [pytest-ordering](https://github.com/ftobia/pytest-ordering), 
 including some PRs (manually merged).
 

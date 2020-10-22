@@ -1,4 +1,4 @@
-pytest-ordering2
+pytest-ordering2 [![PyPI version](https://badge.fury.io/py/pytest-ordering2.svg)](https://badge.fury.io/py/pytest-ordering2)
 ================
 This is a fork of [pytest-ordering](https://github.com/ftobia/pytest-ordering).
 That project is not maintained anymore, and there are several helpful PRs
