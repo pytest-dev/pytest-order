@@ -313,11 +313,11 @@ def test_quickstart2(item_names_for):
     test_content = """
     import pytest
 
-    @pytest.mark.order2
+    @pytest.mark.order(2)
     def test_foo():
         pass
 
-    @pytest.mark.order1
+    @pytest.mark.order(1)
     def test_bar():
         pass
     """
@@ -422,4 +422,20 @@ def test_markers_registered(capsys):
     pytest.main(['--markers'])
     out, err = capsys.readouterr()
     assert '@pytest.mark.order' in out
-    assert out.count('Provided by pytest-order') == 17
+    # only order is supported as marker
+    assert out.count('Provided by pytest-order.') == 1
+
+
+def test_unsupported_order(item_names_for):
+    test_content = """
+    import pytest
+
+    @pytest.mark.order('unknown')
+    def test_1():
+        pass
+
+    def test_2():
+        pass
+    """
+    with pytest.warns(UserWarning, match="Unknown order attribute:'unknown'"):
+        assert item_names_for(test_content) == ['test_1', 'test_2']

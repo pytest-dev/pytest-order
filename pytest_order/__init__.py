@@ -43,12 +43,6 @@ def pytest_configure(config):
     )
     config.addinivalue_line('markers', config_line)
 
-    for mark_name in orders_map.keys():
-        config_line = '{}: run test {}. {}'.format(mark_name,
-                                                   mark_name.replace('_', ' '),
-                                                   provided_by_pytest_order)
-        config.addinivalue_line('markers', config_line)
-
     if config.getoption('indulgent-ordering'):
         # We need to dynamically add this `tryfirst` decorator to the plugin:
         # only when the CLI option is present should the decorator be added.
@@ -93,13 +87,7 @@ def get_filename(item):
 
 
 def mark_binning(item, keys, start, end, before, after, unordered):
-    match_order = re.compile(r"order(\d+)(:?,|$)")
-    find_order = match_order.search(",".join(keys))
-    if find_order:
-        order = int(find_order.group(1))
-        start.setdefault(order, []).append(item)
-        return True
-    elif "order" in keys:
+    if "order" in keys:
         mark = item.get_closest_marker('order')
         order = mark.args[0] if mark.args else None
         before_mark = mark.kwargs.get('before')
@@ -111,12 +99,12 @@ def mark_binning(item, keys, start, end, before, after, unordered):
                 order = orders_map[order]
             else:
                 warn("Unknown order attribute:'{}'".format(order))
-                order = None
-            if order is not None:
-                if order < 0:
-                    end.setdefault(order, []).append(item)
-                else:
-                    start.setdefault(order, []).append(item)
+                unordered.append(item)
+                return False
+            if order < 0:
+                end.setdefault(order, []).append(item)
+            else:
+                start.setdefault(order, []).append(item)
         elif before_mark:
             if "." not in before_mark:
                 prefix = get_filename(item)

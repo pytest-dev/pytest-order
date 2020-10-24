@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Fixes
+- fixes the handling of unknown marker attributes (test had been skipped)  
+
 ## [Version 0.7.1](https://pypi.org/project/pytest-order/0.7.1/)
 Update after renaming the repository and the package.
 
