@@ -1,4 +1,4 @@
-pytest-order [![PyPI version](https://badge.fury.io/py/pytest-ordering2.svg)](https://badge.fury.io/py/pytest-ordering2)
+pytest-order [![PyPI version](https://badge.fury.io/py/pytest-order.svg)](https://badge.fury.io/py/pytest-order)
 ================
 This is a fork of [pytest-ordering](https://github.com/ftobia/pytest-ordering).
 That project is not maintained anymore, and there are several helpful PRs
@@ -8,6 +8,9 @@ My hope is that the original project will be moved to the pytest
 organization as outlined in 
 [this issue](https://github.com/ftobia/pytest-ordering/issues/32). When this
 happens, this fork will be obsolete. 
+
+_Note:_ ``pytest-order`` is not compatible to ``pytest-ordering`` due to the
+changed marker name (``order`` instead of ``run``). 
 
 
 pytest-order is a pytest plugin to run your tests in a specific order.
@@ -43,7 +46,7 @@ Yields this output:
     $ py.test test_foo.py -vv
     ============================= test session starts ==============================
     platform darwin -- Python 2.7.5 -- py-1.4.20 -- pytest-2.5.2 -- env/bin/python
-    plugins: ordering
+    plugins: order
     collected 2 items
 
     test_foo.py:7: test_bar PASSED
@@ -51,4 +54,7 @@ Yields this output:
 
     =========================== 2 passed in 0.01 seconds ===========================
 
-You can find more information in the [documentation](https://mrbean-bremen.github.io/pytest-order/).
+More information can be found in the documentation:
+  - for the [latest release](https://mrbean-bremen.github.io/pytest-order/stable/)
+  - for the [current master](https://mrbean-bremen.github.io/pytest-order/dev/)
+  

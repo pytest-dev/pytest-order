@@ -2,10 +2,16 @@
 
 ## Unreleased
 
+## [Version 0.7.1](https://pypi.org/project/pytest-order/0.7.1/)
+Update after renaming the repository and the package.
+
 ### Changes
+- renamed repository and package from ``pytest-orderin2`` to ``pytest-order``
 - changed the used marker from ``run`` to ``order``, removed all additional
   markers (see [#38](https://github.com/ftobia/pytest-ordering/issues/38))
-- renamed repository and package from ``pytest-orderin2`` to ``pytest-order``
+  
+### Documentation
+- use separate documentation pages for release and development versions
 
 ## [Version 0.7.0](https://pypi.org/project/pytest-ordering2/0.7.0/)
 Imported version from [pytest-ordering](https://github.com/ftobia/pytest-ordering), 
