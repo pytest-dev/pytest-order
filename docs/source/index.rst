@@ -1,7 +1,7 @@
-pytest-ordering2: run your tests in  order
+pytest-order: run your tests in  order
 ==========================================
 
-pytest-ordering2 is a pytest plugin to run your tests in any order that
+pytest-order is a pytest plugin to run your tests in any order that
 you specify. It provides the marker ``order``, that defines when your tests
 should run in relation to each other. They can be absolute (i.e. first, or
 second-to-last) or relative (i.e. run this test before this other test).
@@ -9,7 +9,7 @@ second-to-last) or relative (i.e. run this test before this other test).
 Supported Python and pytest versions
 ------------------------------------
 
-pytest-ordering2 supports python 2.7, 3.5 - 3.8, and pypy, and is
+pytest-order supports python 2.7, 3.5 - 3.8, and pypy, and is
 compatible with pytest 3.6.0 or newer.
 
 
@@ -41,7 +41,7 @@ Here is the output:
 
     =========================== 2 passed in 0.01 seconds ===========================
 
-With pytest-ordering, you can change the default ordering as follows:
+With pytest-order, you can change the default ordering as follows:
 
 .. code:: python
 
@@ -197,13 +197,13 @@ You may sometimes find that you want to suggest an ordering of tests, while
 allowing it to be overridden for good reason. For example, if you run your test
 suite in parallel and have a number of tests which are particularly slow, it
 might be desirable to start those tests running first, in order to optimize
-your completion time. You can use the pytest-ordering2 plugin to inform pytest
+your completion time. You can use the pytest-order plugin to inform pytest
 of this.
 Now suppose you also want to prioritize tests which failed during the
 previous run, by using the ``--failed-first`` option. By default,
-pytest-ordering2 will override the ``--failed-first`` order, but by adding the
+pytest-order will override the ``--failed-first`` order, but by adding the
 ``--indulgent-ordering`` option, you can ask pytest to run the sort from
-pytest-ordering2 *before* the sort from ``--failed-first``, allowing the failed
+pytest-order *before* the sort from ``--failed-first``, allowing the failed
 tests to be sorted to the front.
 
 

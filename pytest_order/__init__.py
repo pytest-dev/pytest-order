@@ -32,21 +32,21 @@ def pytest_configure(config):
     """Register the "order" marker and configure the plugin depending
      on the CLI options"""
 
-    provided_by_pytest_ordering = (
-        'Provided by pytest-ordering2. '
-        'See also: http://pytest-ordering.readthedocs.org/'
+    provided_by_pytest_order = (
+        'Provided by pytest-order. '
+        'See also: https://mrbean-bremen.github.io/pytest-order/'
     )
 
     config_line = (
             'order: specify ordering information for when tests should run '
-            'in relation to one another. ' + provided_by_pytest_ordering
+            'in relation to one another. ' + provided_by_pytest_order
     )
     config.addinivalue_line('markers', config_line)
 
     for mark_name in orders_map.keys():
         config_line = '{}: run test {}. {}'.format(mark_name,
                                                    mark_name.replace('_', ' '),
-                                                   provided_by_pytest_ordering)
+                                                   provided_by_pytest_order)
         config.addinivalue_line('markers', config_line)
 
     if config.getoption('indulgent-ordering'):

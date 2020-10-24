@@ -2,7 +2,7 @@
 
 import pytest
 
-import pytest_ordering2
+import pytest_order
 
 pytest_plugins = ["pytester"]
 
@@ -27,14 +27,14 @@ def test_me_first():
 """
         )
     args = ["--quiet", "--color=no", testname]
-    pytest.main(args, [pytest_ordering2])
+    pytest.main(args, [pytest_order])
     out, err = capsys.readouterr()
     assert "..F" in out
     args.insert(0, "--ff")
-    pytest.main(args, [pytest_ordering2])
+    pytest.main(args, [pytest_order])
     out, err = capsys.readouterr()
     assert "..F" in out
     args.insert(0, "--indulgent-ordering")
-    pytest.main(args, [pytest_ordering2])
+    pytest.main(args, [pytest_order])
     out, err = capsys.readouterr()
     assert "F.." in out

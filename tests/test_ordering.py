@@ -422,4 +422,4 @@ def test_markers_registered(capsys):
     pytest.main(['--markers'])
     out, err = capsys.readouterr()
     assert '@pytest.mark.order' in out
-    assert out.count('Provided by pytest-ordering2') == 17
+    assert out.count('Provided by pytest-order') == 17

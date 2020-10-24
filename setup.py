@@ -5,25 +5,25 @@ import os
 
 __here__ = os.path.abspath(os.path.dirname(__file__))
 
-from pytest_ordering2 import __version__
+from pytest_order import __version__
 
 with open(os.path.join(__here__, 'README.md')) as f:
     LONG_DESCRIPTION = f.read()
 
 
 setup(
-    name='pytest-ordering2',
+    name='pytest-order',
     description='pytest plugin to run your tests in a specific order',
     long_description=LONG_DESCRIPTION,
     long_description_content_type='text/markdown',
     version=__version__,
     author='mrbean-bremen',
     author_email='hansemrbean@googlemail.com',
-    url='https://github.com/mrbean-bremen/pytest-ordering2',
-    packages=['pytest_ordering2'],
+    url='https://github.com/mrbean-bremen/pytest-order',
+    packages=['pytest_order'],
     entry_points={
         'pytest11': [
-            'pytest_ordering2 = pytest_ordering2',
+            'pytest_order = pytest_order',
         ]
     },
     install_requires=['pytest>=3.6'],

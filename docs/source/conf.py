@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# pytest-ordering documentation build configuration file, created by
+# pytest-order documentation build configuration file, created by
 # sphinx-quickstart on Mon Mar 17 18:20:44 2014.
 #
 # This file is execfile()d with the current directory set to its
@@ -50,14 +50,14 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'pytest-ordering2'
+project = u'pytest-order'
 copyright = u'2014, Frank Tobia'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-exec(open(os.path.join(__here__, '..', '..', 'pytest_ordering2',
+exec(open(os.path.join(__here__, '..', '..', 'pytest_order',
                        '_version.py')).read())
 # The short X.Y version.
 version = __version__
@@ -185,7 +185,7 @@ html_show_sphinx = False
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'pytest-orderingdoc'
+htmlhelp_basename = 'pytest-orderdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -205,7 +205,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'pytest-ordering.tex', u'pytest-ordering2 Documentation',
+  ('index', 'pytest-order.tex', u'pytest-order Documentation',
    u'Frank Tobia', 'manual'),
 ]
 
@@ -235,7 +235,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'pytest-ordering2', u'pytest-ordering2 Documentation',
+    ('index', 'pytest-order', u'pytest-order Documentation',
      [u'Frank Tobia'], 1)
 ]
 
@@ -249,8 +249,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'pytest-ordering2', u'pytest-ordering2 Documentation',
-   u'Frank Tobia', 'pytest-ordering2', 'One line description of project.',
+  ('index', 'pytest-order', u'pytest-order Documentation',
+   u'Frank Tobia', 'pytest-order', 'One line description of project.',
    'Miscellaneous'),
 ]
 
