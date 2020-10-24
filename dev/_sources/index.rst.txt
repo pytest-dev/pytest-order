@@ -1,21 +1,53 @@
 pytest-order: run your tests in  order
-==========================================
-
+======================================
 pytest-order is a pytest plugin to run your tests in any order that
 you specify. It provides the marker ``order``, that defines when your tests
 should run in relation to each other. They can be absolute (i.e. first, or
 second-to-last) or relative (i.e. run this test before this other test).
 
+Relationship with pytest-ordering
+---------------------------------
+``pytest-order`` is a fork of
+`pytest-ordering <https://github.com/ftobia/pytest-ordering>`__, which is
+not maintained anymore. The idea and most of the code has been created by
+Frank Tobia, the author of that plugin.
+
+However, ``pytest-order`` is not compatible with ``pytest-ordering`` due to the
+changed marker name (``order`` instead of ``run``) and the removal of all
+other special markers for consistence (see
+`this issue <https://github.com/ftobia/pytest-ordering/issues/38>`__). This
+also avoids clashes between the plugins if they are both installed.
+
+Here are examples for which markers correspond to markers in
+``pytest-ordering``:
+
+- ``pytest.mark.order1``, ``pytest.mark.run(order=1)`` => ``pytest.mark.order(1)``
+- ``pytest.mark.first`` => ``pytest.mark.order("first")``
+
+
 Supported Python and pytest versions
 ------------------------------------
-
 pytest-order supports python 2.7, 3.5 - 3.8, and pypy, and is
-compatible with pytest 3.6.0 or newer.
+compatible with pytest 3.6.0 or newer. Note that support for Python 2 will
+be removed in one of the next versions.
 
+Installation
+------------
+The latest released version can be installed from
+`PyPi <https://pypi.python.org/pypi/pytest-order/>`__:
+
+.. code:: bash
+
+   pip install pytest-order
+
+The latest master can be installed from the GitHub sources:
+
+.. code:: bash
+
+   pip install git+https://github.com/mrbean-bremen/pytest-order
 
 Quickstart
 ----------
-
 Ordinarily pytest will run tests in the order that they appear in a module.
 For example, for the following tests:
 
@@ -33,7 +65,7 @@ Here is the output:
 
     $ py.test test_foo.py -vv
     ============================= test session starts ==============================
-    platform darwin -- Python 2.7.5 -- py-1.4.20 -- pytest-2.5.2 -- env/bin/python
+    platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
     collected 2 items
 
     test_foo.py:2: test_foo PASSED
@@ -59,8 +91,8 @@ With pytest-order, you can change the default ordering as follows:
 
     $ py.test test_foo.py -vv
     ============================= test session starts ==============================
-    platform darwin -- Python 2.7.5 -- py-1.4.20 -- pytest-2.5.2 -- env/bin/python
-    plugins: ordering
+    platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
+    plugins: order
     collected 2 items
 
     test_foo.py:7: test_bar PASSED
@@ -101,8 +133,8 @@ are used in Python lists, e.g. to count from the end:
 
     $ py.test test_foo.py -vv
     ============================= test session starts ==============================
-    platform darwin -- Python 2.7.5 -- py-1.4.20 -- pytest-2.5.2 -- env/bin/python
-    plugins: ordering
+    platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
+    plugins: order
     collected 4 items
 
     test_foo.py:17: test_one PASSED
@@ -144,8 +176,8 @@ as the numbers 1, 2, -1 and -2 that have been shown above:
 
     $ py.test test_foo.py -vv
     ============================= test session starts ==============================
-    platform darwin -- Python 2.7.5 -- py-1.4.20 -- pytest-2.5.2 -- env/bin/python
-    plugins: ordering
+    platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
+    plugins: order
     collected 4 items
 
     test_foo.py:17: test_one PASSED
@@ -180,8 +212,8 @@ by their name:
 
     $ py.test test_foo.py -vv
     ============================= test session starts ==============================
-    platform darwin -- Python 2.7.5 -- py-1.4.20 -- pytest-2.5.2 -- env/bin/python
-    plugins: ordering
+    platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
+    plugins: order
     collected 3 items
 
     test_foo.py:11: test_first PASSED
