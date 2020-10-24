@@ -7,6 +7,9 @@ python:
   - "3.7"
   - "3.8"
   - "pypy"
+env:
+  global:
+    secure: T6vjQsfhlpCwD0dsVZxDbUD5rvqiOz27ex3nwGvVFWnu0ospPbqzw1MqZcjyFvwcLWF+TrJbVf7UxxTM4JHESZTwcSQ1zXhzZ/pRhCKRa7q7fbVkMptEuarUVmnZZAs9GqZecetCA+ka5dSlHEJdIZwyHRmGV8hOx2w/OHRLEJTpSxT7NTkoKTATPxEzseAup1cJ47PGpnLQYXc0H2DgedgUqboU35Rkbya38gptKqFJJ8K3VuCr+j91Pq/rTntMIND3OsBkzPF1PE08tC15G9bBwRi+nER0BZSfxKkmoTLh7yDJhyyzuTDedaZInCziRYCbhQfsCn8QRCyiVeRiCVt1+/2yNt5lJYZwxpQGyYMOA//zlEDu7Z1uYSnkvy4BkI5g22IrjHLcij1lAaJ3lkafINbcUqlwv4sp/xgT8VXCfiDUadvzm+O9rBo6GlVrgWvdV0ExkSWYDu77ruGHZT3XCZ5ZpTf8OtwX71yHs1o5A5lzfPf1DA+fKPiWsu8jOYlStPn5v81ppqYzIz3JiaWgypCDWB7TLWT6iFjfK5hRWNJQn7aVKx5m86Dtu2cxDdBUDhK8fhbIWAQsdyLMcsXEGK1nekxEK8oM28g0hvifQqS1Up+MXmG6xQg8inbvWuZhwE6cnjDyb5CnaI+KAVxtrhVNlYkv8405fe6XumE=
 install:
   - pip install tox
   - pip install python-coveralls
@@ -15,4 +18,6 @@ script:
   - tox -e $(tox -l | grep $TOX_PYTHON_VERSION | paste -sd "," -)
 after_success:
   - coveralls
+  - pip install sphinx
+  - ./build-docs.sh
 sudo: false
