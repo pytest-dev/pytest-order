@@ -2,6 +2,7 @@
 import os
 import re
 import sys
+from warnings import warn
 
 import pytest
 
@@ -28,8 +29,8 @@ orders_map = {
 
 
 def pytest_configure(config):
-    """Register the "run" marker and configure the plugin depending on the CLI
-    options"""
+    """Register the "order" marker and configure the plugin depending
+     on the CLI options"""
 
     provided_by_pytest_ordering = (
         'Provided by pytest-ordering2. '
@@ -37,7 +38,7 @@ def pytest_configure(config):
     )
 
     config_line = (
-            'run: specify ordering information for when tests should run '
+            'order: specify ordering information for when tests should run '
             'in relation to one another. ' + provided_by_pytest_ordering
     )
     config.addinivalue_line('markers', config_line)
@@ -70,9 +71,9 @@ def pytest_addoption(parser):
     group = parser.getgroup('ordering')
     group.addoption('--indulgent-ordering', action='store_true',
                     dest='indulgent-ordering', help=
-                    '''Request that the sort \
-order provided by pytest-ordering be applied before other sorting, \
-allowing the other sorting to have priority''')
+                    'Request that the sort order provided by pytest-order '
+                    'be applied before other sorting, allowing the '
+                    'other sorting to have priority')
 
 
 class OrderingPlugin(object):
@@ -98,17 +99,24 @@ def mark_binning(item, keys, start, end, before, after, unordered):
         order = int(find_order.group(1))
         start.setdefault(order, []).append(item)
         return True
-    elif "run" in keys:
-        mark = item.get_closest_marker('run')
-        order = mark.kwargs.get('order')
+    elif "order" in keys:
+        mark = item.get_closest_marker('order')
+        order = mark.args[0] if mark.args else None
         before_mark = mark.kwargs.get('before')
         after_mark = mark.kwargs.get('after')
         if order is not None:
-            order = int(order)
-            if order < 0:
-                end.setdefault(order, []).append(item)
+            if isinstance(order, int):
+                order = int(order)
+            elif order in orders_map:
+                order = orders_map[order]
             else:
-                start.setdefault(order, []).append(item)
+                warn("Unknown order attribute:'{}'".format(order))
+                order = None
+            if order is not None:
+                if order < 0:
+                    end.setdefault(order, []).append(item)
+                else:
+                    start.setdefault(order, []).append(item)
         elif before_mark:
             if "." not in before_mark:
                 prefix = get_filename(item)
@@ -120,24 +128,7 @@ def mark_binning(item, keys, start, end, before, after, unordered):
                 after_mark = prefix + "." + after_mark
 
             after.setdefault(after_mark, []).append(item)
-        else:
-            for ordinal, position in orders_map.items():
-                if ordinal in mark.args:
-                    if position < 0:
-                        end.setdefault(position, []).append(item)
-                    else:
-                        start.setdefault(position, []).append(item)
-                    break
         return True
-    for mark_name, order in orders_map.items():
-        mark = item.get_closest_marker(mark_name)
-        if mark:
-            order = int(order)
-            if order < 0:
-                end.setdefault(order, []).append(item)
-            else:
-                start.setdefault(order, []).append(item)
-            return True
     unordered.append(item)
     return False
 

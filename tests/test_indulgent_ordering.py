@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-import re
 
 import pytest
+
 import pytest_ordering2
 
 pytest_plugins = ["pytester"]
@@ -14,14 +14,14 @@ def test_run_marker_registered(capsys, tmpdir):
             """
 import pytest
 
-@pytest.mark.second
+@pytest.mark.order('second')
 def test_me_second():
     assert True
 
 def test_that_fails():
     assert False
 
-@pytest.mark.first
+@pytest.mark.order('first')
 def test_me_first():
     assert True
 """

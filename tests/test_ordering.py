@@ -34,7 +34,7 @@ def test_first_mark(item_names_for):
 
     def test_1(): pass
 
-    @pytest.mark.first
+    @pytest.mark.order('first')
     def test_2(): pass
     """
 
@@ -45,7 +45,7 @@ def test_last_mark(item_names_for):
     tests_content = """
     import pytest
 
-    @pytest.mark.last
+    @pytest.mark.order('last')
     def test_1(): pass
 
     def test_2(): pass
@@ -58,10 +58,10 @@ def test_first_last_marks(item_names_for):
     tests_content = """
     import pytest
 
-    @pytest.mark.last
+    @pytest.mark.order('last')
     def test_1(): pass
 
-    @pytest.mark.first
+    @pytest.mark.order('first')
     def test_2(): pass
 
     def test_3(): pass
@@ -74,13 +74,13 @@ def test_order_marks(item_names_for):
     tests_content = """
     import pytest
 
-    @pytest.mark.run(order=-1)
+    @pytest.mark.order(-1)
     def test_1(): pass
 
-    @pytest.mark.run(order=-2)
+    @pytest.mark.order(-2)
     def test_2(): pass
 
-    @pytest.mark.run(order=1)
+    @pytest.mark.order(1)
     def test_3(): pass
     """
 
@@ -91,13 +91,13 @@ def test_non_contiguous_positive(item_names_for):
     tests_content = """
     import pytest
 
-    @pytest.mark.run(order=10)
+    @pytest.mark.order(10)
     def test_1(): pass
 
-    @pytest.mark.run(order=20)
+    @pytest.mark.order(20)
     def test_2(): pass
 
-    @pytest.mark.run(order=5)
+    @pytest.mark.order(5)
     def test_3(): pass
     """
 
@@ -108,13 +108,13 @@ def test_non_contiguous_negative(item_names_for):
     tests_content = """
     import pytest
 
-    @pytest.mark.run(order=-10)
+    @pytest.mark.order(-10)
     def test_1(): pass
 
-    @pytest.mark.run(order=-20)
+    @pytest.mark.order(-20)
     def test_2(): pass
 
-    @pytest.mark.run(order=-5)
+    @pytest.mark.order(-5)
     def test_3(): pass
     """
 
@@ -125,25 +125,25 @@ def test_non_contiguous_inc_zero(item_names_for):
     tests_content = """
     import pytest
 
-    @pytest.mark.run(order=10)
+    @pytest.mark.order(10)
     def test_1(): pass
 
-    @pytest.mark.run(order=20)
+    @pytest.mark.order(20)
     def test_2(): pass
 
-    @pytest.mark.run(order=5)
+    @pytest.mark.order(5)
     def test_3(): pass
 
-    @pytest.mark.run(order=-10)
+    @pytest.mark.order(-10)
     def test_4(): pass
 
-    @pytest.mark.run(order=-20)
+    @pytest.mark.order(-20)
     def test_5(): pass
 
-    @pytest.mark.run(order=-5)
+    @pytest.mark.order(-5)
     def test_6(): pass
 
-    @pytest.mark.run(order=0)
+    @pytest.mark.order(0)
     def test_7(): pass
     """
 
@@ -156,19 +156,19 @@ def test_non_contiguous_inc_none(item_names_for):
     tests_content = """
     import pytest
 
-    @pytest.mark.run(order=5)
+    @pytest.mark.order(5)
     def test_1(): pass
 
-    @pytest.mark.run(order=0)
+    @pytest.mark.order(0)
     def test_2(): pass
 
-    @pytest.mark.run(order=1)
+    @pytest.mark.order(1)
     def test_3(): pass
 
-    @pytest.mark.run(order=-1)
+    @pytest.mark.order(-1)
     def test_4(): pass
 
-    @pytest.mark.run(order=-5)
+    @pytest.mark.order(-5)
     def test_5(): pass
 
     def test_6(): pass
@@ -185,7 +185,7 @@ def test_first_mark_class(item_names_for):
     def test_1(): pass
 
 
-    @pytest.mark.first
+    @pytest.mark.order('first')
     class TestSuite(object):
 
         def test_3(self): pass
@@ -201,7 +201,7 @@ def test_last_mark_class(item_names_for):
     tests_content = """
     import pytest
 
-    @pytest.mark.last
+    @pytest.mark.order('last')
     class TestSuite(object):
 
         def test_1(self): pass
@@ -219,7 +219,7 @@ def test_first_last_mark_class(item_names_for):
     tests_content = """
     import pytest
 
-    @pytest.mark.last
+    @pytest.mark.order('last')
     class TestLast(object):
 
         def test_1(self): pass
@@ -230,7 +230,7 @@ def test_first_last_mark_class(item_names_for):
     def test_3(): pass
 
 
-    @pytest.mark.first
+    @pytest.mark.order('first')
     class TestFirst(object):
 
         def test_4(self): pass
@@ -247,7 +247,7 @@ def test_order_mark_class(item_names_for):
     tests_content = """
     import pytest
 
-    @pytest.mark.run(order=-1)
+    @pytest.mark.order(-1)
     class TestLast(object):
 
         def test_1(self): pass
@@ -255,11 +255,11 @@ def test_order_mark_class(item_names_for):
         def test_2(self): pass
 
 
-    @pytest.mark.run(order=0)
+    @pytest.mark.order(0)
     def test_3(): pass
 
 
-    @pytest.mark.run(order=-2)
+    @pytest.mark.order(-2)
     class TestFirst(object):
 
         def test_4(self): pass
@@ -275,19 +275,19 @@ def test_run_ordinals(item_names_for):
     test_content = """
     import pytest
 
-    @pytest.mark.run('second_to_last')
+    @pytest.mark.order('second_to_last')
     def test_three():
         pass
 
-    @pytest.mark.run('last')
+    @pytest.mark.order('last')
     def test_four():
         pass
 
-    @pytest.mark.run('second')
+    @pytest.mark.order('second')
     def test_two():
         pass
 
-    @pytest.mark.run('first')
+    @pytest.mark.order('first')
     def test_one():
         pass
     """
@@ -328,14 +328,14 @@ def test_relative(item_names_for):
     test_content = """
     import pytest
 
-    @pytest.mark.run(after='test_second')
+    @pytest.mark.order(after='test_second')
     def test_third():
         pass
 
     def test_second():
         pass
 
-    @pytest.mark.run(before='test_second')
+    @pytest.mark.order(before='test_second')
     def test_first():
         pass
     """
@@ -347,21 +347,21 @@ def test_relative2(item_names_for):
     test_content = """
     import pytest
 
-    @pytest.mark.run(after='test_second')
+    @pytest.mark.order(after='test_second')
     def test_third():
         pass
 
     def test_second():
         pass
 
-    @pytest.mark.run(before='test_second')
+    @pytest.mark.order(before='test_second')
     def test_first():
         pass
 
     def test_five():
         pass
 
-    @pytest.mark.run(before='test_five')
+    @pytest.mark.order(before='test_five')
     def test_four():
         pass
 
@@ -375,21 +375,21 @@ def test_relative3(item_names_for):
     test_content = """
     import pytest
 
-    @pytest.mark.run(after='test_second')
+    @pytest.mark.order(after='test_second')
     def test_third():
         pass
 
     def test_second():
         pass
 
-    @pytest.mark.run(before='test_second')
+    @pytest.mark.order(before='test_second')
     def test_first():
         pass
 
     def test_five():
         pass
 
-    @pytest.mark.run(before='test_five')
+    @pytest.mark.order(before='test_five')
     def test_four():
         pass
 
@@ -403,14 +403,14 @@ def test_false_insert(item_names_for):
     test_content = """
     import pytest
 
-    @pytest.mark.run(after='test_a')
+    @pytest.mark.order(after='test_a')
     def test_third():
         pass
 
     def test_second():
         pass
 
-    @pytest.mark.run(before='test_b')
+    @pytest.mark.order(before='test_b')
     def test_first():
         pass
     """
@@ -421,7 +421,5 @@ def test_false_insert(item_names_for):
 def test_markers_registered(capsys):
     pytest.main(['--markers'])
     out, err = capsys.readouterr()
-    assert '@pytest.mark.run' in out
-    assert '@pytest.mark.first' in out
-    assert '@pytest.mark.last' in out
+    assert '@pytest.mark.order' in out
     assert out.count('Provided by pytest-ordering2') == 17
