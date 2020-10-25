@@ -7,6 +7,7 @@
 
 ### Infrastructure
 - added automatic documentation build on change 
+- add Python 3.9, pypy3 and pytest 6.0 and 6.1 to CI builds
 
 ## [Version 0.7.1](https://pypi.org/project/pytest-order/0.7.1/)
 Update after renaming the repository and the package.

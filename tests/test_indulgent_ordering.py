@@ -31,9 +31,11 @@ def test_me_first():
     out, err = capsys.readouterr()
     assert "..F" in out
     args.insert(0, "--ff")
-    pytest.main(args, [pytest_order])
-    out, err = capsys.readouterr()
-    assert "..F" in out
+    # pytest 6 seems to have changed the order plugins are executed
+    if int(pytest.__version__[:pytest.__version__.index('.')]) < 6:
+        pytest.main(args, [pytest_order])
+        out, err = capsys.readouterr()
+        assert "..F" in out
     args.insert(0, "--indulgent-ordering")
     pytest.main(args, [pytest_order])
     out, err = capsys.readouterr()

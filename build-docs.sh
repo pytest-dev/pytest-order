@@ -6,7 +6,7 @@
 # appears in the commit message.
 
 # only process after the last matrix build
-if [ "$TRAVIS_PYTHON_VERSION" != "pypy" ]; then
+if [ "$TRAVIS_PYTHON_VERSION" != "pypy3" ]; then
   echo "Not on last matrix build, skipping"
   exit 0
 fi
