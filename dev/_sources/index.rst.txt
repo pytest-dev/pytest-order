@@ -1,9 +1,10 @@
-pytest-order: run your tests in  order
-======================================
-pytest-order is a pytest plugin to run your tests in any order that
-you specify. It provides the marker ``order``, that defines when your tests
-should run in relation to each other. They can be absolute (i.e. first, or
-second-to-last) or relative (i.e. run this test before this other test).
+Introduction
+============
+``pytest-order`` is a pytest plugin which allows you to customize the order
+in which run your tests are run. It provides the marker ``order``, that has
+attributes that defines when your tests should run in relation to each other.
+These attributes can be absolute (i.e. first, or second-to-last) or relative
+(i.e. run this test before this other test).
 
 Relationship with pytest-ordering
 ---------------------------------
@@ -46,8 +47,8 @@ The latest master can be installed from the GitHub sources:
 
    pip install git+https://github.com/mrbean-bremen/pytest-order
 
-Quickstart
-----------
+Usage
+-----
 Ordinarily pytest will run tests in the order that they appear in a module.
 For example, for the following tests:
 
@@ -100,8 +101,10 @@ With pytest-order, you can change the default ordering as follows:
 
     =========================== 2 passed in 0.01 seconds ===========================
 
-This is a trivial example, but ordering is respected across test files.
-There are several possibilities to define the order.
+Usage Reference
+===============
+The above is a trivial example, but ordering is respected across test files.
+There are currently three possibilities to define the order:
 
 By number
 ---------
@@ -144,13 +147,14 @@ are used in Python lists, e.g. to count from the end:
 
     =========================== 4 passed in 0.02 seconds ===========================
 
+There is no limit for the numbers that can be used in this way.
 
 Ordinals
 --------
 
 You can also use markers such as "first", "second", "last", and
 "second_to_last". These are convenience notations, and have the same effect
-as the numbers 1, 2, -1 and -2 that have been shown above:
+as the numbers 0, 1, -1 and -2 that have been shown above:
 
 .. code:: python
 
@@ -187,9 +191,28 @@ as the numbers 1, 2, -1 and -2 that have been shown above:
 
     =========================== 4 passed in 0.02 seconds ===========================
 
+Convenience names are only defined for the first and the last 8 numbers, 
+here is the complete list with the corresponding numbers:
+
+- 'first': 0
+- 'second': 1
+- 'third': 2
+- 'fourth': 3
+- 'fifth': 4
+- 'sixth': 5
+- 'seventh': 6
+- 'eighth': 7
+- 'last': -1
+- 'second_to_last': -2
+- 'third_to_last': -3
+- 'fourth_to_last': -4
+- 'fifth_to_last': -5
+- 'sixth_to_last': -6
+- 'seventh_to_last': -7
+- 'eighth_to_last': -8
+
 Relative to other tests
 -----------------------
-
 The test order can be defined relative to other tests, which are referenced
 by their name:
 
@@ -222,9 +245,12 @@ by their name:
 
     =========================== 4 passed in 0.02 seconds ===========================
 
+Configuration
+=============
+Currently there is only one option that changes the behavior of the plugin.
+
 ``--indulgent-ordering`` and overriding ordering
 ------------------------------------------------
-
 You may sometimes find that you want to suggest an ordering of tests, while
 allowing it to be overridden for good reason. For example, if you run your test
 suite in parallel and have a number of tests which are particularly slow, it
@@ -237,7 +263,6 @@ pytest-order will override the ``--failed-first`` order, but by adding the
 ``--indulgent-ordering`` option, you can ask pytest to run the sort from
 pytest-order *before* the sort from ``--failed-first``, allowing the failed
 tests to be sorted to the front.
-
 
 
 .. toctree::
