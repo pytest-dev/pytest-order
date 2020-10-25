@@ -28,7 +28,7 @@ Here are examples for which markers correspond to markers in
 
 Supported Python and pytest versions
 ------------------------------------
-pytest-order supports python 2.7, 3.5 - 3.8, and pypy, and is
+pytest-order supports python 2.7, 3.5 - 3.9, and pypy/pypy3, and is
 compatible with pytest 3.6.0 or newer. Note that support for Python 2 will
 be removed in one of the next versions.
 
@@ -47,8 +47,8 @@ The latest master can be installed from the GitHub sources:
 
    pip install git+https://github.com/mrbean-bremen/pytest-order
 
-Overview
---------
+Quickstart
+----------
 Ordinarily pytest will run tests in the order that they appear in a module.
 For example, for the following tests:
 
