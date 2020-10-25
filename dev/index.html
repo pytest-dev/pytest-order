@@ -75,8 +75,8 @@ be removed in one of the next versions.</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
 <p>Ordinarily pytest will run tests in the order that they appear in a module.
 For example, for the following tests:</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_foo</span><span class="p">():</span>
@@ -124,12 +124,12 @@ test_foo.py:3: test_foo PASSED
 </div>
 </div>
 </div>
-<div class="section" id="usage-reference">
-<h1>Usage Reference<a class="headerlink" href="#usage-reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
 <p>The above is a trivial example, but ordering is respected across test files.
 There are currently three possibilities to define the order:</p>
-<div class="section" id="by-number">
-<h2>By number<a class="headerlink" href="#by-number" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="order-by-number">
+<h2>Order by number<a class="headerlink" href="#order-by-number" title="Permalink to this headline">¶</a></h2>
 <p>As already shown above, the order can be defined using ordinal numbers.
 Negative numbers are also allowed - they are used the same way as indexes
 are used in Python lists, e.g. to count from the end:</p>
@@ -168,8 +168,8 @@ test_foo.py:7: test_four PASSED
 </div>
 <p>There is no limit for the numbers that can be used in this way.</p>
 </div>
-<div class="section" id="ordinals">
-<h2>Ordinals<a class="headerlink" href="#ordinals" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="order-using-ordinals">
+<h2>Order using ordinals<a class="headerlink" href="#order-using-ordinals" title="Permalink to this headline">¶</a></h2>
 <p>You can also use markers such as “first”, “second”, “last”, and
 “second_to_last”. These are convenience notations, and have the same effect
 as the numbers 0, 1, -1 and -2 that have been shown above:</p>
@@ -227,8 +227,8 @@ here is the complete list with the corresponding numbers:</p>
 <li>‘eighth_to_last’: -8</li>
 </ul>
 </div>
-<div class="section" id="relative-to-other-tests">
-<h2>Relative to other tests<a class="headerlink" href="#relative-to-other-tests" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="order-relative-to-other-tests">
+<h2>Order relative to other tests<a class="headerlink" href="#order-relative-to-other-tests" title="Permalink to this headline">¶</a></h2>
 <p>The test order can be defined relative to other tests, which are referenced
 by their name:</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
@@ -294,13 +294,13 @@ tests to be sorted to the front.</p>
 <li><a class="reference internal" href="#relationship-with-pytest-ordering">Relationship with pytest-ordering</a></li>
 <li><a class="reference internal" href="#supported-python-and-pytest-versions">Supported Python and pytest versions</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
-<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#overview">Overview</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#usage-reference">Usage Reference</a><ul>
-<li><a class="reference internal" href="#by-number">By number</a></li>
-<li><a class="reference internal" href="#ordinals">Ordinals</a></li>
-<li><a class="reference internal" href="#relative-to-other-tests">Relative to other tests</a></li>
+<li><a class="reference internal" href="#usage">Usage</a><ul>
+<li><a class="reference internal" href="#order-by-number">Order by number</a></li>
+<li><a class="reference internal" href="#order-using-ordinals">Order using ordinals</a></li>
+<li><a class="reference internal" href="#order-relative-to-other-tests">Order relative to other tests</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#configuration">Configuration</a><ul>

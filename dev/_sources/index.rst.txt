@@ -47,8 +47,8 @@ The latest master can be installed from the GitHub sources:
 
    pip install git+https://github.com/mrbean-bremen/pytest-order
 
-Usage
------
+Overview
+--------
 Ordinarily pytest will run tests in the order that they appear in a module.
 For example, for the following tests:
 
@@ -101,13 +101,13 @@ With pytest-order, you can change the default ordering as follows:
 
     =========================== 2 passed in 0.01 seconds ===========================
 
-Usage Reference
-===============
+Usage
+=====
 The above is a trivial example, but ordering is respected across test files.
 There are currently three possibilities to define the order:
 
-By number
----------
+Order by number
+---------------
 As already shown above, the order can be defined using ordinal numbers.
 Negative numbers are also allowed - they are used the same way as indexes
 are used in Python lists, e.g. to count from the end:
@@ -149,8 +149,8 @@ are used in Python lists, e.g. to count from the end:
 
 There is no limit for the numbers that can be used in this way.
 
-Ordinals
---------
+Order using ordinals
+--------------------
 
 You can also use markers such as "first", "second", "last", and
 "second_to_last". These are convenience notations, and have the same effect
@@ -211,8 +211,8 @@ here is the complete list with the corresponding numbers:
 - 'seventh_to_last': -7
 - 'eighth_to_last': -8
 
-Relative to other tests
------------------------
+Order relative to other tests
+-----------------------------
 The test order can be defined relative to other tests, which are referenced
 by their name:
 
