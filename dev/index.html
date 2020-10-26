@@ -35,7 +35,7 @@
   <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> is a pytest plugin which allows you to customize the order
-in which run your tests are run. It provides the marker <code class="docutils literal notranslate"><span class="pre">order</span></code>, that has
+in which your tests are run. It provides the marker <code class="docutils literal notranslate"><span class="pre">order</span></code>, that has
 attributes that defines when your tests should run in relation to each other.
 These attributes can be absolute (i.e. first, or second-to-last) or relative
 (i.e. run this test before this other test).</p>
@@ -59,9 +59,12 @@ also avoids clashes between the plugins if they are both installed.</p>
 </div>
 <div class="section" id="supported-python-and-pytest-versions">
 <h2>Supported Python and pytest versions<a class="headerlink" href="#supported-python-and-pytest-versions" title="Permalink to this headline">¶</a></h2>
-<p>pytest-order supports python 2.7, 3.5 - 3.9, and pypy/pypy3, and is
+<p><code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> supports python 2.7, 3.5 - 3.9, and pypy/pypy3, and is
 compatible with pytest 3.6.0 or newer. Note that support for Python 2 will
 be removed in one of the next versions.</p>
+<p>All supported combinations of Python and pytest versions are tested in
+the CI builds. While these tests run under Linux, the plugin shall work
+under MacOs and Windows as well.</p>
 </div>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
@@ -86,7 +89,7 @@ For example, for the following tests:</p>
     <span class="k">assert</span> <span class="kc">True</span>
 </pre></div>
 </div>
-<p>Here is the output:</p>
+<p>the output is something like:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ py.test test_foo.py -vv
 ============================= test session starts ==============================
 platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
@@ -98,7 +101,7 @@ test_foo.py:6: test_bar PASSED
 =========================== 2 passed in 0.01 seconds ===========================
 </pre></div>
 </div>
-<p>With pytest-order, you can change the default ordering as follows:</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">pytest-order</span></code>, you can change the default ordering as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
@@ -110,6 +113,7 @@ test_foo.py:6: test_bar PASSED
     <span class="k">assert</span> <span class="kc">True</span>
 </pre></div>
 </div>
+<p>This will generate the output:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ py.test test_foo.py -vv
 ============================= test session starts ==============================
 platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
@@ -126,8 +130,15 @@ test_foo.py:3: test_foo PASSED
 </div>
 <div class="section" id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
-<p>The above is a trivial example, but ordering is respected across test files.
-There are currently three possibilities to define the order:</p>
+<p>The above is a trivial example, but ordering is respected across test files.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The scope of the ordering is always global, e.g. tests with lower ordinal
+numbers are always executed before tests with higher numbers, regardless of
+the module and class they reside in. This may be changed to be
+configurable in a later version.</p>
+</div>
+<p>There are currently three possibilities to define the order:</p>
 <div class="section" id="order-by-number">
 <h2>Order by number<a class="headerlink" href="#order-by-number" title="Permalink to this headline">¶</a></h2>
 <p>As already shown above, the order can be defined using ordinal numbers.
@@ -170,9 +181,9 @@ test_foo.py:7: test_four PASSED
 </div>
 <div class="section" id="order-using-ordinals">
 <h2>Order using ordinals<a class="headerlink" href="#order-using-ordinals" title="Permalink to this headline">¶</a></h2>
-<p>You can also use markers such as “first”, “second”, “last”, and
-“second_to_last”. These are convenience notations, and have the same effect
-as the numbers 0, 1, -1 and -2 that have been shown above:</p>
+<p>Instead of the numbers, you can use ordinal names such as “first”, “second”,
+“last”, and “second_to_last”. These are convenience notations, and have the
+same effect as the numbers 0, 1, -1 and -2 that have been shown above:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s1">&#39;second_to_last&#39;</span><span class="p">)</span>
@@ -206,8 +217,8 @@ test_foo.py:7: test_four PASSED
 =========================== 4 passed in 0.02 seconds ===========================
 </pre></div>
 </div>
-<p>Convenience names are only defined for the first and the last 8 numbers,
-here is the complete list with the corresponding numbers:</p>
+<p>Convenience names are only defined for the first and the last 8 numbers.
+Here is the complete list with the corresponding numbers:</p>
 <ul class="simple">
 <li><p>‘first’: 0</p></li>
 <li><p>‘second’: 1</p></li>
@@ -258,6 +269,13 @@ test_foo.py:4: test_third PASSED
 =========================== 4 passed in 0.02 seconds ===========================
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <a class="reference external" href="https://pypi.org/project/pytest-dependency/">pytest-dependency</a>
+plugin also manages dependencies between tests (skips tests that depend
+on skipped or failed tests), but doesn’t do any ordering. You can combine
+both plugins if you need both options.</p>
+</div>
 </div>
 </div>
 <div class="section" id="configuration">
@@ -269,14 +287,15 @@ test_foo.py:4: test_third PASSED
 allowing it to be overridden for good reason. For example, if you run your test
 suite in parallel and have a number of tests which are particularly slow, it
 might be desirable to start those tests running first, in order to optimize
-your completion time. You can use the pytest-order plugin to inform pytest
-of this.
-Now suppose you also want to prioritize tests which failed during the
+your completion time. You can use the <code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> plugin to inform pytest
+of this.</p>
+<p>Now suppose you also want to prioritize tests which failed during the
 previous run, by using the <code class="docutils literal notranslate"><span class="pre">--failed-first</span></code> option. By default,
 pytest-order will override the <code class="docutils literal notranslate"><span class="pre">--failed-first</span></code> order, but by adding the
 <code class="docutils literal notranslate"><span class="pre">--indulgent-ordering</span></code> option, you can ask pytest to run the sort from
 pytest-order <em>before</em> the sort from <code class="docutils literal notranslate"><span class="pre">--failed-first</span></code>, allowing the failed
-tests to be sorted to the front.</p>
+tests to be sorted to the front (note that in pytest versions from 6.0 on,
+this seems not to be needed anymore, at least in this specific case).</p>
 <div class="toctree-wrapper compound">
 </div>
 </div>
