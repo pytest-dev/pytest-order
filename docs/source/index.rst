@@ -1,7 +1,7 @@
 Introduction
 ============
 ``pytest-order`` is a pytest plugin which allows you to customize the order
-in which run your tests are run. It provides the marker ``order``, that has
+in which your tests are run. It provides the marker ``order``, that has
 attributes that defines when your tests should run in relation to each other.
 These attributes can be absolute (i.e. first, or second-to-last) or relative
 (i.e. run this test before this other test).
@@ -28,9 +28,13 @@ Here are examples for which markers correspond to markers in
 
 Supported Python and pytest versions
 ------------------------------------
-pytest-order supports python 2.7, 3.5 - 3.9, and pypy/pypy3, and is
+``pytest-order`` supports python 2.7, 3.5 - 3.9, and pypy/pypy3, and is
 compatible with pytest 3.6.0 or newer. Note that support for Python 2 will
 be removed in one of the next versions.
+
+All supported combinations of Python and pytest versions are tested in
+the CI builds. While these tests run under Linux, the plugin shall work
+under MacOs and Windows as well.
 
 Installation
 ------------
@@ -60,7 +64,7 @@ For example, for the following tests:
  def test_bar():
      assert True
 
-Here is the output:
+the output is something like:
 
 ::
 
@@ -74,7 +78,7 @@ Here is the output:
 
     =========================== 2 passed in 0.01 seconds ===========================
 
-With pytest-order, you can change the default ordering as follows:
+With ``pytest-order``, you can change the default ordering as follows:
 
 .. code:: python
 
@@ -87,6 +91,8 @@ With pytest-order, you can change the default ordering as follows:
  @pytest.mark.order(1)
  def test_bar():
      assert True
+
+This will generate the output:
 
 ::
 
@@ -104,6 +110,13 @@ With pytest-order, you can change the default ordering as follows:
 Usage
 =====
 The above is a trivial example, but ordering is respected across test files.
+
+.. note ::
+    The scope of the ordering is always global, e.g. tests with lower ordinal
+    numbers are always executed before tests with higher numbers, regardless of
+    the module and class they reside in. This may be changed to be
+    configurable in a later version.
+
 There are currently three possibilities to define the order:
 
 Order by number
@@ -152,9 +165,9 @@ There is no limit for the numbers that can be used in this way.
 Order using ordinals
 --------------------
 
-You can also use markers such as "first", "second", "last", and
-"second_to_last". These are convenience notations, and have the same effect
-as the numbers 0, 1, -1 and -2 that have been shown above:
+Instead of the numbers, you can use ordinal names such as "first", "second",
+"last", and "second_to_last". These are convenience notations, and have the
+same effect as the numbers 0, 1, -1 and -2 that have been shown above:
 
 .. code:: python
 
@@ -191,8 +204,8 @@ as the numbers 0, 1, -1 and -2 that have been shown above:
 
     =========================== 4 passed in 0.02 seconds ===========================
 
-Convenience names are only defined for the first and the last 8 numbers, 
-here is the complete list with the corresponding numbers:
+Convenience names are only defined for the first and the last 8 numbers.
+Here is the complete list with the corresponding numbers:
 
 - 'first': 0
 - 'second': 1
@@ -245,6 +258,12 @@ by their name:
 
     =========================== 4 passed in 0.02 seconds ===========================
 
+.. note::
+   The `pytest-dependency <https://pypi.org/project/pytest-dependency/>`__
+   plugin also manages dependencies between tests (skips tests that depend
+   on skipped or failed tests), but doesn't do any ordering. You can combine
+   both plugins if you need both options.
+
 Configuration
 =============
 Currently there is only one option that changes the behavior of the plugin.
@@ -255,18 +274,19 @@ You may sometimes find that you want to suggest an ordering of tests, while
 allowing it to be overridden for good reason. For example, if you run your test
 suite in parallel and have a number of tests which are particularly slow, it
 might be desirable to start those tests running first, in order to optimize
-your completion time. You can use the pytest-order plugin to inform pytest
+your completion time. You can use the ``pytest-order`` plugin to inform pytest
 of this.
+
 Now suppose you also want to prioritize tests which failed during the
 previous run, by using the ``--failed-first`` option. By default,
 pytest-order will override the ``--failed-first`` order, but by adding the
 ``--indulgent-ordering`` option, you can ask pytest to run the sort from
 pytest-order *before* the sort from ``--failed-first``, allowing the failed
-tests to be sorted to the front.
+tests to be sorted to the front (note that in pytest versions from 6.0 on,
+this seems not to be needed anymore, at least in this specific case).
 
 
 .. toctree::
    :maxdepth: 2
 
 .. _markers: https://pytest.org/latest/mark.html
-

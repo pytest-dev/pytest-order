@@ -1,21 +1,21 @@
 pytest-order [![PyPI version](https://badge.fury.io/py/pytest-order.svg)](https://badge.fury.io/py/pytest-order) [![Build Status](https://travis-ci.org/mrbean-bremen/pytest-order.svg?branch=master)](https://travis-ci.org/mrbean-bremen/pytest-order) [![Python version](https://img.shields.io/pypi/pyversions/pytest-order.svg)](https://img.shields.io/pypi/pyversions/pytest-order.svg)
 ============
+`pytest-order` is a pytest plugin that allows you to customize the order in which
+your tests are run. It uses the marker `order` that defines when a specific
+test shall be run relative to the other tests.  
+
 This is a fork of [pytest-ordering](https://github.com/ftobia/pytest-ordering).
 That project is not maintained anymore, and there are several helpful PRs
-waiting for merge. Therefore I decided to create this fork that tries to
-combine the original code with most of the provided PRs.   
-My hope is that the original project will be moved to the pytest
-organization as outlined in 
-[this issue](https://github.com/ftobia/pytest-ordering/issues/32). When this
-happens, this fork will be obsolete. 
+that are now integrated into `pytest-order`. The idea and most of the code
+has been created by Frank Tobia, the author of that plugin. In case 
+`pytest-ordering` is revived, this project will be obsolete. 
 
-_Note:_ ``pytest-order`` is not compatible with ``pytest-ordering`` due to the
-changed marker name (``order`` instead of ``run``). Only the ``order`` 
+_Note:_ `pytest-order` is not compatible with `pytest-ordering` due to the
+changed marker name (`order` instead of `run`). Only the `order` 
 marker is supported, support for all additional markers has been removed for
 consistence (see [this issue](https://github.com/ftobia/pytest-ordering/issues/38)).
 
-
-pytest-order is a pytest plugin to run your tests in a specific order.
+_From the original project:_
 
 Have you ever wanted to easily run one of your tests before any others run?
 Or run some tests last? Or run this one test before that other test? Or
@@ -56,6 +56,6 @@ yields the output:
     =========================== 2 passed in 0.01 seconds ===========================
 
 More information can be found in the documentation:
-  - for the [latest release](https://mrbean-bremen.github.io/pytest-order/stable/)
-  - for the [current master](https://mrbean-bremen.github.io/pytest-order/dev/)
-  
+- for the [latest release](https://mrbean-bremen.github.io/pytest-order/stable/)
+- for the [current master](https://mrbean-bremen.github.io/pytest-order/dev/)
+
