@@ -33,8 +33,7 @@ compatible with pytest 3.6.0 or newer. Note that support for Python 2 will
 be removed in one of the next versions.
 
 All supported combinations of Python and pytest versions are tested in
-the CI builds. While these tests run under Linux, the plugin shall work
-under MacOs and Windows as well.
+the CI builds. The plugin shall work under Linux, MacOs and Windows.
 
 Installation
 ------------

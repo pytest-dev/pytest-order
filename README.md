@@ -15,6 +15,10 @@ changed marker name (`order` instead of `run`). Only the `order`
 marker is supported, support for all additional markers has been removed for
 consistence (see [this issue](https://github.com/ftobia/pytest-ordering/issues/38)).
 
+More information can be found in the documentation:
+- for the [latest release](https://mrbean-bremen.github.io/pytest-order/stable/)
+- for the [current master](https://mrbean-bremen.github.io/pytest-order/dev/)
+
 _From the original project:_
 
 Have you ever wanted to easily run one of your tests before any others run?
@@ -54,8 +58,3 @@ yields the output:
     test_foo.py:3: test_foo PASSED
 
     =========================== 2 passed in 0.01 seconds ===========================
-
-More information can be found in the documentation:
-- for the [latest release](https://mrbean-bremen.github.io/pytest-order/stable/)
-- for the [current master](https://mrbean-bremen.github.io/pytest-order/dev/)
-

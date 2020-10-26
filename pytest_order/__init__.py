@@ -6,7 +6,7 @@ from warnings import warn
 
 import pytest
 
-from ._version import __version__
+from ._version import __version__  # noqa: F401
 
 orders_map = {
     'first': 0,
@@ -64,10 +64,10 @@ def pytest_addoption(parser):
     """Set up CLI option for pytest"""
     group = parser.getgroup('ordering')
     group.addoption('--indulgent-ordering', action='store_true',
-                    dest='indulgent-ordering', help=
-                    'Request that the sort order provided by pytest-order '
-                    'be applied before other sorting, allowing the '
-                    'other sorting to have priority')
+                    dest='indulgent-ordering',
+                    help='Request that the sort order provided by '
+                         'pytest-order be applied before other sorting, '
+                         'allowing the other sorting to have priority')
 
 
 class OrderingPlugin(object):
