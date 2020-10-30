@@ -1,6 +1,8 @@
 # pytest-order Release Notes
 
-## Unreleased
+## [Version 0.8.0](https://pypi.org/project/pytest-order/0.8.0/)
+This release is mostly related to the consolidation of infrastructure
+(documentation build and tests in CI build) and documentation.  
 
 ### Fixes
 - fixed the handling of unknown marker attributes (test had been skipped)
