@@ -5,13 +5,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Introduction &#8212; pytest-order 0.8.0 documentation</title>
+    <title>Introduction &#8212; pytest-order 0.8.0dev documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.8.0',
+        VERSION:     '0.8.0dev',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true,
@@ -31,7 +31,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="#">pytest-order 0.8.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pytest-order 0.8.0dev documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -288,8 +288,8 @@ both plugins if you need both options.</p>
 <div class="section" id="configuration">
 <h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
 <p>Currently there is only one option that changes the behavior of the plugin.</p>
-<div class="section" id="indulgent-ordering-and-overriding-ordering">
-<h2><code class="docutils literal"><span class="pre">--indulgent-ordering</span></code> and overriding ordering<a class="headerlink" href="#indulgent-ordering-and-overriding-ordering" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="indulgent-ordering">
+<h2><code class="docutils literal"><span class="pre">--indulgent-ordering</span></code><a class="headerlink" href="#indulgent-ordering" title="Permalink to this headline">¶</a></h2>
 <p>You may sometimes find that you want to suggest an ordering of tests, while
 allowing it to be overridden for good reason. For example, if you run your test
 suite in parallel and have a number of tests which are particularly slow, it
@@ -303,6 +303,19 @@ pytest-order will override the <code class="docutils literal"><span class="pre">
 pytest-order <em>before</em> the sort from <code class="docutils literal"><span class="pre">--failed-first</span></code>, allowing the failed
 tests to be sorted to the front (note that in pytest versions from 6.0 on,
 this seems not to be needed anymore, at least in this specific case).</p>
+</div>
+</div>
+<div class="section" id="miscellaneous">
+<h1>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="usage-with-pytest-xdist">
+<h2>Usage with pytest-xdist<a class="headerlink" href="#usage-with-pytest-xdist" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">pytest-xdist</span></code> plugin schedules tests unordered, and the order
+configured by <code class="docutils literal"><span class="pre">pytest-order</span></code> will normally not be preserved. But
+if we use the <code class="docutils literal"><span class="pre">--dist=loadfile</span></code> option, provided by <code class="docutils literal"><span class="pre">xdist</span></code>, all tests
+from one file will be run in the same thread. So, to make the two plugins work
+together, we have to put each group of dependent tests in one file, and call
+pytest with <code class="docutils literal"><span class="pre">--dist=loadfile</span></code> (this is taken from
+<a class="reference external" href="https://github.com/ftobia/pytest-ordering/issues/36">this issue</a>).</p>
 <div class="toctree-wrapper compound">
 </div>
 </div>
@@ -330,7 +343,11 @@ this seems not to be needed anymore, at least in this specific case).</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#configuration">Configuration</a><ul>
-<li><a class="reference internal" href="#indulgent-ordering-and-overriding-ordering"><code class="docutils literal"><span class="pre">--indulgent-ordering</span></code> and overriding ordering</a></li>
+<li><a class="reference internal" href="#indulgent-ordering"><code class="docutils literal"><span class="pre">--indulgent-ordering</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#miscellaneous">Miscellaneous</a><ul>
+<li><a class="reference internal" href="#usage-with-pytest-xdist">Usage with pytest-xdist</a></li>
 </ul>
 </li>
 </ul>
@@ -362,7 +379,7 @@ this seems not to be needed anymore, at least in this specific case).</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="#">pytest-order 0.8.0 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="#">pytest-order 0.8.0dev documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
