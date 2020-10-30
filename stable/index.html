@@ -5,16 +5,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pytest-order: run your tests in order &#8212; pytest-order 0.7.1 documentation</title>
-    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <title>Introduction &#8212; pytest-order 0.8.0 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script src="_static/language_data.js"></script>
-    
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" /> 
   </head><body>
@@ -24,8 +22,8 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="#">pytest-order 0.7.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pytest-order: run your tests in  order</a></li> 
+        <li class="nav-item nav-item-0"><a href="#">pytest-order 0.8.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Introduction</a></li> 
       </ul>
     </div>  
 
@@ -34,16 +32,50 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="pytest-order-run-your-tests-in-order">
-<h1>pytest-order: run your tests in  order<a class="headerlink" href="#pytest-order-run-your-tests-in-order" title="Permalink to this headline">¶</a></h1>
-<p>pytest-order is a pytest plugin to run your tests in any order that
-you specify. It provides the marker <code class="docutils literal notranslate"><span class="pre">order</span></code>, that defines when your tests
-should run in relation to each other. They can be absolute (i.e. first, or
-second-to-last) or relative (i.e. run this test before this other test).</p>
+  <div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> is a pytest plugin which allows you to customize the order
+in which your tests are run. It provides the marker <code class="docutils literal notranslate"><span class="pre">order</span></code>, that has
+attributes that defines when your tests should run in relation to each other.
+These attributes can be absolute (i.e. first, or second-to-last) or relative
+(i.e. run this test before this other test).</p>
+<div class="section" id="relationship-with-pytest-ordering">
+<h2>Relationship with pytest-ordering<a class="headerlink" href="#relationship-with-pytest-ordering" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> is a fork of
+<a class="reference external" href="https://github.com/ftobia/pytest-ordering">pytest-ordering</a>, which is
+not maintained anymore. The idea and most of the code has been created by
+Frank Tobia, the author of that plugin.</p>
+<p>However, <code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> is not compatible with <code class="docutils literal notranslate"><span class="pre">pytest-ordering</span></code> due to the
+changed marker name (<code class="docutils literal notranslate"><span class="pre">order</span></code> instead of <code class="docutils literal notranslate"><span class="pre">run</span></code>) and the removal of all
+other special markers for consistence (see
+<a class="reference external" href="https://github.com/ftobia/pytest-ordering/issues/38">this issue</a>). This
+also avoids clashes between the plugins if they are both installed.</p>
+<p>Here are examples for which markers correspond to markers in
+<code class="docutils literal notranslate"><span class="pre">pytest-ordering</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pytest.mark.order1</span></code>, <code class="docutils literal notranslate"><span class="pre">pytest.mark.run(order=1)</span></code> =&gt; <code class="docutils literal notranslate"><span class="pre">pytest.mark.order(1)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pytest.mark.first</span></code> =&gt; <code class="docutils literal notranslate"><span class="pre">pytest.mark.order(&quot;first&quot;)</span></code></p></li>
+</ul>
+</div>
 <div class="section" id="supported-python-and-pytest-versions">
 <h2>Supported Python and pytest versions<a class="headerlink" href="#supported-python-and-pytest-versions" title="Permalink to this headline">¶</a></h2>
-<p>pytest-order supports python 2.7, 3.5 - 3.8, and pypy, and is
-compatible with pytest 3.6.0 or newer.</p>
+<p><code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> supports python 2.7, 3.5 - 3.9, and pypy/pypy3, and is
+compatible with pytest 3.6.0 or newer. Note that support for Python 2 will
+be removed in one of the next versions.</p>
+<p>All supported combinations of Python and pytest versions are tested in
+the CI builds. The plugin shall work under Linux, MacOs and Windows.</p>
+</div>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>The latest released version can be installed from
+<a class="reference external" href="https://pypi.python.org/pypi/pytest-order/">PyPi</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install pytest-order
+</pre></div>
+</div>
+<p>The latest master can be installed from the GitHub sources:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install git+https://github.com/mrbean-bremen/pytest-order
+</pre></div>
+</div>
 </div>
 <div class="section" id="quickstart">
 <h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h2>
@@ -56,10 +88,10 @@ For example, for the following tests:</p>
     <span class="k">assert</span> <span class="kc">True</span>
 </pre></div>
 </div>
-<p>Here is the output:</p>
+<p>the output is something like:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ py.test test_foo.py -vv
 ============================= test session starts ==============================
-platform darwin -- Python 2.7.5 -- py-1.4.20 -- pytest-2.5.2 -- env/bin/python
+platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
 collected 2 items
 
 test_foo.py:2: test_foo PASSED
@@ -68,7 +100,7 @@ test_foo.py:6: test_bar PASSED
 =========================== 2 passed in 0.01 seconds ===========================
 </pre></div>
 </div>
-<p>With pytest-order, you can change the default ordering as follows:</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">pytest-order</span></code>, you can change the default ordering as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
@@ -80,10 +112,11 @@ test_foo.py:6: test_bar PASSED
     <span class="k">assert</span> <span class="kc">True</span>
 </pre></div>
 </div>
+<p>This will generate the output:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ py.test test_foo.py -vv
 ============================= test session starts ==============================
-platform darwin -- Python 2.7.5 -- py-1.4.20 -- pytest-2.5.2 -- env/bin/python
-plugins: ordering
+platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
+plugins: order
 collected 2 items
 
 test_foo.py:7: test_bar PASSED
@@ -92,11 +125,21 @@ test_foo.py:3: test_foo PASSED
 =========================== 2 passed in 0.01 seconds ===========================
 </pre></div>
 </div>
-<p>This is a trivial example, but ordering is respected across test files.
-There are several possibilities to define the order.</p>
 </div>
-<div class="section" id="by-number">
-<h2>By number<a class="headerlink" href="#by-number" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<p>The above is a trivial example, but ordering is respected across test files.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The scope of the ordering is always global, e.g. tests with lower ordinal
+numbers are always executed before tests with higher numbers, regardless of
+the module and class they reside in. This may be changed to be
+configurable in a later version.</p>
+</div>
+<p>There are currently three possibilities to define the order:</p>
+<div class="section" id="order-by-number">
+<h2>Order by number<a class="headerlink" href="#order-by-number" title="Permalink to this headline">¶</a></h2>
 <p>As already shown above, the order can be defined using ordinal numbers.
 Negative numbers are also allowed - they are used the same way as indexes
 are used in Python lists, e.g. to count from the end:</p>
@@ -121,8 +164,8 @@ are used in Python lists, e.g. to count from the end:</p>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ py.test test_foo.py -vv
 ============================= test session starts ==============================
-platform darwin -- Python 2.7.5 -- py-1.4.20 -- pytest-2.5.2 -- env/bin/python
-plugins: ordering
+platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
+plugins: order
 collected 4 items
 
 test_foo.py:17: test_one PASSED
@@ -133,12 +176,13 @@ test_foo.py:7: test_four PASSED
 =========================== 4 passed in 0.02 seconds ===========================
 </pre></div>
 </div>
+<p>There is no limit for the numbers that can be used in this way.</p>
 </div>
-<div class="section" id="ordinals">
-<h2>Ordinals<a class="headerlink" href="#ordinals" title="Permalink to this headline">¶</a></h2>
-<p>You can also use markers such as “first”, “second”, “last”, and
-“second_to_last”. These are convenience notations, and have the same effect
-as the numbers 1, 2, -1 and -2 that have been shown above:</p>
+<div class="section" id="order-using-ordinals">
+<h2>Order using ordinals<a class="headerlink" href="#order-using-ordinals" title="Permalink to this headline">¶</a></h2>
+<p>Instead of the numbers, you can use ordinal names such as “first”, “second”,
+“last”, and “second_to_last”. These are convenience notations, and have the
+same effect as the numbers 0, 1, -1 and -2 that have been shown above:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s1">&#39;second_to_last&#39;</span><span class="p">)</span>
@@ -160,8 +204,8 @@ as the numbers 1, 2, -1 and -2 that have been shown above:</p>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ py.test test_foo.py -vv
 ============================= test session starts ==============================
-platform darwin -- Python 2.7.5 -- py-1.4.20 -- pytest-2.5.2 -- env/bin/python
-plugins: ordering
+platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
+plugins: order
 collected 4 items
 
 test_foo.py:17: test_one PASSED
@@ -172,9 +216,29 @@ test_foo.py:7: test_four PASSED
 =========================== 4 passed in 0.02 seconds ===========================
 </pre></div>
 </div>
+<p>Convenience names are only defined for the first and the last 8 numbers.
+Here is the complete list with the corresponding numbers:</p>
+<ul class="simple">
+<li><p>‘first’: 0</p></li>
+<li><p>‘second’: 1</p></li>
+<li><p>‘third’: 2</p></li>
+<li><p>‘fourth’: 3</p></li>
+<li><p>‘fifth’: 4</p></li>
+<li><p>‘sixth’: 5</p></li>
+<li><p>‘seventh’: 6</p></li>
+<li><p>‘eighth’: 7</p></li>
+<li><p>‘last’: -1</p></li>
+<li><p>‘second_to_last’: -2</p></li>
+<li><p>‘third_to_last’: -3</p></li>
+<li><p>‘fourth_to_last’: -4</p></li>
+<li><p>‘fifth_to_last’: -5</p></li>
+<li><p>‘sixth_to_last’: -6</p></li>
+<li><p>‘seventh_to_last’: -7</p></li>
+<li><p>‘eighth_to_last’: -8</p></li>
+</ul>
 </div>
-<div class="section" id="relative-to-other-tests">
-<h2>Relative to other tests<a class="headerlink" href="#relative-to-other-tests" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="order-relative-to-other-tests">
+<h2>Order relative to other tests<a class="headerlink" href="#order-relative-to-other-tests" title="Permalink to this headline">¶</a></h2>
 <p>The test order can be defined relative to other tests, which are referenced
 by their name:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
@@ -193,8 +257,8 @@ by their name:</p>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ py.test test_foo.py -vv
 ============================= test session starts ==============================
-platform darwin -- Python 2.7.5 -- py-1.4.20 -- pytest-2.5.2 -- env/bin/python
-plugins: ordering
+platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
+plugins: order
 collected 3 items
 
 test_foo.py:11: test_first PASSED
@@ -204,21 +268,46 @@ test_foo.py:4: test_third PASSED
 =========================== 4 passed in 0.02 seconds ===========================
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <a class="reference external" href="https://pypi.org/project/pytest-dependency/">pytest-dependency</a>
+plugin also manages dependencies between tests (skips tests that depend
+on skipped or failed tests), but doesn’t do any ordering. You can combine
+both plugins if you need both options.</p>
 </div>
-<div class="section" id="indulgent-ordering-and-overriding-ordering">
-<h2><code class="docutils literal notranslate"><span class="pre">--indulgent-ordering</span></code> and overriding ordering<a class="headerlink" href="#indulgent-ordering-and-overriding-ordering" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+<div class="section" id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
+<p>Currently there is only one option that changes the behavior of the plugin.</p>
+<div class="section" id="indulgent-ordering">
+<h2><code class="docutils literal notranslate"><span class="pre">--indulgent-ordering</span></code><a class="headerlink" href="#indulgent-ordering" title="Permalink to this headline">¶</a></h2>
 <p>You may sometimes find that you want to suggest an ordering of tests, while
 allowing it to be overridden for good reason. For example, if you run your test
 suite in parallel and have a number of tests which are particularly slow, it
 might be desirable to start those tests running first, in order to optimize
-your completion time. You can use the pytest-order plugin to inform pytest
-of this.
-Now suppose you also want to prioritize tests which failed during the
+your completion time. You can use the <code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> plugin to inform pytest
+of this.</p>
+<p>Now suppose you also want to prioritize tests which failed during the
 previous run, by using the <code class="docutils literal notranslate"><span class="pre">--failed-first</span></code> option. By default,
 pytest-order will override the <code class="docutils literal notranslate"><span class="pre">--failed-first</span></code> order, but by adding the
 <code class="docutils literal notranslate"><span class="pre">--indulgent-ordering</span></code> option, you can ask pytest to run the sort from
 pytest-order <em>before</em> the sort from <code class="docutils literal notranslate"><span class="pre">--failed-first</span></code>, allowing the failed
-tests to be sorted to the front.</p>
+tests to be sorted to the front (note that in pytest versions from 6.0 on,
+this seems not to be needed anymore, at least in this specific case).</p>
+</div>
+</div>
+<div class="section" id="miscellaneous">
+<h1>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="usage-with-pytest-xdist">
+<h2>Usage with pytest-xdist<a class="headerlink" href="#usage-with-pytest-xdist" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">pytest-xdist</span></code> plugin schedules tests unordered, and the order
+configured by <code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> will normally not be preserved. But
+if we use the <code class="docutils literal notranslate"><span class="pre">--dist=loadfile</span></code> option, provided by <code class="docutils literal notranslate"><span class="pre">xdist</span></code>, all tests
+from one file will be run in the same thread. So, to make the two plugins work
+together, we have to put each group of dependent tests in one file, and call
+pytest with <code class="docutils literal notranslate"><span class="pre">--dist=loadfile</span></code> (this is taken from
+<a class="reference external" href="https://github.com/ftobia/pytest-ordering/issues/36">this issue</a>).</p>
 <div class="toctree-wrapper compound">
 </div>
 </div>
@@ -233,13 +322,25 @@ tests to be sorted to the front.</p>
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">pytest-order: run your tests in  order</a><ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#relationship-with-pytest-ordering">Relationship with pytest-ordering</a></li>
 <li><a class="reference internal" href="#supported-python-and-pytest-versions">Supported Python and pytest versions</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#quickstart">Quickstart</a></li>
-<li><a class="reference internal" href="#by-number">By number</a></li>
-<li><a class="reference internal" href="#ordinals">Ordinals</a></li>
-<li><a class="reference internal" href="#relative-to-other-tests">Relative to other tests</a></li>
-<li><a class="reference internal" href="#indulgent-ordering-and-overriding-ordering"><code class="docutils literal notranslate"><span class="pre">--indulgent-ordering</span></code> and overriding ordering</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#usage">Usage</a><ul>
+<li><a class="reference internal" href="#order-by-number">Order by number</a></li>
+<li><a class="reference internal" href="#order-using-ordinals">Order using ordinals</a></li>
+<li><a class="reference internal" href="#order-relative-to-other-tests">Order relative to other tests</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#configuration">Configuration</a><ul>
+<li><a class="reference internal" href="#indulgent-ordering"><code class="docutils literal notranslate"><span class="pre">--indulgent-ordering</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#miscellaneous">Miscellaneous</a><ul>
+<li><a class="reference internal" href="#usage-with-pytest-xdist">Usage with pytest-xdist</a></li>
 </ul>
 </li>
 </ul>
@@ -271,8 +372,8 @@ tests to be sorted to the front.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="#">pytest-order 0.7.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">pytest-order: run your tests in  order</a></li> 
+        <li class="nav-item nav-item-0"><a href="#">pytest-order 0.8.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Introduction</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
