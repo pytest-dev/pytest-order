@@ -267,8 +267,8 @@ Configuration
 =============
 Currently there is only one option that changes the behavior of the plugin.
 
-``--indulgent-ordering`` and overriding ordering
-------------------------------------------------
+``--indulgent-ordering``
+------------------------
 You may sometimes find that you want to suggest an ordering of tests, while
 allowing it to be overridden for good reason. For example, if you run your test
 suite in parallel and have a number of tests which are particularly slow, it
@@ -283,6 +283,19 @@ pytest-order will override the ``--failed-first`` order, but by adding the
 pytest-order *before* the sort from ``--failed-first``, allowing the failed
 tests to be sorted to the front (note that in pytest versions from 6.0 on,
 this seems not to be needed anymore, at least in this specific case).
+
+Miscellaneous
+=============
+
+Usage with pytest-xdist
+-----------------------
+The ``pytest-xdist`` plugin schedules tests unordered, and the order
+configured by ``pytest-order`` will normally not be preserved. But
+if we use the ``--dist=loadfile`` option, provided by ``xdist``, all tests
+from one file will be run in the same thread. So, to make the two plugins work
+together, we have to put each group of dependent tests in one file, and call
+pytest with ``--dist=loadfile`` (this is taken from
+`this issue <https://github.com/ftobia/pytest-ordering/issues/36>`__).
 
 
 .. toctree::
