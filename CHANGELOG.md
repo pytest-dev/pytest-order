@@ -7,16 +7,16 @@
 
 ### Infrastructure
 - added automatic documentation build on change 
-- add Python 3.9, pypy3 and pytest 6.0 and 6.1 to CI builds
-- use GitHub Actions for builds, add Windows builds
-- add regression test for ``pytest-xdist`` 
+- added Python 3.9, pypy3 and pytest 6.0 and 6.1 to CI builds
+- use GitHub Actions for CI builds to speed them up, added Windows CI builds
+- added regression test for ``pytest-xdist`` 
   (imported from [PR #52](https://github.com/ftobia/pytest-ordering/pull/52))
 
 ## [Version 0.7.1](https://pypi.org/project/pytest-order/0.7.1/)
 Update after renaming the repository and the package.
 
 ### Changes
-- renamed repository and package from ``pytest-orderin2`` to ``pytest-order``
+- renamed repository and package from ``pytest-ordering2`` to ``pytest-order``
 - changed the used marker from ``run`` to ``order``, removed all additional
   markers (see [#38](https://github.com/ftobia/pytest-ordering/issues/38))
   
