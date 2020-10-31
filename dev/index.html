@@ -149,7 +149,7 @@ configurable in a later version.</p>
 <div class="section" id="order-by-number">
 <h2>Order by number<a class="headerlink" href="#order-by-number" title="Permalink to this headline">¶</a></h2>
 <p>As already shown above, the order can be defined using ordinal numbers.
-Negative numbers are also allowed - they are used the same way as indexes
+Negative numbers are also allowed–they are used the same way as indexes
 are used in Python lists, e.g. to count from the end:</p>
 <div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
@@ -287,7 +287,9 @@ both plugins if you need both options.</p>
 </div>
 <div class="section" id="configuration">
 <h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
-<p>Currently there is only one option that changes the behavior of the plugin.</p>
+<p>Currently there are two command line option that change the behavior of the
+plugin. As for any option, you can add the options to your <code class="docutils literal"><span class="pre">pytest.ini</span></code> if
+you want to have them always applied.</p>
 <div class="section" id="indulgent-ordering">
 <h2><code class="docutils literal"><span class="pre">--indulgent-ordering</span></code><a class="headerlink" href="#indulgent-ordering" title="Permalink to this headline">¶</a></h2>
 <p>You may sometimes find that you want to suggest an ordering of tests, while
@@ -303,6 +305,23 @@ pytest-order will override the <code class="docutils literal"><span class="pre">
 pytest-order <em>before</em> the sort from <code class="docutils literal"><span class="pre">--failed-first</span></code>, allowing the failed
 tests to be sorted to the front (note that in pytest versions from 6.0 on,
 this seems not to be needed anymore, at least in this specific case).</p>
+</div>
+<div class="section" id="order-scope">
+<h2><code class="docutils literal"><span class="pre">--order-scope</span></code><a class="headerlink" href="#order-scope" title="Permalink to this headline">¶</a></h2>
+<p>By default, tests are ordered per session, e.g. across all modules in the
+test run. Sometimes, you want to order tests per module or per test class
+instead. Consider that you have a growing number of test modules that you
+want to run simultaneously, with tests ordered per module. Per default you
+would need to make sure that the order numbers increases globally, if you
+want to run the test modules consecutively and order the test per module.</p>
+<p>If you use the option <code class="docutils literal"><span class="pre">--order-scope=module</span></code>, there is no need for this.
+You can enumerate your tests starting with 0 or 1 in each module, and the tests
+will only be ordered inside each module. Using <code class="docutils literal"><span class="pre">--order-scope=class</span></code>
+additionally considers test classes–each test class is considered
+separately for ordering the tests. If a module has both test classes and
+separate test functions, these test functions are handled separately from the
+test classes. If a module has no test classes, the effect is the same as
+if using <code class="docutils literal"><span class="pre">--order-scope=module</span></code>.</p>
 </div>
 </div>
 <div class="section" id="miscellaneous">
@@ -344,6 +363,7 @@ pytest with <code class="docutils literal"><span class="pre">--dist=loadfile</sp
 </li>
 <li><a class="reference internal" href="#configuration">Configuration</a><ul>
 <li><a class="reference internal" href="#indulgent-ordering"><code class="docutils literal"><span class="pre">--indulgent-ordering</span></code></a></li>
+<li><a class="reference internal" href="#order-scope"><code class="docutils literal"><span class="pre">--order-scope</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#miscellaneous">Miscellaneous</a><ul>
