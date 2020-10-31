@@ -27,36 +27,36 @@ from pytest_order import __version__  # noqa: E402
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-# needs_sphinx = '1.0'
+# needs_sphinx = "1.0"
 
 # Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
+# extensions coming with Sphinx (named "sphinx.ext.*") or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.coverage',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages',  # puts .nojekyll file into source
+    "sphinx.ext.autodoc",
+    "sphinx.ext.doctest",
+    "sphinx.ext.coverage",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.githubpages",  # puts .nojekyll file into source
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = ".rst"
 
 # The encoding of source files.
-# source_encoding = 'utf-8-sig'
+# source_encoding = "utf-8-sig"
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # General information about the project.
-project = u'pytest-order'
-copyright = u'2014, Frank Tobia'
+project = u"pytest-order"
+copyright = u"2014, Frank Tobia"
 
-# The version info for the project you're documenting, acts as replacement for
+# The version info for the project you"re documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
@@ -72,9 +72,9 @@ release = __version__
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
-# today = ''
+# today = ""
 # Else, today_fmt is used as the format for a strftime call.
-# today_fmt = '%B %d, %Y'
+# today_fmt = "%B %d, %Y"
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -84,7 +84,7 @@ exclude_patterns = []
 # documents.
 # default_role = None
 
-# If true, '()' will be appended to :func: etc. cross-reference text.
+# If true, "()" will be appended to :func: etc. cross-reference text.
 # add_function_parentheses = True
 
 # If true, the current module name will be prepended to all description
@@ -96,7 +96,7 @@ exclude_patterns = []
 # show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
@@ -109,7 +109,7 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'nature'
+html_theme = "nature"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -145,9 +145,9 @@ html_static_path = []
 # directly to the root of the documentation.
 # html_extra_path = []
 
-# If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
+# If not "", a "Last updated on:" timestamp is inserted at every page bottom,
 # using the given strftime format.
-# html_last_updated_fmt = '%b %d, %Y'
+# html_last_updated_fmt = "%b %d, %Y"
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
@@ -181,33 +181,33 @@ html_show_sphinx = False
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.  The value of this option must be the
 # base URL from which the finished HTML is served.
-# html_use_opensearch = ''
+# html_use_opensearch = ""
 
 # This is the file name suffix for HTML files (e.g. ".xhtml").
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'pytest-orderdoc'
+htmlhelp_basename = "pytest-orderdoc"
 
 # -- Options for LaTeX output ---------------------------------------------
 
 latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
-    # 'papersize': 'letterpaper',
+    # The paper size ("letterpaper" or "a4paper").
+    # "papersize": "letterpaper",
 
-    # The font size ('10pt', '11pt' or '12pt').
-    # 'pointsize': '10pt',
+    # The font size ("10pt", "11pt" or "12pt").
+    # "pointsize": "10pt",
 
     # Additional stuff for the LaTeX preamble.
-    # 'preamble': '',
+    # "preamble": "",
 }
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ('index', 'pytest-order.tex', u'pytest-order Documentation',
-     u'Frank Tobia', 'manual'),
+    ("index", "pytest-order.tex", u"pytest-order Documentation",
+     u"Frank Tobia", "manual"),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -236,8 +236,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'pytest-order', u'pytest-order Documentation',
-     [u'Frank Tobia'], 1)
+    ("index", "pytest-order", u"pytest-order Documentation",
+     [u"Frank Tobia"], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -250,9 +250,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'pytest-order', u'pytest-order Documentation',
-     u'Frank Tobia', 'pytest-order', 'One line description of project.',
-     'Miscellaneous'),
+    ("index", "pytest-order", u"pytest-order Documentation",
+     u"Frank Tobia", "pytest-order", "One line description of project.",
+     "Miscellaneous"),
 ]
 
 # Documents to append as an appendix to all manuals.
@@ -261,8 +261,8 @@ texinfo_documents = [
 # If false, no module index is generated.
 # texinfo_domain_indices = True
 
-# How to display URL addresses: 'footnote', 'no', or 'inline'.
-# texinfo_show_urls = 'footnote'
+# How to display URL addresses: "footnote", "no", or "inline".
+# texinfo_show_urls = "footnote"
 
-# If true, do not generate a @detailmenu in the "Top" node's menu.
+# If true, do not generate a @detailmenu in the "Top" node"s menu.
 # texinfo_no_detailmenu = False

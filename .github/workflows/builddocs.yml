@@ -45,7 +45,7 @@ jobs:
         run: |
           cp -r main/docs/build/html/* doc/dev
           cd doc
-          git config user.name "Travis CI"
+          git config user.name "CI Build"
           git config user.email "pytest_order@gmail.com"
           git add dev/*
           if [ `git status -s | wc -l` = 0 ]; then

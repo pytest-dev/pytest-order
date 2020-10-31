@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+- add configuration option for sorting scope,
+  see [#2](https://github.com/mrbean-bremen/pytest-order/issues/2)
+
 ## [Version 0.8.0](https://pypi.org/project/pytest-order/0.8.0/)
 This release is mostly related to the consolidation of infrastructure
 (documentation build and tests in CI build) and documentation.  

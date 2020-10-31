@@ -2,7 +2,7 @@
 
 import pytest
 
-pytest_plugins = ['pytester']
+pytest_plugins = ["pytester"]
 
 
 @pytest.fixture
@@ -25,7 +25,7 @@ def test_no_marks(item_names_for):
     def test_2(): pass
     """
 
-    assert item_names_for(tests_content) == ['test_1', 'test_2']
+    assert item_names_for(tests_content) == ["test_1", "test_2"]
 
 
 def test_first_mark(item_names_for):
@@ -34,40 +34,40 @@ def test_first_mark(item_names_for):
 
     def test_1(): pass
 
-    @pytest.mark.order('first')
+    @pytest.mark.order("first")
     def test_2(): pass
     """
 
-    assert item_names_for(tests_content) == ['test_2', 'test_1']
+    assert item_names_for(tests_content) == ["test_2", "test_1"]
 
 
 def test_last_mark(item_names_for):
     tests_content = """
     import pytest
 
-    @pytest.mark.order('last')
+    @pytest.mark.order("last")
     def test_1(): pass
 
     def test_2(): pass
     """
 
-    assert item_names_for(tests_content) == ['test_2', 'test_1']
+    assert item_names_for(tests_content) == ["test_2", "test_1"]
 
 
 def test_first_last_marks(item_names_for):
     tests_content = """
     import pytest
 
-    @pytest.mark.order('last')
+    @pytest.mark.order("last")
     def test_1(): pass
 
-    @pytest.mark.order('first')
+    @pytest.mark.order("first")
     def test_2(): pass
 
     def test_3(): pass
     """
 
-    assert item_names_for(tests_content) == ['test_2', 'test_3', 'test_1']
+    assert item_names_for(tests_content) == ["test_2", "test_3", "test_1"]
 
 
 def test_order_marks(item_names_for):
@@ -84,7 +84,7 @@ def test_order_marks(item_names_for):
     def test_3(): pass
     """
 
-    assert item_names_for(tests_content) == ['test_3', 'test_2', 'test_1']
+    assert item_names_for(tests_content) == ["test_3", "test_2", "test_1"]
 
 
 def test_non_contiguous_positive(item_names_for):
@@ -101,7 +101,7 @@ def test_non_contiguous_positive(item_names_for):
     def test_3(): pass
     """
 
-    assert item_names_for(tests_content) == ['test_3', 'test_1', 'test_2']
+    assert item_names_for(tests_content) == ["test_3", "test_1", "test_2"]
 
 
 def test_non_contiguous_negative(item_names_for):
@@ -118,7 +118,7 @@ def test_non_contiguous_negative(item_names_for):
     def test_3(): pass
     """
 
-    assert item_names_for(tests_content) == ['test_2', 'test_1', 'test_3']
+    assert item_names_for(tests_content) == ["test_2", "test_1", "test_3"]
 
 
 def test_non_contiguous_inc_zero(item_names_for):
@@ -147,9 +147,9 @@ def test_non_contiguous_inc_zero(item_names_for):
     def test_7(): pass
     """
 
-    assert item_names_for(tests_content) == ['test_7', 'test_3', 'test_1',
-                                             'test_2', 'test_5', 'test_4',
-                                             'test_6']
+    assert item_names_for(tests_content) == ["test_7", "test_3", "test_1",
+                                             "test_2", "test_5", "test_4",
+                                             "test_6"]
 
 
 def test_non_contiguous_inc_none(item_names_for):
@@ -174,8 +174,8 @@ def test_non_contiguous_inc_none(item_names_for):
     def test_6(): pass
     """
 
-    assert item_names_for(tests_content) == ['test_2', 'test_3', 'test_1',
-                                             'test_6', 'test_5', 'test_4']
+    assert item_names_for(tests_content) == ["test_2", "test_3", "test_1",
+                                             "test_6", "test_5", "test_4"]
 
 
 def test_first_mark_class(item_names_for):
@@ -185,7 +185,7 @@ def test_first_mark_class(item_names_for):
     def test_1(): pass
 
 
-    @pytest.mark.order('first')
+    @pytest.mark.order("first")
     class TestSuite(object):
 
         def test_3(self): pass
@@ -194,14 +194,14 @@ def test_first_mark_class(item_names_for):
 
     """
 
-    assert item_names_for(tests_content) == ['test_3', 'test_2', 'test_1']
+    assert item_names_for(tests_content) == ["test_3", "test_2", "test_1"]
 
 
 def test_last_mark_class(item_names_for):
     tests_content = """
     import pytest
 
-    @pytest.mark.order('last')
+    @pytest.mark.order("last")
     class TestSuite(object):
 
         def test_1(self): pass
@@ -212,14 +212,14 @@ def test_last_mark_class(item_names_for):
     def test_3(): pass
     """
 
-    assert item_names_for(tests_content) == ['test_3', 'test_1', 'test_2']
+    assert item_names_for(tests_content) == ["test_3", "test_1", "test_2"]
 
 
 def test_first_last_mark_class(item_names_for):
     tests_content = """
     import pytest
 
-    @pytest.mark.order('last')
+    @pytest.mark.order("last")
     class TestLast(object):
 
         def test_1(self): pass
@@ -230,7 +230,7 @@ def test_first_last_mark_class(item_names_for):
     def test_3(): pass
 
 
-    @pytest.mark.order('first')
+    @pytest.mark.order("first")
     class TestFirst(object):
 
         def test_4(self): pass
@@ -239,8 +239,8 @@ def test_first_last_mark_class(item_names_for):
 
     """
 
-    assert item_names_for(tests_content) == ['test_4', 'test_5', 'test_3',
-                                             'test_1', 'test_2']
+    assert item_names_for(tests_content) == ["test_4", "test_5", "test_3",
+                                             "test_1", "test_2"]
 
 
 def test_order_mark_class(item_names_for):
@@ -267,33 +267,33 @@ def test_order_mark_class(item_names_for):
         def test_5(self): pass
     """
 
-    assert item_names_for(tests_content) == ['test_3', 'test_4', 'test_5',
-                                             'test_1', 'test_2']
+    assert item_names_for(tests_content) == ["test_3", "test_4", "test_5",
+                                             "test_1", "test_2"]
 
 
 def test_run_ordinals(item_names_for):
     test_content = """
     import pytest
 
-    @pytest.mark.order('second_to_last')
+    @pytest.mark.order("second_to_last")
     def test_three():
         pass
 
-    @pytest.mark.order('last')
+    @pytest.mark.order("last")
     def test_four():
         pass
 
-    @pytest.mark.order('second')
+    @pytest.mark.order("second")
     def test_two():
         pass
 
-    @pytest.mark.order('first')
+    @pytest.mark.order("first")
     def test_one():
         pass
     """
 
-    assert item_names_for(test_content) == ['test_one', 'test_two',
-                                            'test_three', 'test_four']
+    assert item_names_for(test_content) == ["test_one", "test_two",
+                                            "test_three", "test_four"]
 
 
 def test_quickstart(item_names_for):
@@ -306,7 +306,7 @@ def test_quickstart(item_names_for):
     def test_bar():
         pass
     """
-    assert item_names_for(test_content) == ['test_foo', 'test_bar']
+    assert item_names_for(test_content) == ["test_foo", "test_bar"]
 
 
 def test_quickstart2(item_names_for):
@@ -321,116 +321,116 @@ def test_quickstart2(item_names_for):
     def test_bar():
         pass
     """
-    assert item_names_for(test_content) == ['test_bar', 'test_foo']
+    assert item_names_for(test_content) == ["test_bar", "test_foo"]
 
 
 def test_relative(item_names_for):
     test_content = """
     import pytest
 
-    @pytest.mark.order(after='test_second')
+    @pytest.mark.order(after="test_second")
     def test_third():
         pass
 
     def test_second():
         pass
 
-    @pytest.mark.order(before='test_second')
+    @pytest.mark.order(before="test_second")
     def test_first():
         pass
     """
-    assert item_names_for(test_content) == ['test_first', 'test_second',
-                                            'test_third']
+    assert item_names_for(test_content) == ["test_first", "test_second",
+                                            "test_third"]
 
 
 def test_relative2(item_names_for):
     test_content = """
     import pytest
 
-    @pytest.mark.order(after='test_second')
+    @pytest.mark.order(after="test_second")
     def test_third():
         pass
 
     def test_second():
         pass
 
-    @pytest.mark.order(before='test_second')
+    @pytest.mark.order(before="test_second")
     def test_first():
         pass
 
     def test_five():
         pass
 
-    @pytest.mark.order(before='test_five')
+    @pytest.mark.order(before="test_five")
     def test_four():
         pass
 
     """
-    assert item_names_for(test_content) == ['test_first', 'test_second',
-                                            'test_third', 'test_four',
-                                            'test_five']
+    assert item_names_for(test_content) == ["test_first", "test_second",
+                                            "test_third", "test_four",
+                                            "test_five"]
 
 
 def test_relative3(item_names_for):
     test_content = """
     import pytest
 
-    @pytest.mark.order(after='test_second')
+    @pytest.mark.order(after="test_second")
     def test_third():
         pass
 
     def test_second():
         pass
 
-    @pytest.mark.order(before='test_second')
+    @pytest.mark.order(before="test_second")
     def test_first():
         pass
 
     def test_five():
         pass
 
-    @pytest.mark.order(before='test_five')
+    @pytest.mark.order(before="test_five")
     def test_four():
         pass
 
     """
-    assert item_names_for(test_content) == ['test_first', 'test_second',
-                                            'test_third', 'test_four',
-                                            'test_five']
+    assert item_names_for(test_content) == ["test_first", "test_second",
+                                            "test_third", "test_four",
+                                            "test_five"]
 
 
 def test_false_insert(item_names_for):
     test_content = """
     import pytest
 
-    @pytest.mark.order(after='test_a')
+    @pytest.mark.order(after="test_a")
     def test_third():
         pass
 
     def test_second():
         pass
 
-    @pytest.mark.order(before='test_b')
+    @pytest.mark.order(before="test_b")
     def test_first():
         pass
     """
-    assert item_names_for(test_content) == ['test_second', 'test_first',
-                                            'test_third']
+    assert item_names_for(test_content) == ["test_second", "test_first",
+                                            "test_third"]
 
 
 def test_markers_registered(capsys):
-    pytest.main(['--markers'])
+    pytest.main(["--markers"])
     out, err = capsys.readouterr()
-    assert '@pytest.mark.order' in out
+    assert "@pytest.mark.order" in out
     # only order is supported as marker
-    assert out.count('Provided by pytest-order.') == 1
+    assert out.count("Provided by pytest-order.") == 1
 
 
 def test_unsupported_order(item_names_for):
     test_content = """
     import pytest
 
-    @pytest.mark.order('unknown')
+    @pytest.mark.order("unknown")
     def test_1():
         pass
 
@@ -438,4 +438,4 @@ def test_unsupported_order(item_names_for):
         pass
     """
     with pytest.warns(UserWarning, match="Unknown order attribute:'unknown'"):
-        assert item_names_for(test_content) == ['test_1', 'test_2']
+        assert item_names_for(test_content) == ["test_1", "test_2"]
