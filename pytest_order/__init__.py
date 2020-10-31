@@ -2,6 +2,7 @@
 import os
 import re
 import sys
+from collections import OrderedDict
 from warnings import warn
 
 import pytest
@@ -9,22 +10,22 @@ import pytest
 from ._version import __version__  # noqa: F401
 
 orders_map = {
-    'first': 0,
-    'second': 1,
-    'third': 2,
-    'fourth': 3,
-    'fifth': 4,
-    'sixth': 5,
-    'seventh': 6,
-    'eighth': 7,
-    'last': -1,
-    'second_to_last': -2,
-    'third_to_last': -3,
-    'fourth_to_last': -4,
-    'fifth_to_last': -5,
-    'sixth_to_last': -6,
-    'seventh_to_last': -7,
-    'eighth_to_last': -8
+    "first": 0,
+    "second": 1,
+    "third": 2,
+    "fourth": 3,
+    "fifth": 4,
+    "sixth": 5,
+    "seventh": 6,
+    "eighth": 7,
+    "last": -1,
+    "second_to_last": -2,
+    "third_to_last": -3,
+    "fourth_to_last": -4,
+    "fifth_to_last": -5,
+    "sixth_to_last": -6,
+    "seventh_to_last": -7,
+    "eighth_to_last": -8
 }
 
 
@@ -33,22 +34,22 @@ def pytest_configure(config):
      on the CLI options"""
 
     provided_by_pytest_order = (
-        'Provided by pytest-order. '
-        'See also: https://mrbean-bremen.github.io/pytest-order/'
+        "Provided by pytest-order. "
+        "See also: https://mrbean-bremen.github.io/pytest-order/"
     )
 
     config_line = (
-            'order: specify ordering information for when tests should run '
-            'in relation to one another. ' + provided_by_pytest_order
+            "order: specify ordering information for when tests should run "
+            "in relation to one another. " + provided_by_pytest_order
     )
-    config.addinivalue_line('markers', config_line)
+    config.addinivalue_line("markers", config_line)
 
-    if config.getoption('indulgent-ordering'):
+    if config.getoption("indulgent-ordering"):
         # We need to dynamically add this `tryfirst` decorator to the plugin:
         # only when the CLI option is present should the decorator be added.
         # Thus, we manually run the decorator on the class function and
         # manually replace it.
-        # Python 2.7 didn't allow arbitrary attributes on methods, so we have
+        # Python 2.7 didn"t allow arbitrary attributes on methods, so we have
         # to keep the function as a function and then add it to the class as a
         # pseudomethod.  Since the class is purely for structuring and `self`
         # is never referenced, this seems reasonable.
@@ -57,17 +58,21 @@ def pytest_configure(config):
     else:
         OrderingPlugin.pytest_collection_modifyitems = pytest.hookimpl(
             function=modify_items, trylast=True)
-    config.pluginmanager.register(OrderingPlugin(), 'orderingplugin')
+    config.pluginmanager.register(OrderingPlugin(), "orderingplugin")
 
 
 def pytest_addoption(parser):
     """Set up CLI option for pytest"""
-    group = parser.getgroup('ordering')
-    group.addoption('--indulgent-ordering', action='store_true',
-                    dest='indulgent-ordering',
-                    help='Request that the sort order provided by '
-                         'pytest-order be applied before other sorting, '
-                         'allowing the other sorting to have priority')
+    group = parser.getgroup("ordering")
+    group.addoption("--indulgent-ordering", action="store_true",
+                    dest="indulgent-ordering",
+                    help="Request that the sort order provided by "
+                         "pytest-order be applied before other sorting, "
+                         "allowing the other sorting to have priority")
+    group.addoption("--order-scope", action="store",
+                    dest="order-scope",
+                    help="Defines the scope used for ordeing. Possible values"
+                         "are 'session' (default), 'module', and 'class'")
 
 
 class OrderingPlugin(object):
@@ -88,10 +93,10 @@ def get_filename(item):
 
 def mark_binning(item, keys, start, end, before, after, unordered):
     if "order" in keys:
-        mark = item.get_closest_marker('order')
+        mark = item.get_closest_marker("order")
         order = mark.args[0] if mark.args else None
-        before_mark = mark.kwargs.get('before')
-        after_mark = mark.kwargs.get('after')
+        before_mark = mark.kwargs.get("before")
+        after_mark = mark.kwargs.get("after")
         if order is not None:
             if isinstance(order, int):
                 order = int(order)
@@ -155,7 +160,7 @@ def insert_after(name, items, sort):
     return False
 
 
-def modify_items(session, config, items):
+def do_modify_items(items):
     before_item = {}
     after_item = {}
     start_item = {}
@@ -207,5 +212,38 @@ def modify_items(session, config, items):
             sorted_list += entry
         sys.stdout.flush()
         print("enqueue them behind the others")
+
+    return sorted_list
+
+
+def modify_items(session, config, items):
+    scope = config.getoption("order-scope")
+    if scope not in ("session", "module", "class"):
+        if scope is not None:
+            warn("Unknown order scope '{}', ignoring it. "
+                 "Valid scopes are 'session', 'module' and 'class'."
+                 .format(scope))
+        scope = "session"
+    if scope == "session":
+        sorted_list = do_modify_items(items)
+    elif scope == "module":
+        module_items = OrderedDict()
+        for item in items:
+            module_path = item.nodeid[:item.nodeid.index("::")]
+            module_items.setdefault(module_path, []).append(item)
+        sorted_list = []
+        for module_item_list in module_items.values():
+            sorted_list.extend(do_modify_items(module_item_list))
+    else:  # class scope
+        class_items = OrderedDict()
+        for item in items:
+            delim_index = item.nodeid.index("::")
+            if "::" in item.nodeid[delim_index + 2:]:
+                delim_index = item.nodeid.index("::", delim_index + 2)
+            class_path = item.nodeid[:delim_index]
+            class_items.setdefault(class_path, []).append(item)
+        sorted_list = []
+        for class_item_list in class_items.values():
+            sorted_list.extend(do_modify_items(class_item_list))
 
     items[:] = sorted_list

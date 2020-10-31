@@ -3,7 +3,7 @@
 import pytest
 import pytest_order
 
-pytest_plugins = ['pytester']
+pytest_plugins = ["pytester"]
 
 
 @pytest.mark.skipif(pytest.__version__ == "3.10.1",

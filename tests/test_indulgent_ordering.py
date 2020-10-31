@@ -14,14 +14,14 @@ def test_run_marker_registered(capsys, tmpdir):
             """
 import pytest
 
-@pytest.mark.order('second')
+@pytest.mark.order("second")
 def test_me_second():
     assert True
 
 def test_that_fails():
     assert False
 
-@pytest.mark.order('first')
+@pytest.mark.order("first")
 def test_me_first():
     assert True
 """
@@ -32,7 +32,7 @@ def test_me_first():
     assert "..F" in out
     args.insert(0, "--ff")
     # pytest 6 seems to have changed the order plugins are executed
-    if int(pytest.__version__[:pytest.__version__.index('.')]) < 6:
+    if int(pytest.__version__[:pytest.__version__.index(".")]) < 6:
         pytest.main(args, [pytest_order])
         out, err = capsys.readouterr()
         assert "..F" in out

@@ -121,7 +121,7 @@ There are currently three possibilities to define the order:
 Order by number
 ---------------
 As already shown above, the order can be defined using ordinal numbers.
-Negative numbers are also allowed - they are used the same way as indexes
+Negative numbers are also allowed--they are used the same way as indexes
 are used in Python lists, e.g. to count from the end:
 
 .. code:: python
@@ -265,7 +265,9 @@ by their name:
 
 Configuration
 =============
-Currently there is only one option that changes the behavior of the plugin.
+Currently there are two command line option that change the behavior of the
+plugin. As for any option, you can add the options to your ``pytest.ini`` if
+you want to have them always applied.
 
 ``--indulgent-ordering``
 ------------------------
@@ -283,6 +285,24 @@ pytest-order will override the ``--failed-first`` order, but by adding the
 pytest-order *before* the sort from ``--failed-first``, allowing the failed
 tests to be sorted to the front (note that in pytest versions from 6.0 on,
 this seems not to be needed anymore, at least in this specific case).
+
+``--order-scope``
+-----------------
+By default, tests are ordered per session, e.g. across all modules in the
+test run. Sometimes, you want to order tests per module or per test class
+instead. Consider that you have a growing number of test modules that you
+want to run simultaneously, with tests ordered per module. Per default you
+would need to make sure that the order numbers increases globally, if you
+want to run the test modules consecutively and order the test per module.
+
+If you use the option ``--order-scope=module``, there is no need for this.
+You can enumerate your tests starting with 0 or 1 in each module, and the tests
+will only be ordered inside each module. Using ``--order-scope=class``
+additionally considers test classes--each test class is considered
+separately for ordering the tests. If a module has both test classes and
+separate test functions, these test functions are handled separately from the
+test classes. If a module has no test classes, the effect is the same as
+if using ``--order-scope=module``.
 
 Miscellaneous
 =============
