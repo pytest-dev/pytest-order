@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [Version 0.8.1](https://pypi.org/project/pytest-order/0.8.1/)
+
 ### Added
 - add configuration option for sorting scope,
   see [#2](https://github.com/mrbean-bremen/pytest-order/issues/2)
