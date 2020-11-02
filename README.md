@@ -20,8 +20,7 @@ History
 This is a fork of [pytest-ordering](https://github.com/ftobia/pytest-ordering).
 That project is not maintained anymore, and there are several helpful PRs
 that are now integrated into `pytest-order`. The idea and most of the code
-has been created by Frank Tobia, the author of that plugin. In case 
-`pytest-ordering` is revived, this project will be obsolete. 
+has been created by Frank Tobia, the author of that plugin, and contributors.
 
 Compatibility to `pytest_ordering`
 ---------------------------------

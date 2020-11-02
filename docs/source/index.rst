@@ -2,9 +2,15 @@ Introduction
 ============
 ``pytest-order`` is a pytest plugin which allows you to customize the order
 in which your tests are run. It provides the marker ``order``, that has
-attributes that defines when your tests should run in relation to each other.
+attributes that define when your tests should run in relation to each other.
 These attributes can be absolute (i.e. first, or second-to-last) or relative
 (i.e. run this test before this other test).
+
+.. note::
+  It is generally considered bad practice to write tests that depend on each
+  other. However, in reality this may still be needed due to performance
+  problems or legacy code. Still, before using this plugin, you should check
+  if you can refactor your tests to remove the dependencies between tests.
 
 Relationship with pytest-ordering
 ---------------------------------
@@ -110,11 +116,11 @@ Usage
 =====
 The above is a trivial example, but ordering is respected across test files.
 
-.. note ::
-    The scope of the ordering is always global, e.g. tests with lower ordinal
-    numbers are always executed before tests with higher numbers, regardless of
-    the module and class they reside in. This may be changed to be
-    configurable in a later version.
+.. note::
+  The scope of the ordering is global per default, e.g. tests with lower
+  ordinal numbers are always executed before tests with higher numbers,
+  regardless of the module and class they reside in. This can be changed
+  by using the :ref:`order-scope` option.
 
 There are currently three possibilities to define the order:
 
@@ -257,11 +263,19 @@ by their name:
 
     =========================== 4 passed in 0.02 seconds ===========================
 
+If a test is referenced using the unqualified test name as shown in the
+example, the test is assumed to be in the current module. For tests in other
+modules the qualified test name (e.g. ``my_module.test_something``) has to
+be used.
+
+If an unknown test is referenced, a warning is issued and the test in
+question is ordered behind all other tests.
+
 .. note::
-   The `pytest-dependency <https://pypi.org/project/pytest-dependency/>`__
-   plugin also manages dependencies between tests (skips tests that depend
-   on skipped or failed tests), but doesn't do any ordering. You can combine
-   both plugins if you need both options.
+  The `pytest-dependency <https://pypi.org/project/pytest-dependency/>`__
+  plugin also manages dependencies between tests (skips tests that depend
+  on skipped or failed tests), but doesn't do any ordering. You can combine
+  both plugins if you need both options.
 
 Configuration
 =============
@@ -285,6 +299,8 @@ pytest-order will override the ``--failed-first`` order, but by adding the
 pytest-order *before* the sort from ``--failed-first``, allowing the failed
 tests to be sorted to the front (note that in pytest versions from 6.0 on,
 this seems not to be needed anymore, at least in this specific case).
+
+.. _order-scope:
 
 ``--order-scope``
 -----------------
@@ -317,6 +333,50 @@ together, we have to put each group of dependent tests in one file, and call
 pytest with ``--dist=loadfile`` (this is taken from
 `this issue <https://github.com/ftobia/pytest-ordering/issues/36>`__).
 
+Sparse ordinal behavior
+-----------------------
+Sparse ordering (e.g. missing some ordinals in your markers) behaves the
+same as if the the ordinals are consecutive. For example, these tests:
+
+.. code:: python
+
+ import pytest
+
+ @pytest.mark.order(4)
+ def test_two():
+     assert True
+
+ def test_three():
+     assert True
+
+ @pytest.mark.order(2)
+ def test_two():
+     assert True
+
+have the same output as:
+
+.. code:: python
+
+ import pytest
+
+ @pytest.mark.order(1)
+ def test_two():
+     assert True
+
+ def test_three():
+     assert True
+
+ @pytest.mark.order(0)
+ def test_two():
+     assert True
+
+namely, the tests are run in the order ``test_one``, ``test_two``,
+``test_three``, regardless of the gaps between numbers, and the starting
+number being not 0. It would be possible to change the ordering behavior to
+fill the gaps between the numbers with tests without a marker, as long as
+any are available. However, this leads to some not very intuitive behavior,
+so it is currently not implemented. If there will be demand for this kind
+of behavior, it can be added in a later version.
 
 .. toctree::
    :maxdepth: 2
