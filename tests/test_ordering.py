@@ -296,6 +296,25 @@ def test_run_ordinals(item_names_for):
                                             "test_three", "test_four"]
 
 
+def test_sparse_numbers(item_names_for):
+    test_content = """
+     import pytest
+
+     @pytest.mark.order(4)
+     def test_two():
+         assert True
+
+     def test_three():
+         assert True
+
+     @pytest.mark.order(2)
+     def test_one():
+         assert True
+    """
+    assert item_names_for(test_content) == ["test_one", "test_two",
+                                            "test_three"]
+
+
 def test_quickstart(item_names_for):
     test_content = """
     import pytest
@@ -418,12 +437,103 @@ def test_false_insert(item_names_for):
                                             "test_third"]
 
 
-def test_markers_registered(capsys):
-    pytest.main(["--markers"])
+def test_mixed_markers1(item_names_for):
+    test_content = """
+    import pytest
+
+    @pytest.mark.order(2)
+    def test_1():
+        pass
+
+    @pytest.mark.order(after="test_1")
+    def test_2():
+        pass
+
+    @pytest.mark.order(1)
+    def test_3():
+        pass
+    """
+    assert item_names_for(test_content) == ["test_3", "test_1", "test_2"]
+
+
+def test_mixed_markers2(item_names_for):
+    test_content = """
+    import pytest
+
+    @pytest.mark.order(2)
+    def test_1():
+        pass
+
+    @pytest.mark.order(1)
+    def test_2():
+        pass
+
+    @pytest.mark.order(before="test_2")
+    def test_3():
+        pass
+    """
+    assert item_names_for(test_content) == ["test_3", "test_2", "test_1"]
+
+
+def test_dependency_after_unknown_test(item_names_for, capsys):
+    test_content = """
+    import pytest
+
+    @pytest.mark.order(after="some_module.test_2")
+    def test_1():
+        pass
+
+    def test_2():
+        pass
+    """
+    assert item_names_for(test_content) == ["test_2", "test_1"]
     out, err = capsys.readouterr()
-    assert "@pytest.mark.order" in out
-    # only order is supported as marker
-    assert out.count("Provided by pytest-order.") == 1
+    warning = ("can not execute test relative to others: "
+               "some_module.test_2 enqueue them behind the others")
+    assert warning in out
+
+
+def test_dependency_before_unknown_test(item_names_for, capsys):
+    test_content = """
+    import pytest
+
+    @pytest.mark.order(before="test_4")
+    def test_1():
+        pass
+
+    def test_2():
+        pass
+    """
+    assert item_names_for(test_content) == ["test_2", "test_1"]
+    out, err = capsys.readouterr()
+    warning = ("can not execute test relative to others: "
+               "test_dependency_before_unknown_test.test_4 enqueue them "
+               "behind the others")
+    assert warning in out
+
+
+def test_dependency_loop(item_names_for, capsys):
+    test_content = """
+    import pytest
+
+    @pytest.mark.order(after="test_3")
+    def test_1():
+        pass
+
+    @pytest.mark.order(1)
+    def test_2():
+        pass
+
+    @pytest.mark.order(before="test_1")
+    def test_3():
+        pass
+    """
+    assert item_names_for(test_content) == ["test_2", "test_3", "test_1"]
+    out, err = capsys.readouterr()
+    warning = ("can not execute test relative to others: "
+               "test_dependency_loop.test_1 test_dependency_loop.test_3 "
+               "enqueue them behind the others")
+    assert warning in out
 
 
 def test_unsupported_order(item_names_for):
