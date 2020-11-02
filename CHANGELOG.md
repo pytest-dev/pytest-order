@@ -1,6 +1,6 @@
 # pytest-order Release Notes
 
-## Unreleased
+## [Version 0.8.1](https://pypi.org/project/pytest-order/0.8.1/)
 
 ### Added
 - add configuration option for sorting scope,
