@@ -2,13 +2,13 @@
 
 ## Unreleased
 
-## [Version 0.8.1](https://pypi.org/project/pytest-order/0.8.1/)
+## [Version 0.8.1](https://pypi.org/project/pytest-order/0.8.1/) (2020-11-02)
 
 ### Added
-- add configuration option for sorting scope,
+- added configuration option for sorting scope,
   see [#2](https://github.com/mrbean-bremen/pytest-order/issues/2)
 
-## [Version 0.8.0](https://pypi.org/project/pytest-order/0.8.0/)
+## [Version 0.8.0](https://pypi.org/project/pytest-order/0.8.0/) (2020-10-30)
 This release is mostly related to the consolidation of infrastructure
 (documentation build and tests in CI build) and documentation.  
 
@@ -22,7 +22,7 @@ This release is mostly related to the consolidation of infrastructure
 - added regression test for ``pytest-xdist`` 
   (imported from [PR #52](https://github.com/ftobia/pytest-ordering/pull/52))
 
-## [Version 0.7.1](https://pypi.org/project/pytest-order/0.7.1/)
+## [Version 0.7.1](https://pypi.org/project/pytest-order/0.7.1/) (2020-10-24)
 Update after renaming the repository and the package.
 
 ### Changes
@@ -33,7 +33,7 @@ Update after renaming the repository and the package.
 ### Documentation
 - use separate documentation pages for release and development versions
 
-## [Version 0.7.0](https://pypi.org/project/pytest-ordering2/0.7.0/)
+## [Version 0.7.0](https://pypi.org/project/pytest-ordering2/0.7.0/) (2020-10-22)
 Imported version from [pytest-ordering](https://github.com/ftobia/pytest-ordering), 
 including some PRs (manually merged).
 

@@ -1,82 +1,173 @@
 # -*- coding: utf-8 -*-
 import os
+import re
+import shutil
 
 import pytest
 
 import pytest_order
 
 
-def fixture_path():
-    base_path = os.path.split(os.path.dirname(__file__))[0]
-    return os.path.join(base_path, "fixture")
+@pytest.fixture(scope="module")
+def fixture_path(tmpdir_factory):
+    fixture_path = str(tmpdir_factory.mktemp("fixtures"))
+    testname = os.path.join(fixture_path, "test_classes.py")
+    test_class_contents = """
+import pytest
+
+class Test1:
+    @pytest.mark.order("last")
+    def test_two(self):
+        assert True
+
+    @pytest.mark.order("first")
+    def test_one(self):
+        assert True
+
+class Test2:
+    @pytest.mark.order("last")
+    def test_two(self):
+        assert True
+
+    @pytest.mark.order("first")
+    def test_one(self):
+        assert True
+
+@pytest.mark.order("last")
+def test_two():
+    assert True
+
+@pytest.mark.order("first")
+def test_one():
+    assert True
+"""
+    with open(testname, "w") as fi:
+        fi.write(test_class_contents)
+
+    test_function_contents = """
+import pytest
+
+@pytest.mark.order("last")
+def test1_two():
+    assert True
+
+@pytest.mark.order("first")
+def test1_one():
+    assert True
+    """
+    testname = os.path.join(fixture_path, "test_functions1.py")
+    with open(testname, "w") as fi:
+        fi.write(test_function_contents)
+        test_function_contents = """
+import pytest
+
+@pytest.mark.order("last")
+def test2_two():
+    assert True
+
+@pytest.mark.order("first")
+def test2_one():
+    assert True
+    """
+    testname = os.path.join(fixture_path, "test_functions2.py")
+    with open(testname, "w") as fi:
+        fi.write(test_function_contents)
+    yield fixture_path
+    shutil.rmtree(fixture_path, ignore_errors=True)
 
 
-def test_session_scope(capsys):
-    args = ["-v", fixture_path()]
+@pytest.fixture(scope="module")
+def fixture_file_paths(fixture_path):
+    yield [
+        os.path.join(fixture_path, "test_classes.py"),
+        os.path.join(fixture_path, "test_functions1.py"),
+        os.path.join(fixture_path, "test_functions2.py")
+    ]
+
+
+def test_session_scope(fixture_path, capsys):
+    args = ["-v", fixture_path]
     pytest.main(args, [pytest_order])
     out, err = capsys.readouterr()
-    i_class1_one = out.index("test_classes.py::Test1::test_one")
-    i_class2_one = out.index("test_classes.py::Test2::test_one")
-    i_noclass_one = out.index("test_classes.py::test_one")
-    i_func1_one = out.index("test_functions1.py::test_one")
-    i_func2_one = out.index("test_functions2.py::test_one")
-    i_class1_two = out.index("test_classes.py::Test1::test_two")
-    i_class2_two = out.index("test_classes.py::Test2::test_two")
-    i_noclass_two = out.index("test_classes.py::test_two")
-    i_func1_two = out.index("test_functions1.py::test_two")
-    i_func2_two = out.index("test_functions2.py::test_two")
-    assert (i_class1_one < i_class2_one < i_noclass_one
-            < i_func1_one < i_func2_one
-            < i_class1_two < i_class2_two < i_noclass_two
-            < i_func1_two < i_func2_two)
+    expected = (
+        ".*test_classes.py::Test1::test_one"
+        ".*test_classes.py::Test2::test_one"
+        ".*test_classes.py::test_one"
+        ".*test_functions1.py::test1_one"
+        ".*test_functions2.py::test2_one"
+        ".*test_classes.py::Test1::test_two"
+        ".*test_classes.py::Test2::test_two"
+        ".*test_classes.py::test_two"
+        ".*test_functions1.py::test1_two"
+        ".*test_functions2.py::test2_two.*"
+    )
+    assert re.match(expected, out.replace("\n", "")), out
 
 
-def test_module_scope(capsys):
-    args = ["-v", "--order-scope=module", fixture_path()]
+def test_session_scope_multiple_files(fixture_file_paths, capsys):
+    """Test that session scope works with multiple files on command line."""
+    args = ["-v"] + fixture_file_paths
     pytest.main(args, [pytest_order])
     out, err = capsys.readouterr()
-    print('module:', out)
-    i_class1_one = out.index("test_classes.py::Test1::test_one")
-    i_class2_one = out.index("test_classes.py::Test2::test_one")
-    i_noclass_one = out.index("test_classes.py::test_one")
-    i_func1_one = out.index("test_functions1.py::test_one")
-    i_func2_one = out.index("test_functions2.py::test_one")
-    i_class1_two = out.index("test_classes.py::Test1::test_two")
-    i_class2_two = out.index("test_classes.py::Test2::test_two")
-    i_noclass_two = out.index("test_classes.py::test_two")
-    i_func1_two = out.index("test_functions1.py::test_two")
-    i_func2_two = out.index("test_functions2.py::test_two")
-    assert (i_class1_one < i_class2_one < i_noclass_one
-            < i_class1_two < i_class2_two < i_noclass_two
-            < i_func1_one < i_func1_two
-            < i_func2_one < i_func2_two)
+    # under Windows, the module name is not listed in this case,
+    # so do not expect it
+    expected = (
+        ".*::Test1::test_one"
+        ".*::Test2::test_one"
+        ".*::test_one"
+        ".*::test1_one"
+        ".*::test2_one"
+        ".*::Test1::test_two"
+        ".*::Test2::test_two"
+        ".*::test_two"
+        ".*::test1_two"
+        ".*::test2_two.*"
+    )
+    assert re.match(expected, out.replace("\n", "")), out
 
 
-def test_class_scope(capsys):
-    args = ["-v", "--order-scope=class", fixture_path()]
+def test_module_scope(fixture_path, capsys):
+    args = ["-v", "--order-scope=module", fixture_path]
     pytest.main(args, [pytest_order])
     out, err = capsys.readouterr()
-    print('class:', out)
-    i_class1_one = out.index("test_classes.py::Test1::test_one")
-    i_class2_one = out.index("test_classes.py::Test2::test_one")
-    i_noclass_one = out.index("test_classes.py::test_one")
-    i_func1_one = out.index("test_functions1.py::test_one")
-    i_func2_one = out.index("test_functions2.py::test_one")
-    i_class1_two = out.index("test_classes.py::Test1::test_two")
-    i_class2_two = out.index("test_classes.py::Test2::test_two")
-    i_noclass_two = out.index("test_classes.py::test_two")
-    i_func1_two = out.index("test_functions1.py::test_two")
-    i_func2_two = out.index("test_functions2.py::test_two")
-    assert (i_class1_one < i_class1_two < i_class2_one < i_class2_two
-            < i_noclass_one < i_noclass_two
-            < i_func1_one < i_func1_two
-            < i_func2_one < i_func2_two)
+    expected = (
+        ".*test_classes.py::Test1::test_one"
+        ".*test_classes.py::Test2::test_one"
+        ".*test_classes.py::test_one"
+        ".*test_classes.py::Test1::test_two"
+        ".*test_classes.py::Test2::test_two"
+        ".*test_classes.py::test_two"
+        ".*test_functions1.py::test1_one"
+        ".*test_functions1.py::test1_two"
+        ".*test_functions2.py::test2_one"
+        ".*test_functions2.py::test2_two.*"
+    )
+    assert re.match(expected, out.replace("\n", "")), out
+
+
+def test_class_scope(fixture_path, capsys):
+    args = ["-v", "--order-scope=class", fixture_path]
+    pytest.main(args, [pytest_order])
+    out, err = capsys.readouterr()
+    expected = (
+        ".*test_classes.py::Test1::test_one"
+        ".*test_classes.py::Test1::test_two"
+        ".*test_classes.py::Test2::test_one"
+        ".*test_classes.py::Test2::test_two"
+        ".*test_classes.py::test_one"
+        ".*test_classes.py::test_two"
+        ".*test_functions1.py::test1_one"
+        ".*test_functions1.py::test1_two"
+        ".*test_functions2.py::test2_one"
+        ".*test_functions2.py::test2_two.*"
+    )
+    assert re.match(expected, out.replace("\n", "")), out
 
 
 @pytest.mark.skipif(pytest.__version__.startswith(("3.6.", "3.7.")),
-                    reason="Warning does  not appear in out in pytest < 3.8")
-def test_invalid_scope(capsys):
-    args = ["-v", "--order-scope=function", fixture_path()]
+                    reason="Warning does not appear in output in pytest < 3.8")
+def test_invalid_scope(fixture_path, capsys):
+    args = ["-v", "--order-scope=function", fixture_path]
     pytest.main(args, [pytest_order])
     out, err = capsys.readouterr()
     assert "UserWarning: Unknown order scope 'function', ignoring it." in out

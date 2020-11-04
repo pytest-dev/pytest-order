@@ -3,8 +3,6 @@
 import pytest
 import pytest_order
 
-pytest_plugins = ["pytester"]
-
 
 @pytest.mark.skipif(pytest.__version__ == "3.10.1",
                     reason="That version seems to have a parser problem")

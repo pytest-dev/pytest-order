@@ -4,8 +4,6 @@ import pytest
 
 import pytest_order
 
-pytest_plugins = ["pytester"]
-
 
 def test_run_marker_registered(capsys, tmpdir):
     testname = str(tmpdir.join("failing.py"))

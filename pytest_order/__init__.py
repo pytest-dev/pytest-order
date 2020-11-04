@@ -71,7 +71,7 @@ def pytest_addoption(parser):
                          "allowing the other sorting to have priority")
     group.addoption("--order-scope", action="store",
                     dest="order-scope",
-                    help="Defines the scope used for ordeing. Possible values"
+                    help="Defines the scope used for ordering. Possible values"
                          "are 'session' (default), 'module', and 'class'")
 
 
