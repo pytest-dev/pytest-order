@@ -1,7 +1,7 @@
 _pytest-order_ - a pytest plugin to order test execution
 ========================================================
 
- [![PyPI version](https://badge.fury.io/py/pytest-order.svg)](https://badge.fury.io/py/pytest-order) [![Build Status](https://travis-ci.org/mrbean-bremen/pytest-order.svg?branch=master)](https://travis-ci.org/mrbean-bremen/pytest-order) [![Coverage Status](https://img.shields.io/coveralls/github/mrbean-bremen/pytest-order)](https://coveralls.io/github/mrbean-bremen/pytest-order) [![Python version](https://img.shields.io/pypi/pyversions/pytest-order.svg)](https://img.shields.io/pypi/pyversions/pytest-order.svg)
+[![PyPI version](https://badge.fury.io/py/pytest-order.svg)](https://pypi.org/project/pytest-order) ![Testsuite](https://github.com/mrbean-bremen/pytest-order/workflows/Testsuite/badge.svg) ![DocBuild](https://github.com/mrbean-bremen/pytest-order/workflows/DocBuild/badge.svg) [![Coverage Status](https://img.shields.io/coveralls/github/mrbean-bremen/pytest-order)](https://coveralls.io/github/mrbean-bremen/pytest-order) [![Python version](https://img.shields.io/pypi/pyversions/pytest-order.svg)](https://pypi.org/project/pytest-order)
 
 `pytest-order` is a pytest plugin that allows you to customize the order in which
 your tests are run. It uses the marker `order` that defines when a specific
@@ -20,14 +20,16 @@ History
 This is a fork of [pytest-ordering](https://github.com/ftobia/pytest-ordering).
 That project is not maintained anymore, and there are several helpful PRs
 that are now integrated into `pytest-order`. The idea and most of the code
-has been created by Frank Tobia, the author of that plugin, and contributors.
+has been created by Frank Tobia, the author of that plugin, and
+[contributors](https://github.com/mrbean-bremen/pytest-order/blob/master/AUTHORS).
 
-Compatibility to `pytest_ordering`
+Compatibility to pytest_ordering
 ---------------------------------
 `pytest-order` is **not** compatible with `pytest-ordering` due to the
 changed marker name (`order` instead of `run`). Only the `order` 
 marker is supported, support for all additional markers has been removed for
-consistence (see [this issue](https://github.com/ftobia/pytest-ordering/issues/38)).
+consistence (as has been discussed in 
+[this issue](https://github.com/ftobia/pytest-ordering/issues/38)).
 
 Overview
 --------
