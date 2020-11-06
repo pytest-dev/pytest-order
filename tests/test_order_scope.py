@@ -85,23 +85,28 @@ def fixture_file_paths(fixture_path):
     ]
 
 
+def assert_test_order(test_names, out):
+    expected = ".*" + ".*".join(test_names)
+    assert re.match(expected, out.replace("\n", "")), out
+
+
 def test_session_scope(fixture_path, capsys):
     args = ["-v", fixture_path]
     pytest.main(args, [pytest_order])
     out, err = capsys.readouterr()
     expected = (
-        ".*test_classes.py::Test1::test_one"
-        ".*test_classes.py::Test2::test_one"
-        ".*test_classes.py::test_one"
-        ".*test_functions1.py::test1_one"
-        ".*test_functions2.py::test2_one"
-        ".*test_classes.py::Test1::test_two"
-        ".*test_classes.py::Test2::test_two"
-        ".*test_classes.py::test_two"
-        ".*test_functions1.py::test1_two"
-        ".*test_functions2.py::test2_two.*"
+        "test_classes.py::Test1::test_one",
+        "test_classes.py::Test2::test_one",
+        "test_classes.py::test_one",
+        "test_functions1.py::test1_one",
+        "test_functions2.py::test2_one",
+        "test_classes.py::Test1::test_two",
+        "test_classes.py::Test2::test_two",
+        "test_classes.py::test_two",
+        "test_functions1.py::test1_two",
+        "test_functions2.py::test2_two"
     )
-    assert re.match(expected, out.replace("\n", "")), out
+    assert_test_order(expected, out)
 
 
 def test_session_scope_multiple_files(fixture_file_paths, capsys):
@@ -112,18 +117,18 @@ def test_session_scope_multiple_files(fixture_file_paths, capsys):
     # under Windows, the module name is not listed in this case,
     # so do not expect it
     expected = (
-        ".*::Test1::test_one"
-        ".*::Test2::test_one"
-        ".*::test_one"
-        ".*::test1_one"
-        ".*::test2_one"
-        ".*::Test1::test_two"
-        ".*::Test2::test_two"
-        ".*::test_two"
-        ".*::test1_two"
-        ".*::test2_two.*"
+        "::Test1::test_one",
+        "::Test2::test_one",
+        "::test_one",
+        "::test1_one",
+        "::test2_one",
+        "::Test1::test_two",
+        "::Test2::test_two",
+        "::test_two",
+        "::test1_two",
+        "::test2_two"
     )
-    assert re.match(expected, out.replace("\n", "")), out
+    assert_test_order(expected, out)
 
 
 def test_module_scope(fixture_path, capsys):
@@ -131,18 +136,18 @@ def test_module_scope(fixture_path, capsys):
     pytest.main(args, [pytest_order])
     out, err = capsys.readouterr()
     expected = (
-        ".*test_classes.py::Test1::test_one"
-        ".*test_classes.py::Test2::test_one"
-        ".*test_classes.py::test_one"
-        ".*test_classes.py::Test1::test_two"
-        ".*test_classes.py::Test2::test_two"
-        ".*test_classes.py::test_two"
-        ".*test_functions1.py::test1_one"
-        ".*test_functions1.py::test1_two"
-        ".*test_functions2.py::test2_one"
-        ".*test_functions2.py::test2_two.*"
+        "test_classes.py::Test1::test_one",
+        "test_classes.py::Test2::test_one",
+        "test_classes.py::test_one",
+        "test_classes.py::Test1::test_two",
+        "test_classes.py::Test2::test_two",
+        "test_classes.py::test_two",
+        "test_functions1.py::test1_one",
+        "test_functions1.py::test1_two",
+        "test_functions2.py::test2_one",
+        "test_functions2.py::test2_two"
     )
-    assert re.match(expected, out.replace("\n", "")), out
+    assert_test_order(expected, out)
 
 
 def test_class_scope(fixture_path, capsys):
@@ -150,18 +155,18 @@ def test_class_scope(fixture_path, capsys):
     pytest.main(args, [pytest_order])
     out, err = capsys.readouterr()
     expected = (
-        ".*test_classes.py::Test1::test_one"
-        ".*test_classes.py::Test1::test_two"
-        ".*test_classes.py::Test2::test_one"
-        ".*test_classes.py::Test2::test_two"
-        ".*test_classes.py::test_one"
-        ".*test_classes.py::test_two"
-        ".*test_functions1.py::test1_one"
-        ".*test_functions1.py::test1_two"
-        ".*test_functions2.py::test2_one"
-        ".*test_functions2.py::test2_two.*"
+        "test_classes.py::Test1::test_one",
+        "test_classes.py::Test1::test_two",
+        "test_classes.py::Test2::test_one",
+        "test_classes.py::Test2::test_two",
+        "test_classes.py::test_one",
+        "test_classes.py::test_two",
+        "test_functions1.py::test1_one",
+        "test_functions1.py::test1_two",
+        "test_functions2.py::test2_one",
+        "test_functions2.py::test2_two"
     )
-    assert re.match(expected, out.replace("\n", "")), out
+    assert_test_order(expected, out)
 
 
 @pytest.mark.skipif(pytest.__version__.startswith(("3.6.", "3.7.")),

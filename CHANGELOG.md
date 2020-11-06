@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Added
+- added configuration option for sparse sorting, e.g. the possibility to
+  fill gaps between ordinals with unordered tests (see also 
+  [this issue](https://github.com/ftobia/pytest-ordering/issues/14) in
+  `pytest-ordering`)
+
 ## [Version 0.8.1](https://pypi.org/project/pytest-order/0.8.1/) (2020-11-02)
 
 ### Added

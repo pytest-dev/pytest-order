@@ -44,7 +44,7 @@ def pytest_configure(config):
     )
     config.addinivalue_line("markers", config_line)
 
-    if config.getoption("indulgent-ordering"):
+    if config.getoption("indulgent_ordering"):
         # We need to dynamically add this `tryfirst` decorator to the plugin:
         # only when the CLI option is present should the decorator be added.
         # Thus, we manually run the decorator on the class function and
@@ -65,14 +65,18 @@ def pytest_addoption(parser):
     """Set up CLI option for pytest"""
     group = parser.getgroup("ordering")
     group.addoption("--indulgent-ordering", action="store_true",
-                    dest="indulgent-ordering",
+                    dest="indulgent_ordering",
                     help="Request that the sort order provided by "
                          "pytest-order be applied before other sorting, "
                          "allowing the other sorting to have priority")
     group.addoption("--order-scope", action="store",
-                    dest="order-scope",
+                    dest="order_scope",
                     help="Defines the scope used for ordering. Possible values"
                          "are 'session' (default), 'module', and 'class'")
+    group.addoption("--sparse-ordering", action="store_true",
+                    dest="sparse_ordering",
+                    help="If there are gaps between ordinals they are filled "
+                         "with unordered tests.")
 
 
 class OrderingPlugin(object):
@@ -126,14 +130,6 @@ def mark_binning(item, keys, start, end, before, after, unordered):
     return False
 
 
-def insert(items, sort):
-    if isinstance(items, tuple):
-        list_items = items[1]
-    else:
-        list_items = items
-    sort += list_items
-
-
 def insert_before(name, items, sort):
     regex_name = re.escape(name) + r"(:?\.\w+)?$"
     for pos, item in enumerate(sort):
@@ -160,7 +156,7 @@ def insert_after(name, items, sort):
     return False
 
 
-def do_modify_items(items):
+def do_modify_items(items, sparse_ordering):
     before_item = {}
     after_item = {}
     start_item = {}
@@ -174,13 +170,8 @@ def do_modify_items(items):
     start_item = sorted(start_item.items())
     end_item = sorted(end_item.items())
 
-    sorted_list = []
-
-    for entries in start_item:
-        insert(entries, sorted_list)
-    insert(unordered_list, sorted_list)
-    for entries in end_item:
-        insert(entries, sorted_list)
+    sorted_list = sort_numbered_items(start_item, end_item, unordered_list,
+                                      sparse_ordering)
 
     still_left = 0
     length = len(before_item) + len(after_item)
@@ -216,8 +207,34 @@ def do_modify_items(items):
     return sorted_list
 
 
+def sort_numbered_items(start_item, end_item, unordered_list, sparse_ordering):
+    sorted_list = []
+    index = 0
+    for entries in start_item:
+        if sparse_ordering:
+            while entries[0] > index and unordered_list:
+                sorted_list.append(unordered_list.pop(0))
+                index += 1
+        sorted_list += entries[1]
+        index += len(entries[1])
+    mid_index = len(sorted_list)
+    index = -1
+    for entries in reversed(end_item):
+        if sparse_ordering:
+            while entries[0] < index and unordered_list:
+                sorted_list.insert(mid_index, unordered_list.pop())
+                index -= 1
+        for item in reversed(entries[1]):
+            sorted_list.insert(mid_index, item)
+        index += len(entries[1])
+    for unordered_item in reversed(unordered_list):
+        sorted_list.insert(mid_index, unordered_item)
+    return sorted_list
+
+
 def modify_items(session, config, items):
-    scope = config.getoption("order-scope")
+    sparse_ordering = config.getoption("sparse_ordering")
+    scope = config.getoption("order_scope")
     if scope not in ("session", "module", "class"):
         if scope is not None:
             warn("Unknown order scope '{}', ignoring it. "
@@ -225,7 +242,7 @@ def modify_items(session, config, items):
                  .format(scope))
         scope = "session"
     if scope == "session":
-        sorted_list = do_modify_items(items)
+        sorted_list = do_modify_items(items, sparse_ordering)
     elif scope == "module":
         module_items = OrderedDict()
         for item in items:
@@ -233,7 +250,8 @@ def modify_items(session, config, items):
             module_items.setdefault(module_path, []).append(item)
         sorted_list = []
         for module_item_list in module_items.values():
-            sorted_list.extend(do_modify_items(module_item_list))
+            sorted_list.extend(do_modify_items(
+                module_item_list, sparse_ordering))
     else:  # class scope
         class_items = OrderedDict()
         for item in items:
@@ -244,6 +262,7 @@ def modify_items(session, config, items):
             class_items.setdefault(class_path, []).append(item)
         sorted_list = []
         for class_item_list in class_items.values():
-            sorted_list.extend(do_modify_items(class_item_list))
+            sorted_list.extend(do_modify_items(
+                class_item_list, sparse_ordering))
 
     items[:] = sorted_list
