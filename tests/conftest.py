@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 
 pytest_plugins = ["pytester"]
@@ -13,3 +15,10 @@ def item_names_for(testdir):
         return [item.name for item in items]
 
     return _item_names_for
+
+
+@pytest.fixture
+def test_path(tmpdir):
+    path = tmpdir.join("{}.py".format(str(uuid.uuid4())))
+    yield str(path)
+    path.remove()

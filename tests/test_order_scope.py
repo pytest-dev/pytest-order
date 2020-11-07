@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
-import re
 import shutil
 
 import pytest
 
 import pytest_order
+from utils import assert_test_order
 
 
 @pytest.fixture(scope="module")
@@ -83,11 +83,6 @@ def fixture_file_paths(fixture_path):
         os.path.join(fixture_path, "test_functions1.py"),
         os.path.join(fixture_path, "test_functions2.py")
     ]
-
-
-def assert_test_order(test_names, out):
-    expected = ".*" + ".*".join(test_names)
-    assert re.match(expected, out.replace("\n", "")), out
 
 
 def test_session_scope(fixture_path, capsys):
