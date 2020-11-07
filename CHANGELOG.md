@@ -6,8 +6,16 @@
 - added configuration option for sparse sorting, e.g. the possibility to
   fill gaps between ordinals with unordered tests (see also 
   [this issue](https://github.com/ftobia/pytest-ordering/issues/14) in
-  `pytest-ordering`)
-
+  `pytest-ordering`) 
+- ignore ordering if it would break a dependency defined by the
+  `pytest-dependency` plugin
+- experimental: added configuration option for ordering all dependencies
+  defined by the `pytest-dependency` plugin
+  
+### Infrastructure
+- added list of open issues in `pytest-ordering` with respective state
+  in `pytest-order` 
+ 
 ## [Version 0.8.1](https://pypi.org/project/pytest-order/0.8.1/) (2020-11-02)
 
 ### Added

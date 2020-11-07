@@ -37,8 +37,8 @@ Tracks the state of all open issues in pytest-ordering for reference.
 - [Unknown mark warning](https://github.com/ftobia/pytest-ordering/issues/57)  
   obsolete with registered marker :heavy_check_mark:
 - [pytest-ordering doesn't honor test dependencies](https://github.com/ftobia/pytest-ordering/issues/58)  
-  unclear what we can do here - maybe handle dependency markers like 
-  before/after markers? :thought_balloon: 
+  - ignore ordering if it would break a dependency
+  - added configuration option for ordering all dependencies :heavy_check_mark:
 - [should pytest-ordering be deprecated in favor of pytest-dependency?](https://github.com/ftobia/pytest-ordering/issues/59)  
   has been answered (`pytest-dependency` does not support ordering) :heavy_check_mark: 
 - [py.test ordering doesn't works when methods with order greater than 9 are present](https://github.com/ftobia/pytest-ordering/issues/61)  

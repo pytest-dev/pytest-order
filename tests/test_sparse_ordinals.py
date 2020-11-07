@@ -152,3 +152,28 @@ def test_5(): pass
     pytest.main(["-v", "--sparse-ordering", test_path], [pytest_order])
     out, err = capsys.readouterr()
     assert_test_order(["test_3", "test_1", "test_2", "test_4", "test_5"], out)
+
+
+def test_end_items(test_path, capsys):
+    tests_content = """
+import pytest
+
+@pytest.mark.order(-2)
+def test_1(): pass
+
+@pytest.mark.order(-4)
+def test_2(): pass
+
+def test_3(): pass
+
+def test_4(): pass
+
+def test_5(): pass
+    """
+    write_test(test_path, tests_content)
+    pytest.main(["-v", test_path], [pytest_order])
+    out, err = capsys.readouterr()
+    assert_test_order(["test_3", "test_4", "test_5", "test_2", "test_1"], out)
+    pytest.main(["-v", "--sparse-ordering", test_path], [pytest_order])
+    out, err = capsys.readouterr()
+    assert_test_order(["test_3", "test_2", "test_4", "test_1", "test_5"], out)

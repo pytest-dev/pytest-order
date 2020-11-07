@@ -77,6 +77,10 @@ def pytest_addoption(parser):
                     dest="sparse_ordering",
                     help="If there are gaps between ordinals they are filled "
                          "with unordered tests.")
+    group.addoption("--order-dependencies", action="store_true",
+                    dest="order_dependencies",
+                    help="If set, dependencies added by pytest-dependency will"
+                         "be ordered if needed.")
 
 
 class OrderingPlugin(object):
@@ -88,6 +92,26 @@ class OrderingPlugin(object):
     """
 
 
+class Settings:
+    sparse_ordering = False
+    order_dependencies = False
+    scope = "session"
+
+    @classmethod
+    def initialize(cls, config):
+        cls.sparse_ordering = config.getoption("sparse_ordering")
+        cls.order_dependencies = config.getoption("order_dependencies")
+        scope = config.getoption("order_scope")
+        if scope in ("session", "module", "class"):
+            cls.scope = scope
+        else:
+            if scope is not None:
+                warn("Unknown order scope '{}', ignoring it. "
+                     "Valid scopes are 'session', 'module' and 'class'."
+                     .format(scope))
+            cls.scope = "session"
+
+
 def get_filename(item):
     name = item.location[0]
     if os.sep in name:
@@ -95,7 +119,23 @@ def get_filename(item):
     return name[:-3]
 
 
-def mark_binning(item, keys, start, end, before, after, unordered):
+def mark_binning(item, keys, start, end, before, after, unordered, alias):
+    if ("dependency" in keys and
+            (Settings.order_dependencies or "order" in keys)):
+        # always order dependencies if an order mark is present
+        # otherwise only if order-dependencies is set
+        mark = item.get_closest_marker("dependency")
+        prefix = get_filename(item) + "."
+        dependent_mark = mark.kwargs.get("depends")
+        if dependent_mark:
+            for name in dependent_mark:
+                if "." not in name:
+                    name = prefix + name
+                after.setdefault(name, []).append(item)
+        name_mark = mark.kwargs.get("name")
+        if name_mark:
+            alias[prefix + name_mark] = prefix + item.name
+
     if "order" in keys:
         mark = item.get_closest_marker("order")
         order = mark.args[0] if mark.args else None
@@ -156,22 +196,22 @@ def insert_after(name, items, sort):
     return False
 
 
-def do_modify_items(items, sparse_ordering):
+def do_modify_items(items):
     before_item = {}
     after_item = {}
     start_item = {}
     end_item = {}
     unordered_list = []
+    alias_names = {}
 
     for item in items:
         mark_binning(item, item.keywords.keys(), start_item, end_item,
-                     before_item, after_item, unordered_list)
+                     before_item, after_item, unordered_list, alias_names)
 
     start_item = sorted(start_item.items())
     end_item = sorted(end_item.items())
 
-    sorted_list = sort_numbered_items(start_item, end_item, unordered_list,
-                                      sparse_ordering)
+    sorted_list = sort_numbered_items(start_item, end_item, unordered_list)
 
     still_left = 0
     length = len(before_item) + len(after_item)
@@ -187,7 +227,8 @@ def do_modify_items(items, sparse_ordering):
 
         remove_labels = []
         for label, after in after_item.items():
-            if insert_after(label, after, sorted_list):
+            name = alias_names[label] if label in alias_names else label
+            if insert_after(name, after, sorted_list):
                 remove_labels.append(label)
         for label in remove_labels:
             del after_item[label]
@@ -207,11 +248,11 @@ def do_modify_items(items, sparse_ordering):
     return sorted_list
 
 
-def sort_numbered_items(start_item, end_item, unordered_list, sparse_ordering):
+def sort_numbered_items(start_item, end_item, unordered_list):
     sorted_list = []
     index = 0
     for entries in start_item:
-        if sparse_ordering:
+        if Settings.sparse_ordering:
             while entries[0] > index and unordered_list:
                 sorted_list.append(unordered_list.pop(0))
                 index += 1
@@ -220,38 +261,28 @@ def sort_numbered_items(start_item, end_item, unordered_list, sparse_ordering):
     mid_index = len(sorted_list)
     index = -1
     for entries in reversed(end_item):
-        if sparse_ordering:
+        if Settings.sparse_ordering:
             while entries[0] < index and unordered_list:
                 sorted_list.insert(mid_index, unordered_list.pop())
                 index -= 1
-        for item in reversed(entries[1]):
-            sorted_list.insert(mid_index, item)
-        index += len(entries[1])
-    for unordered_item in reversed(unordered_list):
-        sorted_list.insert(mid_index, unordered_item)
+        sorted_list[mid_index:mid_index] = entries[1]
+        index -= len(entries[1])
+    sorted_list[mid_index:mid_index] = unordered_list
     return sorted_list
 
 
 def modify_items(session, config, items):
-    sparse_ordering = config.getoption("sparse_ordering")
-    scope = config.getoption("order_scope")
-    if scope not in ("session", "module", "class"):
-        if scope is not None:
-            warn("Unknown order scope '{}', ignoring it. "
-                 "Valid scopes are 'session', 'module' and 'class'."
-                 .format(scope))
-        scope = "session"
-    if scope == "session":
-        sorted_list = do_modify_items(items, sparse_ordering)
-    elif scope == "module":
+    Settings.initialize(config)
+    if Settings.scope == "session":
+        sorted_list = do_modify_items(items)
+    elif Settings.scope == "module":
         module_items = OrderedDict()
         for item in items:
             module_path = item.nodeid[:item.nodeid.index("::")]
             module_items.setdefault(module_path, []).append(item)
         sorted_list = []
         for module_item_list in module_items.values():
-            sorted_list.extend(do_modify_items(
-                module_item_list, sparse_ordering))
+            sorted_list.extend(do_modify_items(module_item_list))
     else:  # class scope
         class_items = OrderedDict()
         for item in items:
@@ -262,7 +293,6 @@ def modify_items(session, config, items):
             class_items.setdefault(class_path, []).append(item)
         sorted_list = []
         for class_item_list in class_items.values():
-            sorted_list.extend(do_modify_items(
-                class_item_list, sparse_ordering))
+            sorted_list.extend(do_modify_items(class_item_list))
 
     items[:] = sorted_list
