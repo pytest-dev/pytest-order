@@ -275,7 +275,8 @@ question is ordered behind all other tests.
   The `pytest-dependency <https://pypi.org/project/pytest-dependency/>`__
   plugin also manages dependencies between tests (skips tests that depend
   on skipped or failed tests), but doesn't do any ordering. You can combine
-  both plugins if you need both options.
+  both plugins if you need both options--see :ref:`order-dependencies`
+  below for more information.
 
 Configuration
 =============
@@ -379,6 +380,55 @@ then from the end if there are negative numbers, and the rest will be in
 between (e.g. between positive and negative numbers), as it is without this
 option.
 
+.. _order-dependencies:
+
+``--order-dependencies``
+------------------------
+This defines the behavior if the ``pytest-dependency`` plugin is used.
+By default, ``dependency`` marks are only considered if they coexist with an
+``order`` mark. In this case it is checked if the ordering would break the
+dependency, and is ignored if this is the case. Consider the following:
+
+.. code:: python
+
+import pytest
+
+def test_a():
+    assert True
+
+@pytest.mark.dependency(depends=['test_a'])
+@pytest.mark.order("first")
+def test_b():
+    assert True
+
+In this case, the ordering would break the dependency and is therefore
+ignored. This behavior is independent of the option. Now consider the
+following tests:
+
+.. code:: python
+
+import pytest
+
+@pytest.mark.dependency(depends=['test_b'])
+def test_a():
+    assert True
+
+def test_b():
+    assert True
+
+By default, ``test_a`` is not run, because it depends on ``test_b``, which
+is only run after ``test_b``. If you use ``--order-dependencies``, this will
+change--the tests will now be reordered according to the dependency and both
+run. Note that a similar feature may be added to ``pytest-dependency`` -
+if this is done, this option will not be needed, but for the time being you
+can use both plugins together to get this behavior.
+Note that ``pytest-order`` does not replace ``pytest-dependency``--it just
+adds ordering to the existing functionality if needed.
+
+.. note::
+  This feature is considered experimental. It will not handle all cases of
+  defined dependencies. If there is sufficient demand (reflected in issues),
+  this may be expanded.
 
 Miscellaneous
 =============

@@ -294,7 +294,8 @@ question is ordered behind all other tests.</p>
 <p class="last">The <a class="reference external" href="https://pypi.org/project/pytest-dependency/">pytest-dependency</a>
 plugin also manages dependencies between tests (skips tests that depend
 on skipped or failed tests), but doesn’t do any ordering. You can combine
-both plugins if you need both options.</p>
+both plugins if you need both options–see <a class="reference internal" href="#order-dependencies"><span class="std std-ref">--order-dependencies</span></a>
+below for more information.</p>
 </div>
 </div>
 </div>
@@ -390,6 +391,49 @@ then from the end if there are negative numbers, and the rest will be in
 between (e.g. between positive and negative numbers), as it is without this
 option.</p>
 </div>
+<div class="section" id="order-dependencies">
+<span id="id2"></span><h2><code class="docutils literal"><span class="pre">--order-dependencies</span></code><a class="headerlink" href="#order-dependencies" title="Permalink to this headline">¶</a></h2>
+<p>This defines the behavior if the <code class="docutils literal"><span class="pre">pytest-dependency</span></code> plugin is used.
+By default, <code class="docutils literal"><span class="pre">dependency</span></code> marks are only considered if they coexist with an
+<code class="docutils literal"><span class="pre">order</span></code> mark. In this case it is checked if the ordering would break the
+dependency, and is ignored if this is the case. Consider the following:</p>
+<p>import pytest</p>
+<dl class="docutils">
+<dt>def test_a():</dt>
+<dd>assert True</dd>
+</dl>
+<p>&#64;pytest.mark.dependency(depends=[‘test_a’])
+&#64;pytest.mark.order(“first”)
+def test_b():</p>
+<blockquote>
+<div>assert True</div></blockquote>
+<p>In this case, the ordering would break the dependency and is therefore
+ignored. This behavior is independent of the option. Now consider the
+following tests:</p>
+<p>import pytest</p>
+<p>&#64;pytest.mark.dependency(depends=[‘test_b’])
+def test_a():</p>
+<blockquote>
+<div>assert True</div></blockquote>
+<dl class="docutils">
+<dt>def test_b():</dt>
+<dd>assert True</dd>
+</dl>
+<p>By default, <code class="docutils literal"><span class="pre">test_a</span></code> is not run, because it depends on <code class="docutils literal"><span class="pre">test_b</span></code>, which
+is only run after <code class="docutils literal"><span class="pre">test_b</span></code>. If you use <code class="docutils literal"><span class="pre">--order-dependencies</span></code>, this will
+change–the tests will now be reordered according to the dependency and both
+run. Note that a similar feature may be added to <code class="docutils literal"><span class="pre">pytest-dependency</span></code> -
+if this is done, this option will not be needed, but for the time being you
+can use both plugins together to get this behavior.
+Note that <code class="docutils literal"><span class="pre">pytest-order</span></code> does not replace <code class="docutils literal"><span class="pre">pytest-dependency</span></code>–it just
+adds ordering to the existing functionality if needed.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This feature is considered experimental. It will not handle all cases of
+defined dependencies. If there is sufficient demand (reflected in issues),
+this may be expanded.</p>
+</div>
+</div>
 </div>
 <div class="section" id="miscellaneous">
 <h1>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h1>
@@ -432,6 +476,7 @@ pytest with <code class="docutils literal"><span class="pre">--dist=loadfile</sp
 <li><a class="reference internal" href="#indulgent-ordering"><code class="docutils literal"><span class="pre">--indulgent-ordering</span></code></a></li>
 <li><a class="reference internal" href="#order-scope"><code class="docutils literal"><span class="pre">--order-scope</span></code></a></li>
 <li><a class="reference internal" href="#sparse-ordering"><code class="docutils literal"><span class="pre">--sparse-ordering</span></code></a></li>
+<li><a class="reference internal" href="#order-dependencies"><code class="docutils literal"><span class="pre">--order-dependencies</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#miscellaneous">Miscellaneous</a><ul>
