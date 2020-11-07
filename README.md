@@ -7,6 +7,10 @@ _pytest-order_ - a pytest plugin to order test execution
 your tests are run. It uses the marker `order` that defines when a specific
 test shall be run relative to the other tests.  
 
+`pytest-order` works with Python 2.7 and 3.5 - 3.9, with pytest 
+versions >= 3.6.0, and runs on Linux, MacOs and Windows.
+
+
 Documentation
 -------------
 Apart from this overview, the following information is available:
@@ -23,8 +27,8 @@ that are now integrated into `pytest-order`. The idea and most of the code
 has been created by Frank Tobia, the author of that plugin, and
 [contributors](https://github.com/mrbean-bremen/pytest-order/blob/master/AUTHORS).
 
-Compatibility to pytest_ordering
----------------------------------
+Compatibility with pytest_ordering
+----------------------------------
 `pytest-order` is **not** compatible with `pytest-ordering` due to the
 changed marker name (`order` instead of `run`). Only the `order` 
 marker is supported, support for all additional markers has been removed for
@@ -52,11 +56,11 @@ For example, this code:
 
     import pytest
 
-    @pytest.mark.run(order=2)
+    @pytest.mark.order(2)
     def test_foo():
         assert True
 
-    @pytest.mark.run(order=1)
+    @pytest.mark.order(1)
     def test_bar():
         assert True
 
