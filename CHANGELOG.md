@@ -1,6 +1,10 @@
 # pytest-order Release Notes
 
-## Unreleased
+## [Version 0.9.0](https://pypi.org/project/pytest-order/0.9.0/) (2020-11-08)
+This is the last major version that will support Python 2 - Python 2 support
+will be dropped in version 1.0. There is no timeline for that release, as there
+are currently no new features planned - further development will be
+demand-driven.
 
 ### Changes
 - removed support for pytest 3.6 (it still may work, just isn't tested anymore)
