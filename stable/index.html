@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Introduction &#8212; pytest-order 0.8.1 documentation</title>
+    <title>Introduction &#8212; pytest-order 0.9.0 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -22,7 +22,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="#">pytest-order 0.8.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="#">pytest-order 0.9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Introduction</a></li> 
       </ul>
     </div>  
@@ -51,10 +51,10 @@ if you can refactor your tests to remove the dependencies between tests.</p>
 <p><code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> is a fork of
 <a class="reference external" href="https://github.com/ftobia/pytest-ordering">pytest-ordering</a>, which is
 not maintained anymore. The idea and most of the code has been created by
-Frank Tobia, the author of that plugin.</p>
+Frank Tobia, the author of that plugin, and contributors to the project.</p>
 <p>However, <code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> is not compatible with <code class="docutils literal notranslate"><span class="pre">pytest-ordering</span></code> due to the
 changed marker name (<code class="docutils literal notranslate"><span class="pre">order</span></code> instead of <code class="docutils literal notranslate"><span class="pre">run</span></code>) and the removal of all
-other special markers for consistence (see
+other special markers for consistence (as has been discussed in
 <a class="reference external" href="https://github.com/ftobia/pytest-ordering/issues/38">this issue</a>). This
 also avoids clashes between the plugins if they are both installed.</p>
 <p>Here are examples for which markers correspond to markers in
@@ -67,7 +67,7 @@ also avoids clashes between the plugins if they are both installed.</p>
 <div class="section" id="supported-python-and-pytest-versions">
 <h2>Supported Python and pytest versions<a class="headerlink" href="#supported-python-and-pytest-versions" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> supports python 2.7, 3.5 - 3.9, and pypy/pypy3, and is
-compatible with pytest 3.6.0 or newer. Note that support for Python 2 will
+compatible with pytest 3.7.0 or newer. Note that support for Python 2 will
 be removed in one of the next versions.</p>
 <p>All supported combinations of Python and pytest versions are tested in
 the CI builds. The plugin shall work under Linux, MacOs and Windows.</p>
@@ -145,10 +145,14 @@ regardless of the module and class they reside in. This can be changed
 by using the <a class="reference internal" href="#order-scope"><span class="std std-ref">--order-scope</span></a> option.</p>
 </div>
 <p>There are currently three possibilities to define the order:</p>
-<div class="section" id="order-by-number">
-<h2>Order by number<a class="headerlink" href="#order-by-number" title="Permalink to this headline">¶</a></h2>
-<p>As already shown above, the order can be defined using ordinal numbers.
-Negative numbers are also allowed–they are used the same way as indexes
+<div class="section" id="order-by-index">
+<h2>Order by index<a class="headerlink" href="#order-by-index" title="Permalink to this headline">¶</a></h2>
+<p>As already shown above, the order can be defined using the ordinal numbers.
+There is a long form that uses the keyword <code class="docutils literal notranslate"><span class="pre">index</span></code>, and a short form, that
+uses just the ordinal number–both are shown in the example below. The long
+form may be better readable if you want to combine it with a dependency marker
+(<code class="docutils literal notranslate"><span class="pre">before</span></code> or <code class="docutils literal notranslate"><span class="pre">after</span></code>, see below).
+Negative numbers are also allowed–they are used the same way as indices
 are used in Python lists, e.g. to count from the end:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
@@ -156,11 +160,11 @@ are used in Python lists, e.g. to count from the end:</p>
 <span class="k">def</span> <span class="nf">test_three</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">index</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_four</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_two</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
@@ -286,15 +290,16 @@ question is ordered behind all other tests.</p>
 <p>The <a class="reference external" href="https://pypi.org/project/pytest-dependency/">pytest-dependency</a>
 plugin also manages dependencies between tests (skips tests that depend
 on skipped or failed tests), but doesn’t do any ordering. You can combine
-both plugins if you need both options.</p>
+both plugins if you need both options–see <a class="reference internal" href="#order-dependencies"><span class="std std-ref">--order-dependencies</span></a>
+below for more information.</p>
 </div>
 </div>
 </div>
 <div class="section" id="configuration">
 <h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
-<p>Currently there are two command line option that change the behavior of the
-plugin. As for any option, you can add the options to your <code class="docutils literal notranslate"><span class="pre">pytest.ini</span></code> if
-you want to have them always applied.</p>
+<p>There are a few command line options that change the behavior of the
+plugin. As with any pytest option, you can add the options to your
+<code class="docutils literal notranslate"><span class="pre">pytest.ini</span></code> if you want to have them applied to all tests automatically.</p>
 <div class="section" id="indulgent-ordering">
 <h2><code class="docutils literal notranslate"><span class="pre">--indulgent-ordering</span></code><a class="headerlink" href="#indulgent-ordering" title="Permalink to this headline">¶</a></h2>
 <p>You may sometimes find that you want to suggest an ordering of tests, while
@@ -328,6 +333,105 @@ separate test functions, these test functions are handled separately from the
 test classes. If a module has no test classes, the effect is the same as
 if using <code class="docutils literal notranslate"><span class="pre">--order-scope=module</span></code>.</p>
 </div>
+<div class="section" id="sparse-ordering">
+<h2><code class="docutils literal notranslate"><span class="pre">--sparse-ordering</span></code><a class="headerlink" href="#sparse-ordering" title="Permalink to this headline">¶</a></h2>
+<p>Ordering tests by ordinals where some numbers are missing by default behaves
+the same as if the the ordinals are consecutive. For example, these tests:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_two</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="k">def</span> <span class="nf">test_three</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="k">def</span> <span class="nf">test_four</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_one</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>are executed in the same order as:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_two</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="k">def</span> <span class="nf">test_three</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="k">def</span> <span class="nf">test_four</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_one</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>namely, they are run in the order <code class="docutils literal notranslate"><span class="pre">test_one</span></code>, <code class="docutils literal notranslate"><span class="pre">test_two</span></code>, <code class="docutils literal notranslate"><span class="pre">test_three</span></code>
+and <code class="docutils literal notranslate"><span class="pre">test_four</span></code>. The gaps between numbers, and the fact that the starting
+number is not 0, are ignored. This is consistent with the current behavior of
+<code class="docutils literal notranslate"><span class="pre">pytest-ordering</span></code>.</p>
+<p>If you use the <code class="docutils literal notranslate"><span class="pre">--sparse-ordering</span></code> option, the behavior will change: now
+all missing numbers (starting with 0) are filled with unordered tests, as
+long as unordered tests are left. So the shown example will now order as
+<code class="docutils literal notranslate"><span class="pre">test_three</span></code> (filled in for the missing number 0), <code class="docutils literal notranslate"><span class="pre">test_one</span></code>,
+<code class="docutils literal notranslate"><span class="pre">test_four</span></code> (filled in for the missing number 2), and <code class="docutils literal notranslate"><span class="pre">test_two</span></code>. This
+will also work for tests with negative order numbers (or the respective names).
+The missing ordinals are filled with unordered tests first from the start,
+then from the end if there are negative numbers, and the rest will be in
+between (e.g. between positive and negative numbers), as it is without this
+option.</p>
+</div>
+<div class="section" id="order-dependencies">
+<span id="id2"></span><h2><code class="docutils literal notranslate"><span class="pre">--order-dependencies</span></code><a class="headerlink" href="#order-dependencies" title="Permalink to this headline">¶</a></h2>
+<p>This defines the behavior if the <code class="docutils literal notranslate"><span class="pre">pytest-dependency</span></code> plugin is used.
+By default, <code class="docutils literal notranslate"><span class="pre">dependency</span></code> marks are only considered if they coexist with an
+<code class="docutils literal notranslate"><span class="pre">order</span></code> mark. In this case it is checked if the ordering would break the
+dependency, and is ignored if this is the case. Consider the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="k">def</span> <span class="nf">test_a</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">dependency</span><span class="p">(</span><span class="n">depends</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;test_a&#39;</span><span class="p">])</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_b</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>In this case, the ordering would break the dependency and is therefore
+ignored. This behavior is independent of the option. Now consider the
+following tests:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">dependency</span><span class="p">(</span><span class="n">depends</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;test_b&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">test_a</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="k">def</span> <span class="nf">test_b</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">test_a</span></code> is not run, because it depends on <code class="docutils literal notranslate"><span class="pre">test_b</span></code>, which
+is only run after <code class="docutils literal notranslate"><span class="pre">test_b</span></code>. If you use <code class="docutils literal notranslate"><span class="pre">--order-dependencies</span></code>, this will
+change–the tests will now be reordered according to the dependency and both
+run. Note that a similar feature may be added to <code class="docutils literal notranslate"><span class="pre">pytest-dependency</span></code> -
+if this is done, this option will not be needed, but for the time being you
+can use both plugins together to get this behavior.
+Note that <code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> does not replace <code class="docutils literal notranslate"><span class="pre">pytest-dependency</span></code>–it just
+adds ordering to the existing functionality if needed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This feature is considered experimental. It will not handle all cases of
+defined dependencies. If there is sufficient demand (reflected in issues),
+this may be expanded.</p>
+</div>
+</div>
 </div>
 <div class="section" id="miscellaneous">
 <h1>Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h1>
@@ -340,47 +444,6 @@ from one file will be run in the same thread. So, to make the two plugins work
 together, we have to put each group of dependent tests in one file, and call
 pytest with <code class="docutils literal notranslate"><span class="pre">--dist=loadfile</span></code> (this is taken from
 <a class="reference external" href="https://github.com/ftobia/pytest-ordering/issues/36">this issue</a>).</p>
-</div>
-<div class="section" id="sparse-ordinal-behavior">
-<h2>Sparse ordinal behavior<a class="headerlink" href="#sparse-ordinal-behavior" title="Permalink to this headline">¶</a></h2>
-<p>Sparse ordering (e.g. missing some ordinals in your markers) behaves the
-same as if the the ordinals are consecutive. For example, these tests:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
-
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">test_two</span><span class="p">():</span>
-    <span class="k">assert</span> <span class="kc">True</span>
-
-<span class="k">def</span> <span class="nf">test_three</span><span class="p">():</span>
-    <span class="k">assert</span> <span class="kc">True</span>
-
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">test_two</span><span class="p">():</span>
-    <span class="k">assert</span> <span class="kc">True</span>
-</pre></div>
-</div>
-<p>have the same output as:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
-
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">test_two</span><span class="p">():</span>
-    <span class="k">assert</span> <span class="kc">True</span>
-
-<span class="k">def</span> <span class="nf">test_three</span><span class="p">():</span>
-    <span class="k">assert</span> <span class="kc">True</span>
-
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">test_two</span><span class="p">():</span>
-    <span class="k">assert</span> <span class="kc">True</span>
-</pre></div>
-</div>
-<p>namely, the tests are run in the order <code class="docutils literal notranslate"><span class="pre">test_one</span></code>, <code class="docutils literal notranslate"><span class="pre">test_two</span></code>,
-<code class="docutils literal notranslate"><span class="pre">test_three</span></code>, regardless of the gaps between numbers, and the starting
-number being not 0. It would be possible to change the ordering behavior to
-fill the gaps between the numbers with tests without a marker, as long as
-any are available. However, this leads to some not very intuitive behavior,
-so it is currently not implemented. If there will be demand for this kind
-of behavior, it can be added in a later version.</p>
 <div class="toctree-wrapper compound">
 </div>
 </div>
@@ -403,7 +466,7 @@ of behavior, it can be added in a later version.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#usage">Usage</a><ul>
-<li><a class="reference internal" href="#order-by-number">Order by number</a></li>
+<li><a class="reference internal" href="#order-by-index">Order by index</a></li>
 <li><a class="reference internal" href="#order-using-ordinals">Order using ordinals</a></li>
 <li><a class="reference internal" href="#order-relative-to-other-tests">Order relative to other tests</a></li>
 </ul>
@@ -411,11 +474,12 @@ of behavior, it can be added in a later version.</p>
 <li><a class="reference internal" href="#configuration">Configuration</a><ul>
 <li><a class="reference internal" href="#indulgent-ordering"><code class="docutils literal notranslate"><span class="pre">--indulgent-ordering</span></code></a></li>
 <li><a class="reference internal" href="#order-scope"><code class="docutils literal notranslate"><span class="pre">--order-scope</span></code></a></li>
+<li><a class="reference internal" href="#sparse-ordering"><code class="docutils literal notranslate"><span class="pre">--sparse-ordering</span></code></a></li>
+<li><a class="reference internal" href="#order-dependencies"><code class="docutils literal notranslate"><span class="pre">--order-dependencies</span></code></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#miscellaneous">Miscellaneous</a><ul>
 <li><a class="reference internal" href="#usage-with-pytest-xdist">Usage with pytest-xdist</a></li>
-<li><a class="reference internal" href="#sparse-ordinal-behavior">Sparse ordinal behavior</a></li>
 </ul>
 </li>
 </ul>
@@ -447,7 +511,7 @@ of behavior, it can be added in a later version.</p>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="#">pytest-order 0.8.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="#">pytest-order 0.9.0 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Introduction</a></li> 
       </ul>
     </div>

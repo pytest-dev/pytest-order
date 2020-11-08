@@ -17,11 +17,11 @@ Relationship with pytest-ordering
 ``pytest-order`` is a fork of
 `pytest-ordering <https://github.com/ftobia/pytest-ordering>`__, which is
 not maintained anymore. The idea and most of the code has been created by
-Frank Tobia, the author of that plugin.
+Frank Tobia, the author of that plugin, and contributors to the project.
 
 However, ``pytest-order`` is not compatible with ``pytest-ordering`` due to the
 changed marker name (``order`` instead of ``run``) and the removal of all
-other special markers for consistence (see
+other special markers for consistence (as has been discussed in
 `this issue <https://github.com/ftobia/pytest-ordering/issues/38>`__). This
 also avoids clashes between the plugins if they are both installed.
 
@@ -35,7 +35,7 @@ Here are examples for which markers correspond to markers in
 Supported Python and pytest versions
 ------------------------------------
 ``pytest-order`` supports python 2.7, 3.5 - 3.9, and pypy/pypy3, and is
-compatible with pytest 3.6.0 or newer. Note that support for Python 2 will
+compatible with pytest 3.7.0 or newer. Note that support for Python 2 will
 be removed in one of the next versions.
 
 All supported combinations of Python and pytest versions are tested in
@@ -124,10 +124,14 @@ The above is a trivial example, but ordering is respected across test files.
 
 There are currently three possibilities to define the order:
 
-Order by number
----------------
-As already shown above, the order can be defined using ordinal numbers.
-Negative numbers are also allowed--they are used the same way as indexes
+Order by index
+--------------
+As already shown above, the order can be defined using the ordinal numbers.
+There is a long form that uses the keyword ``index``, and a short form, that
+uses just the ordinal number--both are shown in the example below. The long
+form may be better readable if you want to combine it with a dependency marker
+(``before`` or ``after``, see below).
+Negative numbers are also allowed--they are used the same way as indices
 are used in Python lists, e.g. to count from the end:
 
 .. code:: python
@@ -138,11 +142,11 @@ are used in Python lists, e.g. to count from the end:
  def test_three():
      assert True
 
- @pytest.mark.order(-1)
+ @pytest.mark.order(index=-1)
  def test_four():
      assert True
 
- @pytest.mark.order(2)
+ @pytest.mark.order(index=2)
  def test_two():
      assert True
 
@@ -275,13 +279,14 @@ question is ordered behind all other tests.
   The `pytest-dependency <https://pypi.org/project/pytest-dependency/>`__
   plugin also manages dependencies between tests (skips tests that depend
   on skipped or failed tests), but doesn't do any ordering. You can combine
-  both plugins if you need both options.
+  both plugins if you need both options--see :ref:`order-dependencies`
+  below for more information.
 
 Configuration
 =============
-Currently there are two command line option that change the behavior of the
-plugin. As for any option, you can add the options to your ``pytest.ini`` if
-you want to have them always applied.
+There are a few command line options that change the behavior of the
+plugin. As with any pytest option, you can add the options to your
+``pytest.ini`` if you want to have them applied to all tests automatically.
 
 ``--indulgent-ordering``
 ------------------------
@@ -320,40 +325,30 @@ separate test functions, these test functions are handled separately from the
 test classes. If a module has no test classes, the effect is the same as
 if using ``--order-scope=module``.
 
-Miscellaneous
-=============
-
-Usage with pytest-xdist
------------------------
-The ``pytest-xdist`` plugin schedules tests unordered, and the order
-configured by ``pytest-order`` will normally not be preserved. But
-if we use the ``--dist=loadfile`` option, provided by ``xdist``, all tests
-from one file will be run in the same thread. So, to make the two plugins work
-together, we have to put each group of dependent tests in one file, and call
-pytest with ``--dist=loadfile`` (this is taken from
-`this issue <https://github.com/ftobia/pytest-ordering/issues/36>`__).
-
-Sparse ordinal behavior
------------------------
-Sparse ordering (e.g. missing some ordinals in your markers) behaves the
-same as if the the ordinals are consecutive. For example, these tests:
+``--sparse-ordering``
+---------------------
+Ordering tests by ordinals where some numbers are missing by default behaves
+the same as if the the ordinals are consecutive. For example, these tests:
 
 .. code:: python
 
  import pytest
 
- @pytest.mark.order(4)
+ @pytest.mark.order(3)
  def test_two():
      assert True
 
  def test_three():
      assert True
 
- @pytest.mark.order(2)
- def test_two():
+ def test_four():
      assert True
 
-have the same output as:
+ @pytest.mark.order(1)
+ def test_one():
+     assert True
+
+are executed in the same order as:
 
 .. code:: python
 
@@ -366,17 +361,91 @@ have the same output as:
  def test_three():
      assert True
 
- @pytest.mark.order(0)
- def test_two():
+ def test_four():
      assert True
 
-namely, the tests are run in the order ``test_one``, ``test_two``,
-``test_three``, regardless of the gaps between numbers, and the starting
-number being not 0. It would be possible to change the ordering behavior to
-fill the gaps between the numbers with tests without a marker, as long as
-any are available. However, this leads to some not very intuitive behavior,
-so it is currently not implemented. If there will be demand for this kind
-of behavior, it can be added in a later version.
+ @pytest.mark.order(0)
+ def test_one():
+     assert True
+
+namely, they are run in the order ``test_one``, ``test_two``, ``test_three``
+and ``test_four``. The gaps between numbers, and the fact that the starting
+number is not 0, are ignored. This is consistent with the current behavior of
+``pytest-ordering``.
+
+If you use the ``--sparse-ordering`` option, the behavior will change: now
+all missing numbers (starting with 0) are filled with unordered tests, as
+long as unordered tests are left. So the shown example will now order as
+``test_three`` (filled in for the missing number 0), ``test_one``,
+``test_four`` (filled in for the missing number 2), and ``test_two``. This
+will also work for tests with negative order numbers (or the respective names).
+The missing ordinals are filled with unordered tests first from the start,
+then from the end if there are negative numbers, and the rest will be in
+between (e.g. between positive and negative numbers), as it is without this
+option.
+
+.. _order-dependencies:
+
+``--order-dependencies``
+------------------------
+This defines the behavior if the ``pytest-dependency`` plugin is used.
+By default, ``dependency`` marks are only considered if they coexist with an
+``order`` mark. In this case it is checked if the ordering would break the
+dependency, and is ignored if this is the case. Consider the following:
+
+.. code:: python
+
+ import pytest
+
+ def test_a():
+     assert True
+
+ @pytest.mark.dependency(depends=['test_a'])
+ @pytest.mark.order("first")
+ def test_b():
+     assert True
+
+In this case, the ordering would break the dependency and is therefore
+ignored. This behavior is independent of the option. Now consider the
+following tests:
+
+.. code:: python
+
+ import pytest
+
+ @pytest.mark.dependency(depends=['test_b'])
+ def test_a():
+     assert True
+
+ def test_b():
+     assert True
+
+By default, ``test_a`` is not run, because it depends on ``test_b``, which
+is only run after ``test_b``. If you use ``--order-dependencies``, this will
+change--the tests will now be reordered according to the dependency and both
+run. Note that a similar feature may be added to ``pytest-dependency`` -
+if this is done, this option will not be needed, but for the time being you
+can use both plugins together to get this behavior.
+Note that ``pytest-order`` does not replace ``pytest-dependency``--it just
+adds ordering to the existing functionality if needed.
+
+.. note::
+  This feature is considered experimental. It will not handle all cases of
+  defined dependencies. If there is sufficient demand (reflected in issues),
+  this may be expanded.
+
+Miscellaneous
+=============
+
+Usage with pytest-xdist
+-----------------------
+The ``pytest-xdist`` plugin schedules tests unordered, and the order
+configured by ``pytest-order`` will normally not be preserved. But
+if we use the ``--dist=loadfile`` option, provided by ``xdist``, all tests
+from one file will be run in the same thread. So, to make the two plugins work
+together, we have to put each group of dependent tests in one file, and call
+pytest with ``--dist=loadfile`` (this is taken from
+`this issue <https://github.com/ftobia/pytest-ordering/issues/36>`__).
 
 .. toctree::
    :maxdepth: 2
