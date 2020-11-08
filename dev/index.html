@@ -75,7 +75,7 @@ also avoids clashes between the plugins if they are both installed.</p>
 <div class="section" id="supported-python-and-pytest-versions">
 <h2>Supported Python and pytest versions<a class="headerlink" href="#supported-python-and-pytest-versions" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal"><span class="pre">pytest-order</span></code> supports python 2.7, 3.5 - 3.9, and pypy/pypy3, and is
-compatible with pytest 3.6.0 or newer. Note that support for Python 2 will
+compatible with pytest 3.7.0 or newer. Note that support for Python 2 will
 be removed in one of the next versions.</p>
 <p>All supported combinations of Python and pytest versions are tested in
 the CI builds. The plugin shall work under Linux, MacOs and Windows.</p>
@@ -153,10 +153,14 @@ regardless of the module and class they reside in. This can be changed
 by using the <a class="reference internal" href="#order-scope"><span class="std std-ref">--order-scope</span></a> option.</p>
 </div>
 <p>There are currently three possibilities to define the order:</p>
-<div class="section" id="order-by-number">
-<h2>Order by number<a class="headerlink" href="#order-by-number" title="Permalink to this headline">¶</a></h2>
-<p>As already shown above, the order can be defined using ordinal numbers.
-Negative numbers are also allowed–they are used the same way as indexes
+<div class="section" id="order-by-index">
+<h2>Order by index<a class="headerlink" href="#order-by-index" title="Permalink to this headline">¶</a></h2>
+<p>As already shown above, the order can be defined using the ordinal numbers.
+There is a long form that uses the keyword <code class="docutils literal"><span class="pre">index</span></code>, and a short form, that
+uses just the ordinal number–both are shown in the example below. The long
+form may be better readable if you want to combine it with a dependency marker
+(<code class="docutils literal"><span class="pre">before</span></code> or <code class="docutils literal"><span class="pre">after</span></code>, see below).
+Negative numbers are also allowed–they are used the same way as indices
 are used in Python lists, e.g. to count from the end:</p>
 <div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
@@ -164,11 +168,11 @@ are used in Python lists, e.g. to count from the end:</p>
 <span class="k">def</span> <span class="nf">test_three</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">index</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_four</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_two</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
@@ -469,7 +473,7 @@ pytest with <code class="docutils literal"><span class="pre">--dist=loadfile</sp
 </ul>
 </li>
 <li><a class="reference internal" href="#usage">Usage</a><ul>
-<li><a class="reference internal" href="#order-by-number">Order by number</a></li>
+<li><a class="reference internal" href="#order-by-index">Order by index</a></li>
 <li><a class="reference internal" href="#order-using-ordinals">Order using ordinals</a></li>
 <li><a class="reference internal" href="#order-relative-to-other-tests">Order relative to other tests</a></li>
 </ul>
