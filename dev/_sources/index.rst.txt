@@ -391,15 +391,15 @@ dependency, and is ignored if this is the case. Consider the following:
 
 .. code:: python
 
-import pytest
+ import pytest
 
-def test_a():
-    assert True
+ def test_a():
+     assert True
 
-@pytest.mark.dependency(depends=['test_a'])
-@pytest.mark.order("first")
-def test_b():
-    assert True
+ @pytest.mark.dependency(depends=['test_a'])
+ @pytest.mark.order("first")
+ def test_b():
+     assert True
 
 In this case, the ordering would break the dependency and is therefore
 ignored. This behavior is independent of the option. Now consider the
@@ -407,14 +407,14 @@ following tests:
 
 .. code:: python
 
-import pytest
+ import pytest
 
-@pytest.mark.dependency(depends=['test_b'])
-def test_a():
-    assert True
+ @pytest.mark.dependency(depends=['test_b'])
+ def test_a():
+     assert True
 
-def test_b():
-    assert True
+ def test_b():
+     assert True
 
 By default, ``test_a`` is not run, because it depends on ``test_b``, which
 is only run after ``test_b``. If you use ``--order-dependencies``, this will

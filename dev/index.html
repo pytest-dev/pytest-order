@@ -397,28 +397,30 @@ option.</p>
 By default, <code class="docutils literal"><span class="pre">dependency</span></code> marks are only considered if they coexist with an
 <code class="docutils literal"><span class="pre">order</span></code> mark. In this case it is checked if the ordering would break the
 dependency, and is ignored if this is the case. Consider the following:</p>
-<p>import pytest</p>
-<dl class="docutils">
-<dt>def test_a():</dt>
-<dd>assert True</dd>
-</dl>
-<p>&#64;pytest.mark.dependency(depends=[‘test_a’])
-&#64;pytest.mark.order(“first”)
-def test_b():</p>
-<blockquote>
-<div>assert True</div></blockquote>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="k">def</span> <span class="nf">test_a</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">dependency</span><span class="p">(</span><span class="n">depends</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;test_a&#39;</span><span class="p">])</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_b</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
 <p>In this case, the ordering would break the dependency and is therefore
 ignored. This behavior is independent of the option. Now consider the
 following tests:</p>
-<p>import pytest</p>
-<p>&#64;pytest.mark.dependency(depends=[‘test_b’])
-def test_a():</p>
-<blockquote>
-<div>assert True</div></blockquote>
-<dl class="docutils">
-<dt>def test_b():</dt>
-<dd>assert True</dd>
-</dl>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">dependency</span><span class="p">(</span><span class="n">depends</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;test_b&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">test_a</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="k">def</span> <span class="nf">test_b</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
 <p>By default, <code class="docutils literal"><span class="pre">test_a</span></code> is not run, because it depends on <code class="docutils literal"><span class="pre">test_b</span></code>, which
 is only run after <code class="docutils literal"><span class="pre">test_b</span></code>. If you use <code class="docutils literal"><span class="pre">--order-dependencies</span></code>, this will
 change–the tests will now be reordered according to the dependency and both
