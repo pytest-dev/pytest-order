@@ -4,8 +4,6 @@ import pytest
 import pytest_order
 
 
-@pytest.mark.skipif(pytest.__version__ == "3.10.1",
-                    reason="That version seems to have a parser problem")
 def test_xdist_ordering(tmpdir):
     testname = str(tmpdir.join("first_test.py"))
     with open(testname, "w") as fi:

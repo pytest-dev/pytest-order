@@ -139,6 +139,8 @@ def mark_binning(item, keys, start, end, before, after, unordered, alias):
     if "order" in keys:
         mark = item.get_closest_marker("order")
         order = mark.args[0] if mark.args else None
+        if order is None:
+            order = mark.kwargs.get("index")
         before_mark = mark.kwargs.get("before")
         after_mark = mark.kwargs.get("after")
         if order is not None:
@@ -176,10 +178,17 @@ def insert_before(name, items, sort):
         prefix = get_filename(item)
         item_name = prefix + "." + item.location[2]
         if re.match(regex_name, item_name):
-            if pos == 0:
-                sort[:] = items + sort
-            else:
-                sort[pos:1] = items
+            for item_to_insert in items:
+                if item_to_insert in sort:
+                    index = sort.index(item_to_insert)
+                    if index > pos:
+                        del sort[index]
+                        sort.insert(pos, item_to_insert)
+                else:
+                    if pos == 0:
+                        sort[:] = items + sort
+                    else:
+                        sort[pos:1] = items
             return True
     return False
 
@@ -187,12 +196,18 @@ def insert_before(name, items, sort):
 def insert_after(name, items, sort):
     regex_name = re.escape(name) + r"(:?\.\w+)?$"
     for pos, item in reversed(list(enumerate(sort))):
-        prefix = get_filename(item)
-        item_name = prefix + "." + item.location[2]
+        item_name = get_filename(item) + "." + item.location[2]
         if re.match(regex_name, item_name):
-            sort[pos + 1:1] = items
+            for item_to_insert in items:
+                if item_to_insert in sort:
+                    index = sort.index(item_to_insert)
+                    if index < pos + 1:
+                        del sort[index]
+                        pos -= 1
+                        sort.insert(pos + 1, item_to_insert)
+                else:
+                    sort[pos + 1:1] = items
             return True
-
     return False
 
 

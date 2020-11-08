@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changes
+- removed support for pytest 3.6 (it still may work, just isn't tested anymore)
+
 ### Added
 - added configuration option for sparse sorting, e.g. the possibility to
   fill gaps between ordinals with unordered tests (see also 
@@ -11,6 +14,10 @@
   `pytest-dependency` plugin
 - experimental: added configuration option for ordering all dependencies
   defined by the `pytest-dependency` plugin
+- added ``index`` keyword for ordering as alternative to raw number
+
+### Fixed
+- correctly handle combined index and dependency attributes
   
 ### Infrastructure
 - added list of open issues in `pytest-ordering` with respective state

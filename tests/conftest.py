@@ -22,3 +22,9 @@ def test_path(tmpdir):
     path = tmpdir.join("{}.py".format(str(uuid.uuid4())))
     yield str(path)
     path.remove()
+
+
+@pytest.fixture
+def ignore_settings(mocker):
+    mocker.patch("pytest_order.Settings.initialize")
+    yield

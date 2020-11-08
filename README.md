@@ -8,7 +8,7 @@ your tests are run. It uses the marker `order` that defines when a specific
 test shall be run relative to the other tests.  
 
 `pytest-order` works with Python 2.7 and 3.5 - 3.9, with pytest 
-versions >= 3.6.0, and runs on Linux, MacOs and Windows.
+versions >= 3.7.0, and runs on Linux, MacOs and Windows.
 
 
 Documentation

@@ -35,7 +35,7 @@ Here are examples for which markers correspond to markers in
 Supported Python and pytest versions
 ------------------------------------
 ``pytest-order`` supports python 2.7, 3.5 - 3.9, and pypy/pypy3, and is
-compatible with pytest 3.6.0 or newer. Note that support for Python 2 will
+compatible with pytest 3.7.0 or newer. Note that support for Python 2 will
 be removed in one of the next versions.
 
 All supported combinations of Python and pytest versions are tested in
@@ -124,10 +124,14 @@ The above is a trivial example, but ordering is respected across test files.
 
 There are currently three possibilities to define the order:
 
-Order by number
----------------
-As already shown above, the order can be defined using ordinal numbers.
-Negative numbers are also allowed--they are used the same way as indexes
+Order by index
+--------------
+As already shown above, the order can be defined using the ordinal numbers.
+There is a long form that uses the keyword ``index``, and a short form, that
+uses just the ordinal number--both are shown in the example below. The long
+form may be better readable if you want to combine it with a dependency marker
+(``before`` or ``after``, see below).
+Negative numbers are also allowed--they are used the same way as indices
 are used in Python lists, e.g. to count from the end:
 
 .. code:: python
@@ -138,11 +142,11 @@ are used in Python lists, e.g. to count from the end:
  def test_three():
      assert True
 
- @pytest.mark.order(-1)
+ @pytest.mark.order(index=-1)
  def test_four():
      assert True
 
- @pytest.mark.order(2)
+ @pytest.mark.order(index=2)
  def test_two():
      assert True
 

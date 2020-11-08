@@ -164,7 +164,7 @@ def test_class_scope(fixture_path, capsys):
     assert_test_order(expected, out)
 
 
-@pytest.mark.skipif(pytest.__version__.startswith(("3.6.", "3.7.")),
+@pytest.mark.skipif(pytest.__version__.startswith("3.7."),
                     reason="Warning does not appear in output in pytest < 3.8")
 def test_invalid_scope(fixture_path, capsys):
     args = ["-v", "--order-scope=function", fixture_path]
