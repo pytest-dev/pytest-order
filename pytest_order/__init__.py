@@ -112,29 +112,36 @@ class Settings:
             cls.scope = "session"
 
 
-def get_filename(item):
-    name = item.location[0]
-    if os.sep in name:
-        name = item.location[0].rsplit(os.sep, 1)[1]
-    return name[:-3]
+def full_name(item, name=None):
+    if name and "." in name:
+        # assume it is already qualified
+        return name
+    path = item.location[0]
+    if os.sep in path:
+        path = item.location[0].rsplit(os.sep, 1)[1]
+    path = path[:-3] + "."
+    if name is None:
+        return path + item.location[2]
+    if "." in item.location[2]:
+        path += item.location[2].rsplit(".", 1)[0] + "."
+    return path + name
 
 
 def mark_binning(item, keys, start, end, before, after, unordered, alias):
+    handled = False
     if ("dependency" in keys and
             (Settings.order_dependencies or "order" in keys)):
         # always order dependencies if an order mark is present
         # otherwise only if order-dependencies is set
         mark = item.get_closest_marker("dependency")
-        prefix = get_filename(item) + "."
         dependent_mark = mark.kwargs.get("depends")
         if dependent_mark:
             for name in dependent_mark:
-                if "." not in name:
-                    name = prefix + name
-                after.setdefault(name, []).append(item)
+                after.setdefault(full_name(item, name), []).append(item)
+                handled = True
         name_mark = mark.kwargs.get("name")
         if name_mark:
-            alias[prefix + name_mark] = prefix + item.name
+            alias[full_name(item, name_mark)] = full_name(item)
 
     if "order" in keys:
         mark = item.get_closest_marker("order")
@@ -150,33 +157,29 @@ def mark_binning(item, keys, start, end, before, after, unordered, alias):
                 order = orders_map[order]
             else:
                 warn("Unknown order attribute:'{}'".format(order))
-                unordered.append(item)
-                return False
+                if not handled:
+                    unordered.append(item)
+                    return False
+                return True
             if order < 0:
                 end.setdefault(order, []).append(item)
             else:
                 start.setdefault(order, []).append(item)
         elif before_mark:
-            if "." not in before_mark:
-                prefix = get_filename(item)
-                before_mark = prefix + "." + before_mark
-            before.setdefault(before_mark, []).append(item)
+            before.setdefault(full_name(item, before_mark), []).append(item)
         elif after_mark:
-            if "." not in after_mark:
-                prefix = get_filename(item)
-                after_mark = prefix + "." + after_mark
-
-            after.setdefault(after_mark, []).append(item)
-        return True
-    unordered.append(item)
-    return False
+            after.setdefault(full_name(item, after_mark), []).append(item)
+        handled = True
+    if not handled:
+        unordered.append(item)
+        return False
+    return True
 
 
 def insert_before(name, items, sort):
     regex_name = re.escape(name) + r"(:?\.\w+)?$"
     for pos, item in enumerate(sort):
-        prefix = get_filename(item)
-        item_name = prefix + "." + item.location[2]
+        item_name = full_name(item)
         if re.match(regex_name, item_name):
             for item_to_insert in items:
                 if item_to_insert in sort:
@@ -196,7 +199,7 @@ def insert_before(name, items, sort):
 def insert_after(name, items, sort):
     regex_name = re.escape(name) + r"(:?\.\w+)?$"
     for pos, item in reversed(list(enumerate(sort))):
-        item_name = get_filename(item) + "." + item.location[2]
+        item_name = full_name(item)
         if re.match(regex_name, item_name):
             for item_to_insert in items:
                 if item_to_insert in sort:
@@ -250,7 +253,7 @@ def do_modify_items(items):
 
         length = len(before_item) + len(after_item)
     if length:
-        sys.stdout.write("WARNING: can not execute test relative to others: ")
+        sys.stdout.write("WARNING: cannot execute test relative to others: ")
         for label, entry in before_item.items():
             sys.stdout.write(label + " ")
             sorted_list += entry

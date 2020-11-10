@@ -420,6 +420,24 @@ def test_relative3(item_names_for):
                                             "test_five"]
 
 
+def test_relative_in_class(item_names_for):
+    tests_content = """
+    import pytest
+
+    class Test:
+        @pytest.mark.order(after='test_b')
+        def test_a(self):
+            assert True
+
+        def test_b(self):
+            assert True
+
+        def test_c(self):
+            assert True
+    """
+    assert item_names_for(tests_content) == ["test_b", "test_a", "test_c"]
+
+
 def test_false_insert(item_names_for):
     test_content = """
     import pytest
@@ -508,7 +526,7 @@ def test_dependency_after_unknown_test(item_names_for, capsys):
     """
     assert item_names_for(test_content) == ["test_2", "test_1"]
     out, err = capsys.readouterr()
-    warning = ("can not execute test relative to others: "
+    warning = ("cannot execute test relative to others: "
                "some_module.test_2 enqueue them behind the others")
     assert warning in out
 
@@ -517,18 +535,44 @@ def test_dependency_before_unknown_test(item_names_for, capsys):
     test_content = """
     import pytest
 
-    @pytest.mark.order(before="test_4")
     def test_1():
         pass
 
+    @pytest.mark.order(before="test_4")
     def test_2():
         pass
+
+    def test_3():
+        pass
     """
-    assert item_names_for(test_content) == ["test_2", "test_1"]
+    assert item_names_for(test_content) == ["test_1", "test_3", "test_2"]
     out, err = capsys.readouterr()
-    warning = ("can not execute test relative to others: "
+    warning = ("cannot execute test relative to others: "
                "test_dependency_before_unknown_test.test_4 enqueue them "
                "behind the others")
+    assert warning in out
+
+
+def test_dependency_in_class_before_unknown_test(item_names_for, capsys):
+    test_content = """
+    import pytest
+
+    class Test:
+        def test_1(self):
+            pass
+
+        @pytest.mark.order(before="test_4")
+        def test_2(self):
+            pass
+
+        def test_3(self):
+            pass
+    """
+    assert item_names_for(test_content) == ["test_1", "test_3", "test_2"]
+    out, err = capsys.readouterr()
+    warning = ("cannot execute test relative to others: "
+               "test_dependency_in_class_before_unknown_test.Test.test_4 "
+               "enqueue them behind the others")
     assert warning in out
 
 
@@ -550,7 +594,7 @@ def test_dependency_loop(item_names_for, capsys):
     """
     assert item_names_for(test_content) == ["test_2", "test_3", "test_1"]
     out, err = capsys.readouterr()
-    warning = ("can not execute test relative to others: "
+    warning = ("cannot execute test relative to others: "
                "test_dependency_loop.test_1 test_dependency_loop.test_3 "
                "enqueue them behind the others")
     assert warning in out

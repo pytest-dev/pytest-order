@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+- fixed handling of relative markers in classes
+- fixed handling of dependencies (could have been added twice) 
+
 ## [Version 0.9.0](https://pypi.org/project/pytest-order/0.9.0/) (2020-11-08)
 This is the last major version that will support Python 2 - Python 2 support
 will be dropped in version 1.0. There is no timeline for that release, as there
