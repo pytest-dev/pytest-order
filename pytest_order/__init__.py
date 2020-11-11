@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-import re
 import sys
 from collections import OrderedDict
 from warnings import warn
@@ -127,21 +126,26 @@ def full_name(item, name=None):
     return path + name
 
 
-def mark_binning(item, keys, start, end, before, after, unordered, alias):
+def mark_binning(item, keys, start, end, before, after, dep, unordered, alias):
     handled = False
-    if ("dependency" in keys and
-            (Settings.order_dependencies or "order" in keys)):
+    if "dependency" in keys:
         # always order dependencies if an order mark is present
         # otherwise only if order-dependencies is set
         mark = item.get_closest_marker("dependency")
-        dependent_mark = mark.kwargs.get("depends")
-        if dependent_mark:
-            for name in dependent_mark:
-                after.setdefault(full_name(item, name), []).append(item)
-                handled = True
+        if Settings.order_dependencies or "order" in keys:
+            dependent_mark = mark.kwargs.get("depends")
+            if dependent_mark:
+                for name in dependent_mark:
+                    dep.setdefault(name, []).append(item)
+                    handled = True
+        # we always collect the names of the dependent items, because
+        # we need them in both cases
         name_mark = mark.kwargs.get("name")
-        if name_mark:
-            alias[full_name(item, name_mark)] = full_name(item)
+        # the default name in pytest-dependency is the last part of the nodeid
+        if not name_mark:
+            # in pytest < 4 the nodeid has an unwanted ::() part
+            name_mark = item.nodeid.split("::", 1)[1].replace("::()", "")
+        alias[name_mark] = full_name(item)
 
     if "order" in keys:
         mark = item.get_closest_marker("order")
@@ -168,7 +172,8 @@ def mark_binning(item, keys, start, end, before, after, unordered, alias):
         elif before_mark:
             before.setdefault(full_name(item, before_mark), []).append(item)
         elif after_mark:
-            after.setdefault(full_name(item, after_mark), []).append(item)
+            after.setdefault(
+                full_name(item, after_mark), []).append(item)
         handled = True
     if not handled:
         unordered.append(item)
@@ -177,10 +182,8 @@ def mark_binning(item, keys, start, end, before, after, unordered, alias):
 
 
 def insert_before(name, items, sort):
-    regex_name = re.escape(name) + r"(:?\.\w+)?$"
     for pos, item in enumerate(sort):
-        item_name = full_name(item)
-        if re.match(regex_name, item_name):
+        if name == full_name(item):
             for item_to_insert in items:
                 if item_to_insert in sort:
                     index = sort.index(item_to_insert)
@@ -197,10 +200,9 @@ def insert_before(name, items, sort):
 
 
 def insert_after(name, items, sort):
-    regex_name = re.escape(name) + r"(:?\.\w+)?$"
     for pos, item in reversed(list(enumerate(sort))):
         item_name = full_name(item)
-        if re.match(regex_name, item_name):
+        if item_name == name:
             for item_to_insert in items:
                 if item_to_insert in sort:
                     index = sort.index(item_to_insert)
@@ -217,6 +219,7 @@ def insert_after(name, items, sort):
 def do_modify_items(items):
     before_item = {}
     after_item = {}
+    dep_item = {}
     start_item = {}
     end_item = {}
     unordered_list = []
@@ -224,7 +227,8 @@ def do_modify_items(items):
 
     for item in items:
         mark_binning(item, item.keywords.keys(), start_item, end_item,
-                     before_item, after_item, unordered_list, alias_names)
+                     before_item, after_item, dep_item,
+                     unordered_list, alias_names)
 
     start_item = sorted(start_item.items())
     end_item = sorted(end_item.items())
@@ -232,7 +236,7 @@ def do_modify_items(items):
     sorted_list = sort_numbered_items(start_item, end_item, unordered_list)
 
     still_left = 0
-    length = len(before_item) + len(after_item)
+    length = len(before_item) + len(after_item) + len(dep_item)
 
     while still_left != length:
         still_left = length
@@ -245,19 +249,28 @@ def do_modify_items(items):
 
         remove_labels = []
         for label, after in after_item.items():
-            name = alias_names[label] if label in alias_names else label
-            if insert_after(name, after, sorted_list):
+            if insert_after(label, after, sorted_list):
                 remove_labels.append(label)
         for label in remove_labels:
             del after_item[label]
 
-        length = len(before_item) + len(after_item)
+        remove_labels = []
+        for label, after in dep_item.items():
+            if insert_after(alias_names.get(label), after, sorted_list):
+                remove_labels.append(label)
+        for label in remove_labels:
+            del dep_item[label]
+
+        length = len(before_item) + len(after_item) + len(dep_item)
     if length:
         sys.stdout.write("WARNING: cannot execute test relative to others: ")
         for label, entry in before_item.items():
             sys.stdout.write(label + " ")
             sorted_list += entry
         for label, entry in after_item.items():
+            sys.stdout.write(label + " ")
+            sorted_list += entry
+        for label, entry in dep_item.items():
             sys.stdout.write(label + " ")
             sorted_list += entry
         sys.stdout.flush()

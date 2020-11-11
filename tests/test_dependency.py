@@ -16,10 +16,11 @@ def test_ignore_order_with_dependency(item_names_for):
     tests_content = """
     import pytest
 
+    @pytest.mark.dependency()
     def test_a():
         pass
 
-    @pytest.mark.dependency(depends=['test_a'])
+    @pytest.mark.dependency(depends=["test_a"])
     @pytest.mark.order("first")
     def test_b():
         pass
@@ -31,11 +32,12 @@ def test_order_with_dependency(item_names_for):
     tests_content = """
     import pytest
 
-    @pytest.mark.dependency(depends=['test_b'])
+    @pytest.mark.dependency(depends=["test_b"])
     @pytest.mark.order("second")
     def test_a():
         pass
 
+    @pytest.mark.dependency()
     def test_b():
         pass
     """
@@ -47,10 +49,11 @@ def ordered_test():
     yield """
     import pytest
 
+    @pytest.mark.dependency()
     def test_a():
         pass
 
-    @pytest.mark.dependency(depends=['test_a'])
+    @pytest.mark.dependency(depends=["test_a"])
     def test_b():
         pass
     """
@@ -71,10 +74,11 @@ def order_dependency_test():
     yield """
     import pytest
 
-    @pytest.mark.dependency(depends=['test_b'])
+    @pytest.mark.dependency(depends=["test_b"])
     def test_a():
         pass
 
+    @pytest.mark.dependency()
     def test_b():
         pass
     """
@@ -98,9 +102,11 @@ def multiple_dependencies_test():
     def test_a():
         pass
 
+    @pytest.mark.dependency()
     def test_b():
         pass
 
+    @pytest.mark.dependency()
     def test_c():
         pass
     """
@@ -157,18 +163,44 @@ def test_dependency_in_class(item_names_for, order_dependencies):
     import pytest
 
     class Test:
-        @pytest.mark.dependency(depends=['test_c'])
+        @pytest.mark.dependency(depends=["Test::test_c"])
         def test_a(self):
             assert True
 
-        @pytest.mark.dependency(depends=['test_c'])
+        @pytest.mark.dependency(depends=["Test::test_c"])
         def test_b(self):
             assert True
 
+        @pytest.mark.dependency()
         def test_c(self):
             assert True
     """
     assert item_names_for(tests_content) == ["test_c", "test_a", "test_b"]
+
+
+def test_unresolved_dependency_in_class(item_names_for, order_dependencies,
+                                        capsys):
+    tests_content = """
+    import pytest
+
+    class Test:
+        @pytest.mark.dependency(depends=["test_c"])
+        def test_a(self):
+            assert True
+
+        @pytest.mark.dependency(depends=["test_c"])
+        def test_b(self):
+            assert True
+
+        @pytest.mark.dependency()
+        def test_c(self):
+            assert True
+    """
+    assert item_names_for(tests_content) == ["test_c", "test_a", "test_b"]
+    out, err = capsys.readouterr()
+    warning = ("cannot execute test relative to others: "
+               "test_c enqueue them behind the others")
+    assert warning in out
 
 
 def test_named_dependency_in_class(item_names_for, order_dependencies):
@@ -176,19 +208,52 @@ def test_named_dependency_in_class(item_names_for, order_dependencies):
     import pytest
 
     class Test:
-        @pytest.mark.dependency(name='test_1', depends=['test_3'])
+        @pytest.mark.dependency(name="test_1", depends=["test_3"])
         def test_a(self):
             assert True
 
-        @pytest.mark.dependency(name='test_2', depends=['test_3'])
+        @pytest.mark.dependency(name="test_2", depends=["test_3"])
         def test_b(self):
             assert True
 
-        @pytest.mark.dependency(name='test_3')
+        @pytest.mark.dependency(name="test_3")
         def test_c(self):
             assert True
     """
     assert item_names_for(tests_content) == ["test_c", "test_a", "test_b"]
+
+
+def test_dependencies_in_classes(item_names_for, order_dependencies):
+    tests_content = """
+    import pytest
+
+    class TestA:
+        @pytest.mark.dependency(depends=["test_2"])
+        def test_a(self):
+            assert True
+
+        @pytest.mark.dependency(depends=["TestB::test_e"])
+        def test_b(self):
+            assert True
+
+        def test_c(self):
+            assert True
+
+    class TestB:
+        @pytest.mark.dependency(name="test_2")
+        def test_d(self):
+            assert True
+
+        @pytest.mark.dependency()
+        def test_e(self):
+            assert True
+
+        def test_f(self):
+            assert True
+    """
+    assert item_names_for(tests_content) == [
+        "test_c", "test_d", "test_a", "test_e", "test_b", "test_f"
+    ]
 
 
 def test_unknown_dependency(item_names_for, order_dependencies, capsys):
@@ -199,7 +264,7 @@ def test_unknown_dependency(item_names_for, order_dependencies, capsys):
         def test_a(self):
             assert True
 
-        @pytest.mark.dependency(depends=['test_3'])
+        @pytest.mark.dependency(depends=["test_3"])
         def test_b(self):
             assert True
 
@@ -209,6 +274,5 @@ def test_unknown_dependency(item_names_for, order_dependencies, capsys):
     assert item_names_for(tests_content) == ["test_a", "test_c", "test_b"]
     out, err = capsys.readouterr()
     warning = ("cannot execute test relative to others: "
-               "test_unknown_dependency.Test.test_3 "
-               "enqueue them behind the others")
+               "test_3 enqueue them behind the others")
     assert warning in out

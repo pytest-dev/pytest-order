@@ -425,7 +425,7 @@ def test_relative_in_class(item_names_for):
     import pytest
 
     class Test:
-        @pytest.mark.order(after='test_b')
+        @pytest.mark.order(after="test_b")
         def test_a(self):
             assert True
 

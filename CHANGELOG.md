@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixes
+- fixed handling of names in dependencies - did not match the actual
+  behavior of `pytest-dependency`
+
 ## [Version 0.9.1](https://pypi.org/project/pytest-order/0.9.0/) (2020-11-11)
 This is a bugfix only release.
 
