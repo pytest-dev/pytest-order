@@ -1,6 +1,7 @@
 # pytest-order Release Notes
 
-## Unreleased
+## [Version 0.9.1](https://pypi.org/project/pytest-order/0.9.0/) (2020-11-11)
+This is a bugfix only release.
 
 ### Fixes
 - fixed handling of relative markers in classes
