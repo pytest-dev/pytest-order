@@ -122,11 +122,17 @@ The above is a trivial example, but ordering is respected across test files.
   regardless of the module and class they reside in. This can be changed
   by using the :ref:`order-scope` option.
 
-There are currently three possibilities to define the order:
+Ordering is done either absolutely, by using ordinal numbers that define the
+order, or relative to other tests, using the ``before`` and ``after``
+attributes of the marker.
+
+Ordering by numbers
+-------------------
+The order can be defined by ordinal numbers, or by ordinal strings.
 
 Order by index
---------------
-As already shown above, the order can be defined using the ordinal numbers.
+~~~~~~~~~~~~~~
+As already shown above, the order can be defined using ordinal numbers.
 There is a long form that uses the keyword ``index``, and a short form, that
 uses just the ordinal number--both are shown in the example below. The long
 form may be better readable if you want to combine it with a dependency marker
@@ -172,7 +178,7 @@ are used in Python lists, e.g. to count from the end:
 There is no limit for the numbers that can be used in this way.
 
 Order using ordinals
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 Instead of the numbers, you can use ordinal names such as "first", "second",
 "last", and "second_to_last". These are convenience notations, and have the
@@ -233,8 +239,19 @@ Here is the complete list with the corresponding numbers:
 - 'seventh_to_last': -7
 - 'eighth_to_last': -8
 
+Handling of unordered tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+By default, tests with no ``order`` mark are executed after all tests with
+positive ordinal numbers (or the respective names), and before tests with
+negative ordinal numbers. The order of these tests in relationship to each
+other is not changed. This behavior may slightly change if the option
+:ref:`sparse-ordering` is used and the ordinals are not contiguous (see
+below).
+
+
 Order relative to other tests
 -----------------------------
+
 The test order can be defined relative to other tests, which are referenced
 by their name:
 
@@ -249,7 +266,7 @@ by their name:
  def test_second():
      assert True
 
- @pytest.mark.run(before='test_second')
+ @pytest.mark.order(before='test_second')
  def test_first():
      assert True
 
@@ -267,20 +284,67 @@ by their name:
 
     =========================== 4 passed in 0.02 seconds ===========================
 
+Referencing of tests in other classes or modules
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If a test is referenced using the unqualified test name as shown in the
-example, the test is assumed to be in the current module. For tests in other
-modules the qualified test name (e.g. ``my_module.test_something``) has to
-be used.
+example above, the test is assumed to be in the current module and the current
+class, if any. For tests in other classes in the same module the class name
+with a ``::`` suffix has to be prepended to the test name:
+
+.. code:: python
+
+ import pytest
+
+ class TestA:
+     @pytest.mark.order(after='TestB::test_c')
+     def test_a():
+         assert True
+
+     def test_b():
+         assert True
+
+ class TestB:
+     def test_c():
+         assert True
+
+If the referenced test lives in another module, the test name has to be
+prepended by the module path to be uniquely identifiable
+(e.g. ``mod_test.test_something`` or ``mod_test.TestA.test_a``).
 
 If an unknown test is referenced, a warning is issued and the test in
 question is ordered behind all other tests.
 
-.. note::
-  The `pytest-dependency <https://pypi.org/project/pytest-dependency/>`__
-  plugin also manages dependencies between tests (skips tests that depend
-  on skipped or failed tests), but doesn't do any ordering. You can combine
-  both plugins if you need both options--see :ref:`order-dependencies`
-  below for more information.
+Combination of absolute and relative ordering
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If you combine absolute and relative order markers, the ordering is first done
+for the absolute markers (e.g. the ordinals), and afterwards for the relative
+ones. This means that relative ordering always takes preference:
+
+.. code:: python
+
+ import pytest
+
+ @pytest.mark.order(index=0, after='test_second')
+ def test_first():
+     assert True
+
+ @pytest.mark.order(1)
+ def test_second():
+     assert True
+
+In this case, ``test_second`` will be executed before ``test_first``,
+regardless of the ordinal markers.
+
+Relationship with pytest-dependency
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The `pytest-dependency <https://pypi.org/project/pytest-dependency/>`__
+plugin also manages dependencies between tests (skips tests that depend
+on skipped or failed tests), but currently doesn't do any ordering. If you
+want to execute the tests in a specific order to each other, you can use
+``pytest-ordering``. If you want to skip or xfail tests dependent on other
+tests you can use ``pytest-dependency``. If you want to have both behaviors
+combined, you can use both plugins together with the
+option :ref:`order-dependencies`--see below for more information.
 
 Configuration
 =============
@@ -324,6 +388,8 @@ separately for ordering the tests. If a module has both test classes and
 separate test functions, these test functions are handled separately from the
 test classes. If a module has no test classes, the effect is the same as
 if using ``--order-scope=module``.
+
+.. _sparse-ordering:
 
 ``--sparse-ordering``
 ---------------------
@@ -430,9 +496,8 @@ Note that ``pytest-order`` does not replace ``pytest-dependency``--it just
 adds ordering to the existing functionality if needed.
 
 .. note::
-  This feature is considered experimental. It will not handle all cases of
-  defined dependencies. If there is sufficient demand (reflected in issues),
-  this may be expanded.
+  This feature is considered experimental. It may not handle all cases of
+  defined dependencies. Please write an issue if you need further support.
 
 Miscellaneous
 =============
