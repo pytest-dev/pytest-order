@@ -2,7 +2,12 @@
 
 ## Unreleased
 
+### Changes
+- changed definition of classes in before/after markers (now uses `::` as
+  delimiter)
+
 ### Fixes
+- fixed handling of before/after markers in different classes and modules 
 - fixed handling of names in dependencies - did not match the actual
   behavior of `pytest-dependency`
 

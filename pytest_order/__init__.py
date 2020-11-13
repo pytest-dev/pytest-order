@@ -113,16 +113,13 @@ class Settings:
 
 def full_name(item, name=None):
     if name and "." in name:
-        # assume it is already qualified
+        # assumed to be sufficiently qualified
         return name
-    path = item.location[0]
-    if os.sep in path:
-        path = item.location[0].rsplit(os.sep, 1)[1]
-    path = path[:-3] + "."
+    path = item.location[0].replace(os.sep, ".")[:-3] + "."
     if name is None:
-        return path + item.location[2]
-    if "." in item.location[2]:
-        path += item.location[2].rsplit(".", 1)[0] + "."
+        return path + item.location[2].replace(".", "::")
+    if "." in item.location[2] and "::" not in name:
+        path += item.location[2].rsplit(".", 1)[0] + "::"
     return path + name
 
 
@@ -182,37 +179,38 @@ def mark_binning(item, keys, start, end, before, after, dep, unordered, alias):
 
 
 def insert_before(name, items, sort):
-    for pos, item in enumerate(sort):
-        if name == full_name(item):
-            for item_to_insert in items:
-                if item_to_insert in sort:
-                    index = sort.index(item_to_insert)
-                    if index > pos:
-                        del sort[index]
-                        sort.insert(pos, item_to_insert)
-                else:
-                    if pos == 0:
-                        sort[:] = items + sort
+    if name:
+        for pos, item in enumerate(sort):
+            if full_name(item).endswith(name):
+                for item_to_insert in items:
+                    if item_to_insert in sort:
+                        index = sort.index(item_to_insert)
+                        if index > pos:
+                            del sort[index]
+                            sort.insert(pos, item_to_insert)
                     else:
-                        sort[pos:1] = items
-            return True
+                        if pos == 0:
+                            sort[:] = items + sort
+                        else:
+                            sort[pos:1] = items
+                return True
     return False
 
 
 def insert_after(name, items, sort):
-    for pos, item in reversed(list(enumerate(sort))):
-        item_name = full_name(item)
-        if item_name == name:
-            for item_to_insert in items:
-                if item_to_insert in sort:
-                    index = sort.index(item_to_insert)
-                    if index < pos + 1:
-                        del sort[index]
-                        pos -= 1
-                        sort.insert(pos + 1, item_to_insert)
-                else:
-                    sort[pos + 1:1] = items
-            return True
+    if name:
+        for pos, item in reversed(list(enumerate(sort))):
+            if full_name(item).endswith(name):
+                for item_to_insert in items:
+                    if item_to_insert in sort:
+                        index = sort.index(item_to_insert)
+                        if index < pos + 1:
+                            del sort[index]
+                            pos -= 1
+                            sort.insert(pos + 1, item_to_insert)
+                    else:
+                        sort[pos + 1:1] = items
+                return True
     return False
 
 

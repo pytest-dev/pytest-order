@@ -5,7 +5,10 @@ import shutil
 import pytest
 
 import pytest_order
-from utils import assert_test_order
+try:
+    from tests.utils import write_test, assert_test_order
+except ImportError:
+    from utils import write_test, assert_test_order
 
 
 @pytest.fixture(scope="module")
@@ -41,8 +44,7 @@ def test_two():
 def test_one():
     assert True
 """
-    with open(testname, "w") as fi:
-        fi.write(test_class_contents)
+    write_test(testname, test_class_contents)
 
     test_function_contents = """
 import pytest
@@ -56,9 +58,8 @@ def test1_one():
     assert True
     """
     testname = os.path.join(fixture_path, "test_functions1.py")
-    with open(testname, "w") as fi:
-        fi.write(test_function_contents)
-        test_function_contents = """
+    write_test(testname, test_function_contents)
+    test_function_contents = """
 import pytest
 
 @pytest.mark.order("last")
@@ -70,8 +71,7 @@ def test2_one():
     assert True
     """
     testname = os.path.join(fixture_path, "test_functions2.py")
-    with open(testname, "w") as fi:
-        fi.write(test_function_contents)
+    write_test(testname, test_function_contents)
     yield fixture_path
     shutil.rmtree(fixture_path, ignore_errors=True)
 
