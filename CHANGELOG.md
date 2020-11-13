@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## [Version 0.9.2](https://pypi.org/project/pytest-order/0.9.2/) (2020-11-13)
+Friday the 13th release.
+
 ### Changes
 - changed definition of classes in before/after markers (now uses `::` as
   delimiter)
@@ -11,7 +14,7 @@
 - fixed handling of names in dependencies - did not match the actual
   behavior of `pytest-dependency`
 
-## [Version 0.9.1](https://pypi.org/project/pytest-order/0.9.0/) (2020-11-11)
+## [Version 0.9.1](https://pypi.org/project/pytest-order/0.9.1/) (2020-11-11)
 This is a bugfix only release.
 
 ### Fixes
