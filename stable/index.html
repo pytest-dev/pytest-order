@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Introduction &#8212; pytest-order 0.9.1 documentation</title>
+    <title>Introduction &#8212; pytest-order 0.9.2 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -22,7 +22,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="#">pytest-order 0.9.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="#">pytest-order 0.9.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Introduction</a></li> 
       </ul>
     </div>  
@@ -144,10 +144,15 @@ ordinal numbers are always executed before tests with higher numbers,
 regardless of the module and class they reside in. This can be changed
 by using the <a class="reference internal" href="#order-scope"><span class="std std-ref">--order-scope</span></a> option.</p>
 </div>
-<p>There are currently three possibilities to define the order:</p>
+<p>Ordering is done either absolutely, by using ordinal numbers that define the
+order, or relative to other tests, using the <code class="docutils literal notranslate"><span class="pre">before</span></code> and <code class="docutils literal notranslate"><span class="pre">after</span></code>
+attributes of the marker.</p>
+<div class="section" id="ordering-by-numbers">
+<h2>Ordering by numbers<a class="headerlink" href="#ordering-by-numbers" title="Permalink to this headline">¶</a></h2>
+<p>The order can be defined by ordinal numbers, or by ordinal strings.</p>
 <div class="section" id="order-by-index">
-<h2>Order by index<a class="headerlink" href="#order-by-index" title="Permalink to this headline">¶</a></h2>
-<p>As already shown above, the order can be defined using the ordinal numbers.
+<h3>Order by index<a class="headerlink" href="#order-by-index" title="Permalink to this headline">¶</a></h3>
+<p>As already shown above, the order can be defined using ordinal numbers.
 There is a long form that uses the keyword <code class="docutils literal notranslate"><span class="pre">index</span></code>, and a short form, that
 uses just the ordinal number–both are shown in the example below. The long
 form may be better readable if you want to combine it with a dependency marker
@@ -190,7 +195,7 @@ test_foo.py:7: test_four PASSED
 <p>There is no limit for the numbers that can be used in this way.</p>
 </div>
 <div class="section" id="order-using-ordinals">
-<h2>Order using ordinals<a class="headerlink" href="#order-using-ordinals" title="Permalink to this headline">¶</a></h2>
+<h3>Order using ordinals<a class="headerlink" href="#order-using-ordinals" title="Permalink to this headline">¶</a></h3>
 <p>Instead of the numbers, you can use ordinal names such as “first”, “second”,
 “last”, and “second_to_last”. These are convenience notations, and have the
 same effect as the numbers 0, 1, -1 and -2 that have been shown above:</p>
@@ -248,6 +253,16 @@ Here is the complete list with the corresponding numbers:</p>
 <li><p>‘eighth_to_last’: -8</p></li>
 </ul>
 </div>
+<div class="section" id="handling-of-unordered-tests">
+<h3>Handling of unordered tests<a class="headerlink" href="#handling-of-unordered-tests" title="Permalink to this headline">¶</a></h3>
+<p>By default, tests with no <code class="docutils literal notranslate"><span class="pre">order</span></code> mark are executed after all tests with
+positive ordinal numbers (or the respective names), and before tests with
+negative ordinal numbers. The order of these tests in relationship to each
+other is not changed. This behavior may slightly change if the option
+<a class="reference internal" href="#sparse-ordering"><span class="std std-ref">--sparse-ordering</span></a> is used and the ordinals are not contiguous (see
+below).</p>
+</div>
+</div>
 <div class="section" id="order-relative-to-other-tests">
 <h2>Order relative to other tests<a class="headerlink" href="#order-relative-to-other-tests" title="Permalink to this headline">¶</a></h2>
 <p>The test order can be defined relative to other tests, which are referenced
@@ -261,7 +276,7 @@ by their name:</p>
 <span class="k">def</span> <span class="nf">test_second</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">before</span><span class="o">=</span><span class="s1">&#39;test_second&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">before</span><span class="o">=</span><span class="s1">&#39;test_second&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_first</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 </pre></div>
@@ -279,19 +294,62 @@ test_foo.py:4: test_third PASSED
 =========================== 4 passed in 0.02 seconds ===========================
 </pre></div>
 </div>
+<div class="section" id="referencing-of-tests-in-other-classes-or-modules">
+<h3>Referencing of tests in other classes or modules<a class="headerlink" href="#referencing-of-tests-in-other-classes-or-modules" title="Permalink to this headline">¶</a></h3>
 <p>If a test is referenced using the unqualified test name as shown in the
-example, the test is assumed to be in the current module. For tests in other
-modules the qualified test name (e.g. <code class="docutils literal notranslate"><span class="pre">my_module.test_something</span></code>) has to
-be used.</p>
+example above, the test is assumed to be in the current module and the current
+class, if any. For tests in other classes in the same module the class name
+with a <code class="docutils literal notranslate"><span class="pre">::</span></code> suffix has to be prepended to the test name:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="k">class</span> <span class="nc">TestA</span><span class="p">:</span>
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s1">&#39;TestB::test_c&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_a</span><span class="p">():</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">test_b</span><span class="p">():</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="k">class</span> <span class="nc">TestB</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">test_c</span><span class="p">():</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>If the referenced test lives in another module, the test name has to be
+prepended by the module path to be uniquely identifiable
+(e.g. <code class="docutils literal notranslate"><span class="pre">mod_test.test_something</span></code> or <code class="docutils literal notranslate"><span class="pre">mod_test.TestA.test_a</span></code>).</p>
 <p>If an unknown test is referenced, a warning is issued and the test in
 question is ordered behind all other tests.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
+</div>
+<div class="section" id="combination-of-absolute-and-relative-ordering">
+<h3>Combination of absolute and relative ordering<a class="headerlink" href="#combination-of-absolute-and-relative-ordering" title="Permalink to this headline">¶</a></h3>
+<p>If you combine absolute and relative order markers, the ordering is first done
+for the absolute markers (e.g. the ordinals), and afterwards for the relative
+ones. This means that relative ordering always takes preference:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">after</span><span class="o">=</span><span class="s1">&#39;test_second&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_first</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_second</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>In this case, <code class="docutils literal notranslate"><span class="pre">test_second</span></code> will be executed before <code class="docutils literal notranslate"><span class="pre">test_first</span></code>,
+regardless of the ordinal markers.</p>
+</div>
+<div class="section" id="relationship-with-pytest-dependency">
+<h3>Relationship with pytest-dependency<a class="headerlink" href="#relationship-with-pytest-dependency" title="Permalink to this headline">¶</a></h3>
 <p>The <a class="reference external" href="https://pypi.org/project/pytest-dependency/">pytest-dependency</a>
 plugin also manages dependencies between tests (skips tests that depend
-on skipped or failed tests), but doesn’t do any ordering. You can combine
-both plugins if you need both options–see <a class="reference internal" href="#order-dependencies"><span class="std std-ref">--order-dependencies</span></a>
-below for more information.</p>
+on skipped or failed tests), but currently doesn’t do any ordering. If you
+want to execute the tests in a specific order to each other, you can use
+<code class="docutils literal notranslate"><span class="pre">pytest-ordering</span></code>. If you want to skip or xfail tests dependent on other
+tests you can use <code class="docutils literal notranslate"><span class="pre">pytest-dependency</span></code>. If you want to have both behaviors
+combined, you can use both plugins together with the
+option <a class="reference internal" href="#order-dependencies"><span class="std std-ref">--order-dependencies</span></a>–see below for more information.</p>
 </div>
 </div>
 </div>
@@ -334,7 +392,7 @@ test classes. If a module has no test classes, the effect is the same as
 if using <code class="docutils literal notranslate"><span class="pre">--order-scope=module</span></code>.</p>
 </div>
 <div class="section" id="sparse-ordering">
-<h2><code class="docutils literal notranslate"><span class="pre">--sparse-ordering</span></code><a class="headerlink" href="#sparse-ordering" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h2><code class="docutils literal notranslate"><span class="pre">--sparse-ordering</span></code><a class="headerlink" href="#sparse-ordering" title="Permalink to this headline">¶</a></h2>
 <p>Ordering tests by ordinals where some numbers are missing by default behaves
 the same as if the the ordinals are consecutive. For example, these tests:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
@@ -388,7 +446,7 @@ between (e.g. between positive and negative numbers), as it is without this
 option.</p>
 </div>
 <div class="section" id="order-dependencies">
-<span id="id2"></span><h2><code class="docutils literal notranslate"><span class="pre">--order-dependencies</span></code><a class="headerlink" href="#order-dependencies" title="Permalink to this headline">¶</a></h2>
+<span id="id3"></span><h2><code class="docutils literal notranslate"><span class="pre">--order-dependencies</span></code><a class="headerlink" href="#order-dependencies" title="Permalink to this headline">¶</a></h2>
 <p>This defines the behavior if the <code class="docutils literal notranslate"><span class="pre">pytest-dependency</span></code> plugin is used.
 By default, <code class="docutils literal notranslate"><span class="pre">dependency</span></code> marks are only considered if they coexist with an
 <code class="docutils literal notranslate"><span class="pre">order</span></code> mark. In this case it is checked if the ordering would break the
@@ -427,9 +485,8 @@ Note that <code class="docutils literal notranslate"><span class="pre">pytest-or
 adds ordering to the existing functionality if needed.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This feature is considered experimental. It will not handle all cases of
-defined dependencies. If there is sufficient demand (reflected in issues),
-this may be expanded.</p>
+<p>This feature is considered experimental. It may not handle all cases of
+defined dependencies. Please write an issue if you need further support.</p>
 </div>
 </div>
 </div>
@@ -466,9 +523,18 @@ pytest with <code class="docutils literal notranslate"><span class="pre">--dist=
 </ul>
 </li>
 <li><a class="reference internal" href="#usage">Usage</a><ul>
+<li><a class="reference internal" href="#ordering-by-numbers">Ordering by numbers</a><ul>
 <li><a class="reference internal" href="#order-by-index">Order by index</a></li>
 <li><a class="reference internal" href="#order-using-ordinals">Order using ordinals</a></li>
-<li><a class="reference internal" href="#order-relative-to-other-tests">Order relative to other tests</a></li>
+<li><a class="reference internal" href="#handling-of-unordered-tests">Handling of unordered tests</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#order-relative-to-other-tests">Order relative to other tests</a><ul>
+<li><a class="reference internal" href="#referencing-of-tests-in-other-classes-or-modules">Referencing of tests in other classes or modules</a></li>
+<li><a class="reference internal" href="#combination-of-absolute-and-relative-ordering">Combination of absolute and relative ordering</a></li>
+<li><a class="reference internal" href="#relationship-with-pytest-dependency">Relationship with pytest-dependency</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#configuration">Configuration</a><ul>
@@ -511,7 +577,7 @@ pytest with <code class="docutils literal notranslate"><span class="pre">--dist=
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="#">pytest-order 0.9.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="#">pytest-order 0.9.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Introduction</a></li> 
       </ul>
     </div>
