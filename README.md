@@ -5,11 +5,15 @@ _pytest-order_ - a pytest plugin to order test execution
 
 `pytest-order` is a pytest plugin that allows you to customize the order in which
 your tests are run. It uses the marker `order` that defines when a specific
-test shall be run relative to the other tests.  
+test shall be run relative to the other tests. 
+
+`pytest-order` is a fork of
+[pytest-ordering](https://github.com/ftobia/pytest-ordering) that provides
+some additional features--see [below](#comparison-with-pytest_ordering) for
+details.
 
 `pytest-order` works with Python 2.7 and 3.5 - 3.9, with pytest 
 versions >= 3.7.0, and runs on Linux, MacOs and Windows.
-
 
 Documentation
 -------------
@@ -18,26 +22,12 @@ Apart from this overview, the following information is available:
 - usage documentation for the [current master](https://mrbean-bremen.github.io/pytest-order/dev/)
 - the [Release Notes](https://github.com/mrbean-bremen/pytest-order/blob/master/CHANGELOG.md)
   with a list of changes in the latest versions
-
-History
--------
-This is a fork of [pytest-ordering](https://github.com/ftobia/pytest-ordering).
-That project is not maintained anymore, and there are several helpful PRs
-that are now integrated into `pytest-order`. The idea and most of the code
-has been created by Frank Tobia, the author of that plugin, and
-[contributors](https://github.com/mrbean-bremen/pytest-order/blob/master/AUTHORS).
-
-Compatibility with pytest_ordering
-----------------------------------
-`pytest-order` is **not** compatible with `pytest-ordering` due to the
-changed marker name (`order` instead of `run`). Only the `order` 
-marker is supported, support for all additional markers has been removed for
-consistence (as has been discussed in 
-[this issue](https://github.com/ftobia/pytest-ordering/issues/38)).
+- a [list of open issues](https://github.com/mrbean-bremen/pytest-order/blob/master/old_issues.md)
+  in the original project and their handling in `pytest-order`
 
 Overview
 --------
-_(from the original project)_
+_(adapted from the original project)_
 
 Have you ever wanted to easily run one of your tests before any others run?
 Or run some tests last? Or run this one test before that other test? Or
@@ -76,3 +66,31 @@ yields the output:
     test_foo.py:3: test_foo PASSED
 
     =========================== 2 passed in 0.01 seconds ===========================
+
+History
+-------
+This is a fork of [pytest-ordering](https://github.com/ftobia/pytest-ordering).
+That project is not maintained anymore, and there are several helpful PRs
+that are now integrated into `pytest-order`. The idea and most of the code
+has been created by Frank Tobia, the author of that plugin, and
+[contributors](https://github.com/mrbean-bremen/pytest-order/blob/master/AUTHORS).
+
+Comparison with pytest_ordering
+-------------------------------
+While derived from `pytest_ordering`, `pytest-order` is **not** compatible
+with `pytest-ordering` due to the changed marker name (`order` instead of
+`run`). Additional markers are integrated into the `order` marker (for a 
+rationale see also
+[this issue](https://github.com/ftobia/pytest-ordering/issues/38)).
+
+Apart from the changed marker name, there is a number of features not
+implemented in the released version of `pytest-ordering`:
+- support for ordering tests relative to each other 
+- support for module and class-scope ordering via a config option
+- optional support for ordering tests with `pytest-dependency` markers
+- optional support for sparse ordering
+- optional invocation of the plugin before (instead of after) other plugins
+
+Most of these features are derived from [issues](https://github.com/mrbean-bremen/pytest-order/blob/master/old_issues.md)
+and pull requests in `pytest-ordering`. A description of each feature can be
+found in the [documentation](https://mrbean-bremen.github.io/pytest-order/dev/).

@@ -21,6 +21,7 @@ setup(
     author_email="hansemrbean@googlemail.com",
     url="https://github.com/mrbean-bremen/pytest-order",
     packages=["pytest_order"],
+    license="MIT",
     entry_points={
         "pytest11": [
             "pytest_order = pytest_order",
