@@ -267,8 +267,7 @@ Here is the complete list with the corresponding numbers:</p>
 positive ordinal numbers (or the respective names), and before tests with
 negative ordinal numbers. The order of these tests in relationship to each
 other is not changed. This behavior may slightly change if the option
-<a class="reference internal" href="#sparse-ordering"><span class="std std-ref">--sparse-ordering</span></a> is used and the ordinals are not contiguous (see
-below).</p>
+<a class="reference internal" href="#sparse-ordering"><span class="std std-ref">--sparse-ordering</span></a> is used and the ordinals are not contiguous.</p>
 </div>
 </div>
 <div class="section" id="order-relative-to-other-tests">
@@ -354,7 +353,7 @@ regardless of the ordinal markers.</p>
 plugin also manages dependencies between tests (skips tests that depend
 on skipped or failed tests), but currently doesn’t do any ordering. If you
 want to execute the tests in a specific order to each other, you can use
-<code class="docutils literal"><span class="pre">pytest-ordering</span></code>. If you want to skip or xfail tests dependent on other
+<code class="docutils literal"><span class="pre">pytest-order</span></code>. If you want to skip or xfail tests dependent on other
 tests you can use <code class="docutils literal"><span class="pre">pytest-dependency</span></code>. If you want to have both behaviors
 combined, you can use both plugins together with the
 option <a class="reference internal" href="#order-dependencies"><span class="std std-ref">--order-dependencies</span></a>–see below for more information.</p>
@@ -366,22 +365,6 @@ option <a class="reference internal" href="#order-dependencies"><span class="std
 <p>There are a few command line options that change the behavior of the
 plugin. As with any pytest option, you can add the options to your
 <code class="docutils literal"><span class="pre">pytest.ini</span></code> if you want to have them applied to all tests automatically.</p>
-<div class="section" id="indulgent-ordering">
-<h2><code class="docutils literal"><span class="pre">--indulgent-ordering</span></code><a class="headerlink" href="#indulgent-ordering" title="Permalink to this headline">¶</a></h2>
-<p>You may sometimes find that you want to suggest an ordering of tests, while
-allowing it to be overridden for good reason. For example, if you run your test
-suite in parallel and have a number of tests which are particularly slow, it
-might be desirable to start those tests running first, in order to optimize
-your completion time. You can use the <code class="docutils literal"><span class="pre">pytest-order</span></code> plugin to inform pytest
-of this.</p>
-<p>Now suppose you also want to prioritize tests which failed during the
-previous run, by using the <code class="docutils literal"><span class="pre">--failed-first</span></code> option. By default,
-pytest-order will override the <code class="docutils literal"><span class="pre">--failed-first</span></code> order, but by adding the
-<code class="docutils literal"><span class="pre">--indulgent-ordering</span></code> option, you can ask pytest to run the sort from
-pytest-order <em>before</em> the sort from <code class="docutils literal"><span class="pre">--failed-first</span></code>, allowing the failed
-tests to be sorted to the front (note that in pytest versions from 6.0 on,
-this seems not to be needed anymore, at least in this specific case).</p>
-</div>
 <div class="section" id="order-scope">
 <span id="id1"></span><h2><code class="docutils literal"><span class="pre">--order-scope</span></code><a class="headerlink" href="#order-scope" title="Permalink to this headline">¶</a></h2>
 <p>By default, tests are ordered per session, e.g. across all modules in the
@@ -398,6 +381,22 @@ separately for ordering the tests. If a module has both test classes and
 separate test functions, these test functions are handled separately from the
 test classes. If a module has no test classes, the effect is the same as
 if using <code class="docutils literal"><span class="pre">--order-scope=module</span></code>.</p>
+</div>
+<div class="section" id="indulgent-ordering">
+<h2><code class="docutils literal"><span class="pre">--indulgent-ordering</span></code><a class="headerlink" href="#indulgent-ordering" title="Permalink to this headline">¶</a></h2>
+<p>You may sometimes find that you want to suggest an ordering of tests, while
+allowing it to be overridden for good reason. For example, if you run your test
+suite in parallel and have a number of tests which are particularly slow, it
+might be desirable to start those tests running first, in order to optimize
+your completion time. You can use the <code class="docutils literal"><span class="pre">pytest-order</span></code> plugin to inform pytest
+of this.</p>
+<p>Now suppose you also want to prioritize tests which failed during the
+previous run, by using the <code class="docutils literal"><span class="pre">--failed-first</span></code> option. By default,
+pytest-order will override the <code class="docutils literal"><span class="pre">--failed-first</span></code> order, but by adding the
+<code class="docutils literal"><span class="pre">--indulgent-ordering</span></code> option, you can ask pytest to run the sort from
+pytest-order <em>before</em> the sort from <code class="docutils literal"><span class="pre">--failed-first</span></code>, allowing the failed
+tests to be sorted to the front (note that in pytest versions from 6.0 on,
+this seems not to be needed anymore, at least in this specific case).</p>
 </div>
 <div class="section" id="sparse-ordering">
 <span id="id2"></span><h2><code class="docutils literal"><span class="pre">--sparse-ordering</span></code><a class="headerlink" href="#sparse-ordering" title="Permalink to this headline">¶</a></h2>
@@ -545,8 +544,8 @@ pytest with <code class="docutils literal"><span class="pre">--dist=loadfile</sp
 </ul>
 </li>
 <li><a class="reference internal" href="#configuration">Configuration</a><ul>
-<li><a class="reference internal" href="#indulgent-ordering"><code class="docutils literal"><span class="pre">--indulgent-ordering</span></code></a></li>
 <li><a class="reference internal" href="#order-scope"><code class="docutils literal"><span class="pre">--order-scope</span></code></a></li>
+<li><a class="reference internal" href="#indulgent-ordering"><code class="docutils literal"><span class="pre">--indulgent-ordering</span></code></a></li>
 <li><a class="reference internal" href="#sparse-ordering"><code class="docutils literal"><span class="pre">--sparse-ordering</span></code></a></li>
 <li><a class="reference internal" href="#order-dependencies"><code class="docutils literal"><span class="pre">--order-dependencies</span></code></a></li>
 </ul>

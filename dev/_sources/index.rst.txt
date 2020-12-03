@@ -245,8 +245,7 @@ By default, tests with no ``order`` mark are executed after all tests with
 positive ordinal numbers (or the respective names), and before tests with
 negative ordinal numbers. The order of these tests in relationship to each
 other is not changed. This behavior may slightly change if the option
-:ref:`sparse-ordering` is used and the ordinals are not contiguous (see
-below).
+:ref:`sparse-ordering` is used and the ordinals are not contiguous.
 
 
 Order relative to other tests
@@ -341,7 +340,7 @@ The `pytest-dependency <https://pypi.org/project/pytest-dependency/>`__
 plugin also manages dependencies between tests (skips tests that depend
 on skipped or failed tests), but currently doesn't do any ordering. If you
 want to execute the tests in a specific order to each other, you can use
-``pytest-ordering``. If you want to skip or xfail tests dependent on other
+``pytest-order``. If you want to skip or xfail tests dependent on other
 tests you can use ``pytest-dependency``. If you want to have both behaviors
 combined, you can use both plugins together with the
 option :ref:`order-dependencies`--see below for more information.
@@ -351,23 +350,6 @@ Configuration
 There are a few command line options that change the behavior of the
 plugin. As with any pytest option, you can add the options to your
 ``pytest.ini`` if you want to have them applied to all tests automatically.
-
-``--indulgent-ordering``
-------------------------
-You may sometimes find that you want to suggest an ordering of tests, while
-allowing it to be overridden for good reason. For example, if you run your test
-suite in parallel and have a number of tests which are particularly slow, it
-might be desirable to start those tests running first, in order to optimize
-your completion time. You can use the ``pytest-order`` plugin to inform pytest
-of this.
-
-Now suppose you also want to prioritize tests which failed during the
-previous run, by using the ``--failed-first`` option. By default,
-pytest-order will override the ``--failed-first`` order, but by adding the
-``--indulgent-ordering`` option, you can ask pytest to run the sort from
-pytest-order *before* the sort from ``--failed-first``, allowing the failed
-tests to be sorted to the front (note that in pytest versions from 6.0 on,
-this seems not to be needed anymore, at least in this specific case).
 
 .. _order-scope:
 
@@ -388,6 +370,23 @@ separately for ordering the tests. If a module has both test classes and
 separate test functions, these test functions are handled separately from the
 test classes. If a module has no test classes, the effect is the same as
 if using ``--order-scope=module``.
+
+``--indulgent-ordering``
+------------------------
+You may sometimes find that you want to suggest an ordering of tests, while
+allowing it to be overridden for good reason. For example, if you run your test
+suite in parallel and have a number of tests which are particularly slow, it
+might be desirable to start those tests running first, in order to optimize
+your completion time. You can use the ``pytest-order`` plugin to inform pytest
+of this.
+
+Now suppose you also want to prioritize tests which failed during the
+previous run, by using the ``--failed-first`` option. By default,
+pytest-order will override the ``--failed-first`` order, but by adding the
+``--indulgent-ordering`` option, you can ask pytest to run the sort from
+pytest-order *before* the sort from ``--failed-first``, allowing the failed
+tests to be sorted to the front (note that in pytest versions from 6.0 on,
+this seems not to be needed anymore, at least in this specific case).
 
 .. _sparse-ordering:
 
