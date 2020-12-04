@@ -56,7 +56,7 @@ For example, this code:
 
 yields the output:
 
-    $ py.test test_foo.py -vv
+    $ pytest test_foo.py -vv
     ============================= test session starts ==============================
     platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
     plugins: order
