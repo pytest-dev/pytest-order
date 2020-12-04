@@ -51,8 +51,9 @@ These attributes can be absolute (i.e. first, or second-to-last) or relative
 <p class="first admonition-title">Note</p>
 <p class="last">It is generally considered bad practice to write tests that depend on each
 other. However, in reality this may still be needed due to performance
-problems or legacy code. Still, before using this plugin, you should check
-if you can refactor your tests to remove the dependencies between tests.</p>
+issues, legacy code or other constraints. Still, before using this plugin,
+you should check if you can refactor your tests to remove the dependencies
+between tests.</p>
 </div>
 <div class="section" id="relationship-with-pytest-ordering">
 <h2>Relationship with pytest-ordering<a class="headerlink" href="#relationship-with-pytest-ordering" title="Permalink to this headline">¶</a></h2>
@@ -71,6 +72,9 @@ also avoids clashes between the plugins if they are both installed.</p>
 <li><code class="docutils literal"><span class="pre">pytest.mark.order1</span></code>, <code class="docutils literal"><span class="pre">pytest.mark.run(order=1)</span></code> =&gt; <code class="docutils literal"><span class="pre">pytest.mark.order(1)</span></code></li>
 <li><code class="docutils literal"><span class="pre">pytest.mark.first</span></code> =&gt; <code class="docutils literal"><span class="pre">pytest.mark.order(&quot;first&quot;)</span></code></li>
 </ul>
+<p>Additionally, <code class="docutils literal"><span class="pre">pytest-order</span></code> provides a number of features (relative
+ordering, all configuration options) that are not available in
+<code class="docutils literal"><span class="pre">pytest-ordering</span></code>.</p>
 </div>
 <div class="section" id="supported-python-and-pytest-versions">
 <h2>Supported Python and pytest versions<a class="headerlink" href="#supported-python-and-pytest-versions" title="Permalink to this headline">¶</a></h2>
@@ -104,7 +108,7 @@ For example, for the following tests:</p>
 </pre></div>
 </div>
 <p>the output is something like:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ py.test test_foo.py -vv
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest test_foo.py -vv
 ============================= test session starts ==============================
 platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
 collected 2 items
@@ -128,7 +132,7 @@ test_foo.py:6: test_bar PASSED
 </pre></div>
 </div>
 <p>This will generate the output:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ py.test test_foo.py -vv
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest test_foo.py -vv
 ============================= test session starts ==============================
 platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
 plugins: order
@@ -186,7 +190,7 @@ are used in Python lists, e.g. to count from the end:</p>
     <span class="k">assert</span> <span class="kc">True</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ py.test test_foo.py -vv
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest test_foo.py -vv
 ============================= test session starts ==============================
 platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
 plugins: order
@@ -226,7 +230,7 @@ same effect as the numbers 0, 1, -1 and -2 that have been shown above:</p>
     <span class="k">assert</span> <span class="kc">True</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ py.test test_foo.py -vv
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest test_foo.py -vv
 ============================= test session starts ==============================
 platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
 plugins: order
@@ -288,7 +292,7 @@ by their name:</p>
     <span class="k">assert</span> <span class="kc">True</span>
 </pre></div>
 </div>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ py.test test_foo.py -vv
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest test_foo.py -vv
 ============================= test session starts ==============================
 platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
 plugins: order
@@ -323,8 +327,35 @@ with a <code class="docutils literal"><span class="pre">::</span></code> suffix 
 </pre></div>
 </div>
 <p>If the referenced test lives in another module, the test name has to be
-prepended by the module path to be uniquely identifiable
-(e.g. <code class="docutils literal"><span class="pre">mod_test.test_something</span></code> or <code class="docutils literal"><span class="pre">mod_test.TestA.test_a</span></code>).</p>
+prepended by the module path to be uniquely identifiable. Let’s say we have
+the following module and test layout:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">test_module_a</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">TestA</span>
+        <span class="n">test_a</span>
+        <span class="n">test_b</span>
+<span class="n">test_module_b</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">test_a</span>
+    <span class="n">test_b</span>
+<span class="n">test_module_c</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">test_submodule</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">test_1</span>
+        <span class="n">test_2</span>
+</pre></div>
+</div>
+<p>Suppose the tests in <code class="docutils literal"><span class="pre">test_module_b</span></code> shall depend on tests in the other
+modules, this could be expressed like:</p>
+<p><strong>test_module_b.py</strong></p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s1">&#39;test_module_a.TestA::test_a&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_a</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">before</span><span class="o">=</span><span class="s1">&#39;test_module_c.test_submodule.test_2&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_b</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
 <p>If an unknown test is referenced, a warning is issued and the test in
 question is ordered behind all other tests.</p>
 </div>
@@ -356,7 +387,7 @@ want to execute the tests in a specific order to each other, you can use
 <code class="docutils literal"><span class="pre">pytest-order</span></code>. If you want to skip or xfail tests dependent on other
 tests you can use <code class="docutils literal"><span class="pre">pytest-dependency</span></code>. If you want to have both behaviors
 combined, you can use both plugins together with the
-option <a class="reference internal" href="#order-dependencies"><span class="std std-ref">--order-dependencies</span></a>–see below for more information.</p>
+option <a class="reference internal" href="#order-dependencies"><span class="std std-ref">--order-dependencies</span></a>, described below.</p>
 </div>
 </div>
 </div>
@@ -364,7 +395,12 @@ option <a class="reference internal" href="#order-dependencies"><span class="std
 <h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
 <p>There are a few command line options that change the behavior of the
 plugin. As with any pytest option, you can add the options to your
-<code class="docutils literal"><span class="pre">pytest.ini</span></code> if you want to have them applied to all tests automatically.</p>
+<code class="docutils literal"><span class="pre">pytest.ini</span></code> if you want to have them applied to all tests automatically:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">pytest</span><span class="p">]</span>
+<span class="p">;</span> <span class="n">always</span> <span class="n">order</span> <span class="n">tests</span> <span class="k">with</span> <span class="n">dependency</span> <span class="n">markers</span>
+<span class="n">addopts</span> <span class="o">=</span> <span class="o">--</span><span class="n">order</span><span class="o">-</span><span class="n">dependencies</span>
+</pre></div>
+</div>
 <div class="section" id="order-scope">
 <span id="id1"></span><h2><code class="docutils literal"><span class="pre">--order-scope</span></code><a class="headerlink" href="#order-scope" title="Permalink to this headline">¶</a></h2>
 <p>By default, tests are ordered per session, e.g. across all modules in the
@@ -381,6 +417,57 @@ separately for ordering the tests. If a module has both test classes and
 separate test functions, these test functions are handled separately from the
 test classes. If a module has no test classes, the effect is the same as
 if using <code class="docutils literal"><span class="pre">--order-scope=module</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This option only affects ordinal ordering. Ordering relative to other tests
+is always global, as the related tests are referenced by name.</p>
+</div>
+<p>For example consider two test modules:</p>
+<p><strong>tests/test_module1.py</strong>:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test2</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test1</span><span class="p">():</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p><strong>tests/test_module2.py</strong>:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test2</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test1</span><span class="p">():</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Here is what you get using session and module-scoped sorting:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest tests -vv
+============================= test session starts ==============================
+...
+
+tests/test_module1.py:9: test1 PASSED
+tests/test_module2.py:9: test1 PASSED
+tests/test_module1.py:5: test2 PASSED
+tests/test_module2.py:5: test2 PASSED
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest tests -vv --order-scope=module
+============================= test session starts ==============================
+...
+
+tests/test_module1.py:9: test1 PASSED
+tests/test_module1.py:5: test2 PASSED
+tests/test_module2.py:9: test1 PASSED
+tests/test_module2.py:5: test2 PASSED
+</pre></div>
+</div>
 </div>
 <div class="section" id="indulgent-ordering">
 <h2><code class="docutils literal"><span class="pre">--indulgent-ordering</span></code><a class="headerlink" href="#indulgent-ordering" title="Permalink to this headline">¶</a></h2>
@@ -437,20 +524,37 @@ the same as if the the ordinals are consecutive. For example, these tests:</p>
     <span class="k">assert</span> <span class="kc">True</span>
 </pre></div>
 </div>
-<p>namely, they are run in the order <code class="docutils literal"><span class="pre">test_one</span></code>, <code class="docutils literal"><span class="pre">test_two</span></code>, <code class="docutils literal"><span class="pre">test_three</span></code>
-and <code class="docutils literal"><span class="pre">test_four</span></code>. The gaps between numbers, and the fact that the starting
-number is not 0, are ignored. This is consistent with the current behavior of
+<p>e.g. you get:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest tests -vv
+============================= test session starts ==============================
+...
+test_module.py:13: test_one PASSED
+test_module.py:3: test_two PASSED
+test_module.py:6: test_three PASSED
+test_module.py:9: test_four PASSED
+</pre></div>
+</div>
+<p>The gaps between numbers, and the fact that the starting number is not 0,
+are ignored. This is consistent with the current behavior of
 <code class="docutils literal"><span class="pre">pytest-ordering</span></code>.</p>
-<p>If you use the <code class="docutils literal"><span class="pre">--sparse-ordering</span></code> option, the behavior will change: now
-all missing numbers (starting with 0) are filled with unordered tests, as
-long as unordered tests are left. So the shown example will now order as
-<code class="docutils literal"><span class="pre">test_three</span></code> (filled in for the missing number 0), <code class="docutils literal"><span class="pre">test_one</span></code>,
-<code class="docutils literal"><span class="pre">test_four</span></code> (filled in for the missing number 2), and <code class="docutils literal"><span class="pre">test_two</span></code>. This
-will also work for tests with negative order numbers (or the respective names).
-The missing ordinals are filled with unordered tests first from the start,
-then from the end if there are negative numbers, and the rest will be in
-between (e.g. between positive and negative numbers), as it is without this
-option.</p>
+<p>If you use the <code class="docutils literal"><span class="pre">--sparse-ordering</span></code> option, the behavior will change:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest tests -vv --sparse-ordering
+============================= test session starts ==============================
+...
+test_module.py:6: test_three PASSED
+test_module.py:13: test_one PASSED
+test_module.py:9: test_four PASSED
+test_module.py:3: test_two PASSED
+</pre></div>
+</div>
+<p>Now all missing numbers (starting with 0) are filled with unordered tests, as
+long as unordered tests are left. In the shown example, <code class="docutils literal"><span class="pre">test_three</span></code>
+is filled in for the missing number 0, and <code class="docutils literal"><span class="pre">test_four</span></code> is filled in for the
+missing number 2. This will also work for tests with negative order numbers
+(or the respective names). The missing ordinals are filled with unordered
+tests first from the start, then from the end if there are negative numbers,
+and the rest will be in between (e.g. between positive and negative numbers),
+as it is without this option.</p>
 </div>
 <div class="section" id="order-dependencies">
 <span id="id3"></span><h2><code class="docutils literal"><span class="pre">--order-dependencies</span></code><a class="headerlink" href="#order-dependencies" title="Permalink to this headline">¶</a></h2>
@@ -478,14 +582,30 @@ following tests:</p>
 <span class="k">def</span> <span class="nf">test_a</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">dependency</span>
 <span class="k">def</span> <span class="nf">test_b</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 </pre></div>
 </div>
 <p>By default, <code class="docutils literal"><span class="pre">test_a</span></code> is not run, because it depends on <code class="docutils literal"><span class="pre">test_b</span></code>, which
-is only run after <code class="docutils literal"><span class="pre">test_b</span></code>. If you use <code class="docutils literal"><span class="pre">--order-dependencies</span></code>, this will
-change–the tests will now be reordered according to the dependency and both
-run. Note that a similar feature may be added to <code class="docutils literal"><span class="pre">pytest-dependency</span></code> -
+is only run after <code class="docutils literal"><span class="pre">test_b</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest tests -vv
+============================= test session starts ==============================
+...
+test_dep.py::test_a SKIPPED
+test_dep.py::test_b PASSED
+</pre></div>
+</div>
+<p>If you use <code class="docutils literal"><span class="pre">--order-dependencies</span></code>, this will change–the tests will now be
+reordered according to the dependency and both run:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest tests -vv --order-dependencies
+============================= test session starts ==============================
+...
+test_dep.py::test_b PASSED
+test_dep.py::test_a PASSED
+</pre></div>
+</div>
+<p>Note that a similar feature may be added to <code class="docutils literal"><span class="pre">pytest-dependency</span></code> -
 if this is done, this option will not be needed, but for the time being you
 can use both plugins together to get this behavior.
 Note that <code class="docutils literal"><span class="pre">pytest-order</span></code> does not replace <code class="docutils literal"><span class="pre">pytest-dependency</span></code>–it just
@@ -493,7 +613,7 @@ adds ordering to the existing functionality if needed.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">This feature is considered experimental. It may not handle all cases of
-defined dependencies. Please write an issue if you need further support.</p>
+defined dependencies. Please write an issue if you find any problems.</p>
 </div>
 </div>
 </div>
