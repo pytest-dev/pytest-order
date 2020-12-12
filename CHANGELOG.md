@@ -79,9 +79,11 @@ Update after renaming the repository and the package.
 ### Documentation
 - use separate documentation pages for release and development versions
 
-## [Version 0.7.0](https://pypi.org/project/pytest-ordering2/0.7.0/) (2020-10-22)
+## Version 0.7.0 (2020-10-22)
 Imported version from [pytest-ordering](https://github.com/ftobia/pytest-ordering), 
 including some PRs (manually merged).
+Note: this version has been removed from PyPi to avoid confusion with the
+changed name in the next release.
 
 ### Added
 - added support for markers like run(before=...), run(after=),
