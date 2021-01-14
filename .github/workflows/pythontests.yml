@@ -70,8 +70,8 @@ jobs:
       run: |
         TOX_PYTHON_VERSION=$(if [ ${{ matrix.python-version }} = pypy2 ]; then echo "pypy2"; elif [ ${{ matrix.python-version }} = pypy3 ]; then echo "pypy3"; else echo py${{ matrix.python-version }} | tr -d .; fi)
         tox -e $(tox -l | grep $TOX_PYTHON_VERSION | paste -sd "," -)
-    - name: Get coverage results
-      if: ${{ success() && matrix.python-version == 3.8 }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: coveralls
+#    - name: Get coverage results
+#      if: ${{ success() && matrix.python-version == 3.8 }}
+#      env:
+#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      run: coveralls
