@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## [Version 0.9.3](https://pypi.org/project/pytest-order/0.9.3/) (2021-01-14)
+Bugfix release.
+
+### Fixes
+- fixed handling of more than one attribute in an order marker 
+
 ## [Version 0.9.2](https://pypi.org/project/pytest-order/0.9.2/) (2020-11-13)
 Friday the 13th release.
 

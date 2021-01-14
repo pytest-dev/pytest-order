@@ -276,3 +276,19 @@ def test_unknown_dependency(item_names_for, order_dependencies, capsys):
     warning = ("cannot execute test relative to others: "
                "test_3 enqueue them behind the others")
     assert warning in out
+
+
+def test_unsupported_order_with_dependency(item_names_for):
+    test_content = """
+    import pytest
+
+    @pytest.mark.dependency(depends=["test_2"])
+    @pytest.mark.order("unknown")
+    def test_1():
+        pass
+
+    def test_2():
+        pass
+    """
+    with pytest.warns(UserWarning, match="Unknown order attribute:'unknown'"):
+        assert item_names_for(test_content) == ["test_2", "test_1"]

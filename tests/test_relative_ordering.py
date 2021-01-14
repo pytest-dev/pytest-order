@@ -267,7 +267,7 @@ def test_mixed_markers2(item_names_for):
     assert item_names_for(test_content) == ["test_3", "test_2", "test_1"]
 
 
-def test_combined_markers(item_names_for):
+def test_combined_markers1(item_names_for):
     test_content = """
     import pytest
 
@@ -283,6 +283,42 @@ def test_combined_markers(item_names_for):
         pass
     """
     assert item_names_for(test_content) == ["test_3", "test_1", "test_2"]
+
+
+def test_combined_markers2(item_names_for):
+    test_content = """
+    import pytest
+
+    def test_1():
+        pass
+
+    @pytest.mark.order(index=2, before="test_1")
+    def test_2():
+        pass
+
+    @pytest.mark.order(index=1, before="test_1")
+    def test_3():
+        pass
+    """
+    assert item_names_for(test_content) == ["test_3", "test_2", "test_1"]
+
+
+def test_combined_markers3(item_names_for):
+    test_content = """
+    import pytest
+
+    def test_1():
+        pass
+
+    @pytest.mark.order(index=2, before="test_3")
+    def test_2():
+        pass
+
+    @pytest.mark.order(index=1, before="test_1")
+    def test_3():
+        pass
+    """
+    assert item_names_for(test_content) == ["test_2", "test_3", "test_1"]
 
 
 def test_dependency_after_unknown_test(item_names_for, capsys):

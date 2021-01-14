@@ -166,9 +166,9 @@ def mark_binning(item, keys, start, end, before, after, dep, unordered, alias):
                 end.setdefault(order, []).append(item)
             else:
                 start.setdefault(order, []).append(item)
-        elif before_mark:
+        if before_mark:
             before.setdefault(full_name(item, before_mark), []).append(item)
-        elif after_mark:
+        if after_mark:
             after.setdefault(
                 full_name(item, after_mark), []).append(item)
         handled = True
