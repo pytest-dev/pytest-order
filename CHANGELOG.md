@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Infrastructure
+- use codecov instead of coveralls, that is failing
+
 ## [Version 0.9.3](https://pypi.org/project/pytest-order/0.9.3/) (2021-01-14)
 Bugfix release.
 
