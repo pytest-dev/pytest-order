@@ -1,7 +1,7 @@
 _pytest-order_ - a pytest plugin to order test execution
 ========================================================
 
-[![PyPI version](https://badge.fury.io/py/pytest-order.svg)](https://pypi.org/project/pytest-order) ![Testsuite](https://github.com/mrbean-bremen/pytest-order/workflows/Testsuite/badge.svg) ![DocBuild](https://github.com/mrbean-bremen/pytest-order/workflows/DocBuild/badge.svg) [![codecov](https://codecov.io/gh/mrbean-bremen/pytest-order/branch/master/graph/badge)](https://codecov.io/gh/mrbean-bremen/pytest-order) [![Python version](https://img.shields.io/pypi/pyversions/pytest-order.svg)](https://pypi.org/project/pytest-order)
+[![PyPI version](https://badge.fury.io/py/pytest-order.svg)](https://pypi.org/project/pytest-order) ![Testsuite](https://github.com/mrbean-bremen/pytest-order/workflows/Testsuite/badge.svg) ![DocBuild](https://github.com/mrbean-bremen/pytest-order/workflows/DocBuild/badge.svg) [![codecov](https://codecov.io/gh/mrbean-bremen/pytest-order/branch/master/graph/badge.svg?token=M9PHWZSHUU)](https://codecov.io/gh/mrbean-bremen/pytest-order) [![Python version](https://img.shields.io/pypi/pyversions/pytest-order.svg)](https://pypi.org/project/pytest-order)
 
 `pytest-order` is a pytest plugin that allows you to customize the order in which
 your tests are run. It uses the marker `order` that defines when a specific
