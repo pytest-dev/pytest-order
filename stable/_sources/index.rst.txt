@@ -9,8 +9,9 @@ These attributes can be absolute (i.e. first, or second-to-last) or relative
 .. note::
   It is generally considered bad practice to write tests that depend on each
   other. However, in reality this may still be needed due to performance
-  problems or legacy code. Still, before using this plugin, you should check
-  if you can refactor your tests to remove the dependencies between tests.
+  issues, legacy code or other constraints. Still, before using this plugin,
+  you should check if you can refactor your tests to remove the dependencies
+  between tests.
 
 Relationship with pytest-ordering
 ---------------------------------
@@ -31,6 +32,9 @@ Here are examples for which markers correspond to markers in
 - ``pytest.mark.order1``, ``pytest.mark.run(order=1)`` => ``pytest.mark.order(1)``
 - ``pytest.mark.first`` => ``pytest.mark.order("first")``
 
+Additionally, ``pytest-order`` provides a number of features (relative
+ordering, all configuration options) that are not available in
+``pytest-ordering``.
 
 Supported Python and pytest versions
 ------------------------------------
@@ -73,7 +77,7 @@ the output is something like:
 
 ::
 
-    $ py.test test_foo.py -vv
+    $ pytest test_foo.py -vv
     ============================= test session starts ==============================
     platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
     collected 2 items
@@ -101,7 +105,7 @@ This will generate the output:
 
 ::
 
-    $ py.test test_foo.py -vv
+    $ pytest test_foo.py -vv
     ============================= test session starts ==============================
     platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
     plugins: order
@@ -162,7 +166,7 @@ are used in Python lists, e.g. to count from the end:
 
 ::
 
-    $ py.test test_foo.py -vv
+    $ pytest test_foo.py -vv
     ============================= test session starts ==============================
     platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
     plugins: order
@@ -206,7 +210,7 @@ same effect as the numbers 0, 1, -1 and -2 that have been shown above:
 
 ::
 
-    $ py.test test_foo.py -vv
+    $ pytest test_foo.py -vv
     ============================= test session starts ==============================
     platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
     plugins: order
@@ -245,8 +249,7 @@ By default, tests with no ``order`` mark are executed after all tests with
 positive ordinal numbers (or the respective names), and before tests with
 negative ordinal numbers. The order of these tests in relationship to each
 other is not changed. This behavior may slightly change if the option
-:ref:`sparse-ordering` is used and the ordinals are not contiguous (see
-below).
+:ref:`sparse-ordering` is used and the ordinals are not contiguous.
 
 
 Order relative to other tests
@@ -272,7 +275,7 @@ by their name:
 
 ::
 
-    $ py.test test_foo.py -vv
+    $ pytest test_foo.py -vv
     ============================= test session starts ==============================
     platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
     plugins: order
@@ -308,8 +311,39 @@ with a ``::`` suffix has to be prepended to the test name:
          assert True
 
 If the referenced test lives in another module, the test name has to be
-prepended by the module path to be uniquely identifiable
-(e.g. ``mod_test.test_something`` or ``mod_test.TestA.test_a``).
+prepended by the module path to be uniquely identifiable. Let's say we have
+the following module and test layout:
+
+::
+
+  test_module_a.py
+      TestA
+          test_a
+          test_b
+  test_module_b.py
+      test_a
+      test_b
+  test_module_c.py
+      test_submodule.py
+          test_1
+          test_2
+
+Suppose the tests in ``test_module_b`` shall depend on tests in the other
+modules, this could be expressed like:
+
+**test_module_b.py**
+
+.. code:: python
+
+ import pytest
+
+ @pytest.mark.order(after='test_module_a.TestA::test_a')
+ def test_a():
+     assert True
+
+ @pytest.mark.order(before='test_module_c.test_submodule.test_2')
+ def test_b():
+     assert True
 
 If an unknown test is referenced, a warning is issued and the test in
 question is ordered behind all other tests.
@@ -341,33 +375,22 @@ The `pytest-dependency <https://pypi.org/project/pytest-dependency/>`__
 plugin also manages dependencies between tests (skips tests that depend
 on skipped or failed tests), but currently doesn't do any ordering. If you
 want to execute the tests in a specific order to each other, you can use
-``pytest-ordering``. If you want to skip or xfail tests dependent on other
+``pytest-order``. If you want to skip or xfail tests dependent on other
 tests you can use ``pytest-dependency``. If you want to have both behaviors
 combined, you can use both plugins together with the
-option :ref:`order-dependencies`--see below for more information.
+option :ref:`order-dependencies`, described below.
 
 Configuration
 =============
 There are a few command line options that change the behavior of the
 plugin. As with any pytest option, you can add the options to your
-``pytest.ini`` if you want to have them applied to all tests automatically.
+``pytest.ini`` if you want to have them applied to all tests automatically:
 
-``--indulgent-ordering``
-------------------------
-You may sometimes find that you want to suggest an ordering of tests, while
-allowing it to be overridden for good reason. For example, if you run your test
-suite in parallel and have a number of tests which are particularly slow, it
-might be desirable to start those tests running first, in order to optimize
-your completion time. You can use the ``pytest-order`` plugin to inform pytest
-of this.
+.. code::
 
-Now suppose you also want to prioritize tests which failed during the
-previous run, by using the ``--failed-first`` option. By default,
-pytest-order will override the ``--failed-first`` order, but by adding the
-``--indulgent-ordering`` option, you can ask pytest to run the sort from
-pytest-order *before* the sort from ``--failed-first``, allowing the failed
-tests to be sorted to the front (note that in pytest versions from 6.0 on,
-this seems not to be needed anymore, at least in this specific case).
+  [pytest]
+  ; always order tests with dependency markers
+  addopts = --order-dependencies
 
 .. _order-scope:
 
@@ -388,6 +411,83 @@ separately for ordering the tests. If a module has both test classes and
 separate test functions, these test functions are handled separately from the
 test classes. If a module has no test classes, the effect is the same as
 if using ``--order-scope=module``.
+
+.. note::
+  This option only affects ordinal ordering. Ordering relative to other tests
+  is always global, as the related tests are referenced by name.
+
+For example consider two test modules:
+
+**tests/test_module1.py**:
+
+.. code::
+
+  import pytest
+
+  @pytest.mark.order(2)
+  def test2():
+      pass
+
+  @pytest.mark.order(1)
+  def test1():
+      pass
+
+**tests/test_module2.py**:
+
+.. code::
+
+  import pytest
+
+  @pytest.mark.order(2)
+  def test2():
+      pass
+
+  @pytest.mark.order(1)
+  def test1():
+      pass
+
+Here is what you get using session and module-scoped sorting:
+
+::
+
+    $ pytest tests -vv
+    ============================= test session starts ==============================
+    ...
+
+    tests/test_module1.py:9: test1 PASSED
+    tests/test_module2.py:9: test1 PASSED
+    tests/test_module1.py:5: test2 PASSED
+    tests/test_module2.py:5: test2 PASSED
+
+
+::
+
+    $ pytest tests -vv --order-scope=module
+    ============================= test session starts ==============================
+    ...
+
+    tests/test_module1.py:9: test1 PASSED
+    tests/test_module1.py:5: test2 PASSED
+    tests/test_module2.py:9: test1 PASSED
+    tests/test_module2.py:5: test2 PASSED
+
+
+``--indulgent-ordering``
+------------------------
+You may sometimes find that you want to suggest an ordering of tests, while
+allowing it to be overridden for good reason. For example, if you run your test
+suite in parallel and have a number of tests which are particularly slow, it
+might be desirable to start those tests running first, in order to optimize
+your completion time. You can use the ``pytest-order`` plugin to inform pytest
+of this.
+
+Now suppose you also want to prioritize tests which failed during the
+previous run, by using the ``--failed-first`` option. By default,
+pytest-order will override the ``--failed-first`` order, but by adding the
+``--indulgent-ordering`` option, you can ask pytest to run the sort from
+pytest-order *before* the sort from ``--failed-first``, allowing the failed
+tests to be sorted to the front (note that in pytest versions from 6.0 on,
+this seems not to be needed anymore, at least in this specific case).
 
 .. _sparse-ordering:
 
@@ -434,21 +534,42 @@ are executed in the same order as:
  def test_one():
      assert True
 
-namely, they are run in the order ``test_one``, ``test_two``, ``test_three``
-and ``test_four``. The gaps between numbers, and the fact that the starting
-number is not 0, are ignored. This is consistent with the current behavior of
+e.g. you get:
+
+::
+
+    $ pytest tests -vv
+    ============================= test session starts ==============================
+    ...
+    test_module.py:13: test_one PASSED
+    test_module.py:3: test_two PASSED
+    test_module.py:6: test_three PASSED
+    test_module.py:9: test_four PASSED
+
+The gaps between numbers, and the fact that the starting number is not 0,
+are ignored. This is consistent with the current behavior of
 ``pytest-ordering``.
 
-If you use the ``--sparse-ordering`` option, the behavior will change: now
-all missing numbers (starting with 0) are filled with unordered tests, as
-long as unordered tests are left. So the shown example will now order as
-``test_three`` (filled in for the missing number 0), ``test_one``,
-``test_four`` (filled in for the missing number 2), and ``test_two``. This
-will also work for tests with negative order numbers (or the respective names).
-The missing ordinals are filled with unordered tests first from the start,
-then from the end if there are negative numbers, and the rest will be in
-between (e.g. between positive and negative numbers), as it is without this
-option.
+If you use the ``--sparse-ordering`` option, the behavior will change:
+
+::
+
+    $ pytest tests -vv --sparse-ordering
+    ============================= test session starts ==============================
+    ...
+    test_module.py:6: test_three PASSED
+    test_module.py:13: test_one PASSED
+    test_module.py:9: test_four PASSED
+    test_module.py:3: test_two PASSED
+
+Now all missing numbers (starting with 0) are filled with unordered tests, as
+long as unordered tests are left. In the shown example, ``test_three``
+is filled in for the missing number 0, and ``test_four`` is filled in for the
+missing number 2. This will also work for tests with negative order numbers
+(or the respective names). The missing ordinals are filled with unordered
+tests first from the start, then from the end if there are negative numbers,
+and the rest will be in between (e.g. between positive and negative numbers),
+as it is without this option.
 
 .. _order-dependencies:
 
@@ -477,19 +598,39 @@ following tests:
 
 .. code:: python
 
- import pytest
+  import pytest
 
- @pytest.mark.dependency(depends=['test_b'])
- def test_a():
-     assert True
+  @pytest.mark.dependency(depends=['test_b'])
+  def test_a():
+      assert True
 
- def test_b():
-     assert True
+  @pytest.mark.dependency
+  def test_b():
+      assert True
 
 By default, ``test_a`` is not run, because it depends on ``test_b``, which
-is only run after ``test_b``. If you use ``--order-dependencies``, this will
-change--the tests will now be reordered according to the dependency and both
-run. Note that a similar feature may be added to ``pytest-dependency`` -
+is only run after ``test_b``:
+
+::
+
+    $ pytest tests -vv
+    ============================= test session starts ==============================
+    ...
+    test_dep.py::test_a SKIPPED
+    test_dep.py::test_b PASSED
+
+If you use ``--order-dependencies``, this will change--the tests will now be
+reordered according to the dependency and both run:
+
+::
+
+    $ pytest tests -vv --order-dependencies
+    ============================= test session starts ==============================
+    ...
+    test_dep.py::test_b PASSED
+    test_dep.py::test_a PASSED
+
+Note that a similar feature may be added to ``pytest-dependency`` -
 if this is done, this option will not be needed, but for the time being you
 can use both plugins together to get this behavior.
 Note that ``pytest-order`` does not replace ``pytest-dependency``--it just
@@ -497,7 +638,7 @@ adds ordering to the existing functionality if needed.
 
 .. note::
   This feature is considered experimental. It may not handle all cases of
-  defined dependencies. Please write an issue if you need further support.
+  defined dependencies. Please write an issue if you find any problems.
 
 Miscellaneous
 =============
