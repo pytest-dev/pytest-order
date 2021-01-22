@@ -6,12 +6,12 @@ pytest_plugins = ["pytester"]
 
 
 @pytest.fixture
-def item_names_for(testdir):
+def item_names_for(request, testdir):
     def _item_names_for(tests_content):
         items = testdir.getitems(tests_content)
-        hook = testdir.config.hook
+        hook = request.config.hook
         hook.pytest_collection_modifyitems(session=items[0].session,
-                                           config=testdir.config, items=items)
+                                           config=request.config, items=items)
         return [item.name for item in items]
 
     return _item_names_for
