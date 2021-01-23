@@ -33,6 +33,7 @@ jobs:
         run: |
           pip3 install wheel
           pip3 install pytest
+          sudo apt update
           sudo apt-get install python3-sphinx
           cd main/docs
           make html
