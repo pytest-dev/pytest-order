@@ -146,9 +146,7 @@ def mark_binning(item, keys, start, end, before, after, dep, unordered, alias):
 
     if "order" in keys:
         mark = item.get_closest_marker("order")
-        order = mark.args[0] if mark.args else None
-        if order is None:
-            order = mark.kwargs.get("index")
+        order = mark.args[0] if mark.args else mark.kwargs.get("index")
         before_mark = mark.kwargs.get("before")
         after_mark = mark.kwargs.get("after")
         if order is not None:
