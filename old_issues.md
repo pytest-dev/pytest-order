@@ -56,3 +56,5 @@ Tracks the state of all open issues in pytest-ordering for reference.
   not an issue here :heavy_check_mark:
 - [Test ordering is completely broken](https://github.com/ftobia/pytest-ordering/issues/73)  
   obsolete, shall work with respective `order` markers :heavy_check_mark: 
+- [license is showing as UNKNOWN in pip show command.](https://github.com/ftobia/pytest-ordering/issues/75)
+  fixed by adding the license to `setup.py` :heavy_check_mark:
