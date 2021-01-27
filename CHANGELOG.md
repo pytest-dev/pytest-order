@@ -1,10 +1,12 @@
 # pytest-order Release Notes
 
-## Unreleased
+## [Version 0.9.4](https://pypi.org/project/pytest-order/0.9.4/) (2021-01-27)
+Patch release to make packaging easier. 
 
 ### Infrastructure
 - use codecov instead of coveralls, that is failing
 - added pytest 6.2 to CI tests
+- added tests, examples and documentation to source package
 
 ## [Version 0.9.3](https://pypi.org/project/pytest-order/0.9.3/) (2021-01-14)
 Bugfix release.
