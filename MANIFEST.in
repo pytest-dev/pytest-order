@@ -1,3 +1,12 @@
 include LICENSE
+include AUTHORS
 include CHANGELOG.md
 include README.md
+include tox.ini
+
+graft tests
+graft docs
+graft example
+prune docs/build
+
+global-exclude __pycache__/*
