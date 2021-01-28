@@ -1,7 +1,7 @@
 _pytest-order_ - a pytest plugin to order test execution
 ========================================================
 
-[![PyPI version](https://badge.fury.io/py/pytest-order.svg)](https://pypi.org/project/pytest-order) ![Testsuite](https://github.com/mrbean-bremen/pytest-order/workflows/Testsuite/badge.svg) ![DocBuild](https://github.com/mrbean-bremen/pytest-order/workflows/DocBuild/badge.svg) [![codecov](https://codecov.io/gh/mrbean-bremen/pytest-order/branch/master/graph/badge.svg?token=M9PHWZSHUU)](https://codecov.io/gh/mrbean-bremen/pytest-order) [![Python version](https://img.shields.io/pypi/pyversions/pytest-order.svg)](https://pypi.org/project/pytest-order)
+[![PyPI version](https://badge.fury.io/py/pytest-order.svg)](https://pypi.org/project/pytest-order) [![Testsuite](https://github.com/mrbean-bremen/pytest-order/workflows/Testsuite/badge.svg)](https://github.com/mrbean-bremen/pytest-order/actions?query=workflow%3ATestsuite) [![DocBuild](https://github.com/mrbean-bremen/pytest-order/workflows/DocBuild/badge.svg)](https://github.com/mrbean-bremen/pytest-order/actions?query=workflow%3ADocBuild) [![codecov](https://codecov.io/gh/mrbean-bremen/pytest-order/branch/master/graph/badge.svg?token=M9PHWZSHUU)](https://codecov.io/gh/mrbean-bremen/pytest-order) [![Python version](https://img.shields.io/pypi/pyversions/pytest-order.svg)](https://pypi.org/project/pytest-order)
 
 `pytest-order` is a pytest plugin that allows you to customize the order in which
 your tests are run. It uses the marker `order` that defines when a specific
@@ -9,7 +9,7 @@ test shall be run relative to the other tests.
 
 `pytest-order` is a fork of
 [pytest-ordering](https://github.com/ftobia/pytest-ordering) that provides
-some additional features--see [below](#comparison-with-pytest_ordering) for
+some additional features - see [below](#comparison-with-pytest_ordering) for
 details.
 
 `pytest-order` works with Python 2.7 and 3.5 - 3.9, with pytest 
@@ -67,6 +67,24 @@ yields the output:
 
     =========================== 2 passed in 0.01 seconds ===========================
 
+Features
+--------
+`pytest-order` provides the following features:
+- ordering of tests by index, as show above
+- ordering of tests both from the start and from the end (via negative
+  index)
+- ordering of tests relative to each other (via the `before` and `after`
+  marker attributes) 
+- session-, module- and class-scope ordering via the ``order-scope`` option
+- ordering tests with `pytest-dependency` markers if using the
+  ``order-dependencies`` option
+- sparse ordering of tests via the ``sparse-ordering`` option
+- invocation of the plugin before other plugins if the
+  ``indulgent-ordering`` option is used
+  
+A usage guide for each feature can be
+found in the [documentation](https://mrbean-bremen.github.io/pytest-order/dev/).
+
 History
 -------
 This is a fork of [pytest-ordering](https://github.com/ftobia/pytest-ordering).
@@ -83,14 +101,8 @@ with `pytest-ordering` due to the changed marker name (`order` instead of
 rationale see also
 [this issue](https://github.com/ftobia/pytest-ordering/issues/38)).
 
-Apart from the changed marker name, there is a number of features not
-implemented in the released version of `pytest-ordering`:
-- support for ordering tests relative to each other 
-- support for module and class-scope ordering via a config option
-- optional support for ordering tests with `pytest-dependency` markers
-- optional support for sparse ordering
-- optional invocation of the plugin before (instead of after) other plugins
-
-Most of these features are derived from [issues](https://github.com/mrbean-bremen/pytest-order/blob/master/old_issues.md)
-and pull requests in `pytest-ordering`. A description of each feature can be
-found in the [documentation](https://mrbean-bremen.github.io/pytest-order/dev/).
+Ordering relative to other tests and all of the configuration options are not
+available in the released version of `pytest-ordering`.
+However, most of these features are derived from 
+[issues](https://github.com/mrbean-bremen/pytest-order/blob/master/old_issues.md)
+and pull requests already existing in `pytest-ordering`. 

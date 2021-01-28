@@ -122,9 +122,9 @@ The above is a trivial example, but ordering is respected across test files.
 
 .. note::
   The scope of the ordering is global per default, e.g. tests with lower
-  ordinal numbers are always executed before tests with higher numbers,
-  regardless of the module and class they reside in. This can be changed
-  by using the :ref:`order-scope` option.
+  ordinal numbers are always executed before tests with higher numbers in
+  the same test session, regardless of the module and class they reside in.
+  This can be changed by using the :ref:`order-scope` option.
 
 Ordering is done either absolutely, by using ordinal numbers that define the
 order, or relative to other tests, using the ``before`` and ``after``
@@ -186,25 +186,26 @@ Order using ordinals
 
 Instead of the numbers, you can use ordinal names such as "first", "second",
 "last", and "second_to_last". These are convenience notations, and have the
-same effect as the numbers 0, 1, -1 and -2 that have been shown above:
+same effect as the numbers 0, 1, -1 and -2, respectively, that have been shown
+above:
 
 .. code:: python
 
  import pytest
 
- @pytest.mark.order('second_to_last')
+ @pytest.mark.order("second_to_last")
  def test_three():
      assert True
 
- @pytest.mark.order('last')
+ @pytest.mark.order("last")
  def test_four():
      assert True
 
- @pytest.mark.order('second')
+ @pytest.mark.order("second")
  def test_two():
      assert True
 
- @pytest.mark.order('first')
+ @pytest.mark.order("first")
  def test_one():
      assert True
 
@@ -226,29 +227,29 @@ same effect as the numbers 0, 1, -1 and -2 that have been shown above:
 Convenience names are only defined for the first and the last 8 numbers.
 Here is the complete list with the corresponding numbers:
 
-- 'first': 0
-- 'second': 1
-- 'third': 2
-- 'fourth': 3
-- 'fifth': 4
-- 'sixth': 5
-- 'seventh': 6
-- 'eighth': 7
-- 'last': -1
-- 'second_to_last': -2
-- 'third_to_last': -3
-- 'fourth_to_last': -4
-- 'fifth_to_last': -5
-- 'sixth_to_last': -6
-- 'seventh_to_last': -7
-- 'eighth_to_last': -8
+- "first": 0
+- "second": 1
+- "third": 2
+- "fourth": 3
+- "fifth": 4
+- "sixth": 5
+- "seventh": 6
+- "eighth": 7
+- "last": -1
+- "second_to_last": -2
+- "third_to_last": -3
+- "fourth_to_last": -4
+- "fifth_to_last": -5
+- "sixth_to_last": -6
+- "seventh_to_last": -7
+- "eighth_to_last": -8
 
 Handling of unordered tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 By default, tests with no ``order`` mark are executed after all tests with
 positive ordinal numbers (or the respective names), and before tests with
 negative ordinal numbers. The order of these tests in relationship to each
-other is not changed. This behavior may slightly change if the option
+other is not changed. This behavior will slightly change if the option
 :ref:`sparse-ordering` is used and the ordinals are not contiguous.
 
 
@@ -262,14 +263,14 @@ by their name:
 
  import pytest
 
- @pytest.mark.order(after='test_second')
+ @pytest.mark.order(after="test_second")
  def test_third():
      assert True
 
  def test_second():
      assert True
 
- @pytest.mark.order(before='test_second')
+ @pytest.mark.order(before="test_second")
  def test_first():
      assert True
 
@@ -299,7 +300,7 @@ with a ``::`` suffix has to be prepended to the test name:
  import pytest
 
  class TestA:
-     @pytest.mark.order(after='TestB::test_c')
+     @pytest.mark.order(after="TestB::test_c")
      def test_a():
          assert True
 
@@ -337,11 +338,11 @@ modules, this could be expressed like:
 
  import pytest
 
- @pytest.mark.order(after='test_module_a.TestA::test_a')
+ @pytest.mark.order(after="test_module_a.TestA::test_a")
  def test_a():
      assert True
 
- @pytest.mark.order(before='test_module_c.test_submodule.test_2')
+ @pytest.mark.order(before="test_module_c.test_submodule.test_2")
  def test_b():
      assert True
 
@@ -358,7 +359,7 @@ ones. This means that relative ordering always takes preference:
 
  import pytest
 
- @pytest.mark.order(index=0, after='test_second')
+ @pytest.mark.order(index=0, after="test_second")
  def test_first():
      assert True
 
@@ -587,7 +588,7 @@ dependency, and is ignored if this is the case. Consider the following:
  def test_a():
      assert True
 
- @pytest.mark.dependency(depends=['test_a'])
+ @pytest.mark.dependency(depends=["test_a"])
  @pytest.mark.order("first")
  def test_b():
      assert True
@@ -600,7 +601,7 @@ following tests:
 
   import pytest
 
-  @pytest.mark.dependency(depends=['test_b'])
+  @pytest.mark.dependency(depends=["test_b"])
   def test_a():
       assert True
 
