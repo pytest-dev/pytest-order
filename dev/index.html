@@ -152,9 +152,9 @@ test_foo.py:3: test_foo PASSED
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">The scope of the ordering is global per default, e.g. tests with lower
-ordinal numbers are always executed before tests with higher numbers,
-regardless of the module and class they reside in. This can be changed
-by using the <a class="reference internal" href="#order-scope"><span class="std std-ref">--order-scope</span></a> option.</p>
+ordinal numbers are always executed before tests with higher numbers in
+the same test session, regardless of the module and class they reside in.
+This can be changed by using the <a class="reference internal" href="#order-scope"><span class="std std-ref">--order-scope</span></a> option.</p>
 </div>
 <p>Ordering is done either absolutely, by using ordinal numbers that define the
 order, or relative to other tests, using the <code class="docutils literal"><span class="pre">before</span></code> and <code class="docutils literal"><span class="pre">after</span></code>
@@ -210,22 +210,23 @@ test_foo.py:7: test_four PASSED
 <h3>Order using ordinals<a class="headerlink" href="#order-using-ordinals" title="Permalink to this headline">¶</a></h3>
 <p>Instead of the numbers, you can use ordinal names such as “first”, “second”,
 “last”, and “second_to_last”. These are convenience notations, and have the
-same effect as the numbers 0, 1, -1 and -2 that have been shown above:</p>
+same effect as the numbers 0, 1, -1 and -2, respectively, that have been shown
+above:</p>
 <div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s1">&#39;second_to_last&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s2">&quot;second_to_last&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_three</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s1">&#39;last&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s2">&quot;last&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_four</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s1">&#39;second&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_two</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s1">&#39;first&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_one</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 </pre></div>
@@ -247,22 +248,22 @@ test_foo.py:7: test_four PASSED
 <p>Convenience names are only defined for the first and the last 8 numbers.
 Here is the complete list with the corresponding numbers:</p>
 <ul class="simple">
-<li>‘first’: 0</li>
-<li>‘second’: 1</li>
-<li>‘third’: 2</li>
-<li>‘fourth’: 3</li>
-<li>‘fifth’: 4</li>
-<li>‘sixth’: 5</li>
-<li>‘seventh’: 6</li>
-<li>‘eighth’: 7</li>
-<li>‘last’: -1</li>
-<li>‘second_to_last’: -2</li>
-<li>‘third_to_last’: -3</li>
-<li>‘fourth_to_last’: -4</li>
-<li>‘fifth_to_last’: -5</li>
-<li>‘sixth_to_last’: -6</li>
-<li>‘seventh_to_last’: -7</li>
-<li>‘eighth_to_last’: -8</li>
+<li>“first”: 0</li>
+<li>“second”: 1</li>
+<li>“third”: 2</li>
+<li>“fourth”: 3</li>
+<li>“fifth”: 4</li>
+<li>“sixth”: 5</li>
+<li>“seventh”: 6</li>
+<li>“eighth”: 7</li>
+<li>“last”: -1</li>
+<li>“second_to_last”: -2</li>
+<li>“third_to_last”: -3</li>
+<li>“fourth_to_last”: -4</li>
+<li>“fifth_to_last”: -5</li>
+<li>“sixth_to_last”: -6</li>
+<li>“seventh_to_last”: -7</li>
+<li>“eighth_to_last”: -8</li>
 </ul>
 </div>
 <div class="section" id="handling-of-unordered-tests">
@@ -270,7 +271,7 @@ Here is the complete list with the corresponding numbers:</p>
 <p>By default, tests with no <code class="docutils literal"><span class="pre">order</span></code> mark are executed after all tests with
 positive ordinal numbers (or the respective names), and before tests with
 negative ordinal numbers. The order of these tests in relationship to each
-other is not changed. This behavior may slightly change if the option
+other is not changed. This behavior will slightly change if the option
 <a class="reference internal" href="#sparse-ordering"><span class="std std-ref">--sparse-ordering</span></a> is used and the ordinals are not contiguous.</p>
 </div>
 </div>
@@ -280,14 +281,14 @@ other is not changed. This behavior may slightly change if the option
 by their name:</p>
 <div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s1">&#39;test_second&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s2">&quot;test_second&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_third</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
 <span class="k">def</span> <span class="nf">test_second</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">before</span><span class="o">=</span><span class="s1">&#39;test_second&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">before</span><span class="o">=</span><span class="s2">&quot;test_second&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_first</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 </pre></div>
@@ -314,7 +315,7 @@ with a <code class="docutils literal"><span class="pre">::</span></code> suffix 
 <div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
 <span class="k">class</span> <span class="nc">TestA</span><span class="p">:</span>
-    <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s1">&#39;TestB::test_c&#39;</span><span class="p">)</span>
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s2">&quot;TestB::test_c&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">test_a</span><span class="p">():</span>
         <span class="k">assert</span> <span class="kc">True</span>
 
@@ -347,11 +348,11 @@ modules, this could be expressed like:</p>
 <p><strong>test_module_b.py</strong></p>
 <div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s1">&#39;test_module_a.TestA::test_a&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s2">&quot;test_module_a.TestA::test_a&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_a</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">before</span><span class="o">=</span><span class="s1">&#39;test_module_c.test_submodule.test_2&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">before</span><span class="o">=</span><span class="s2">&quot;test_module_c.test_submodule.test_2&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_b</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 </pre></div>
@@ -366,7 +367,7 @@ for the absolute markers (e.g. the ordinals), and afterwards for the relative
 ones. This means that relative ordering always takes preference:</p>
 <div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">after</span><span class="o">=</span><span class="s1">&#39;test_second&#39;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">after</span><span class="o">=</span><span class="s2">&quot;test_second&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_first</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
@@ -567,7 +568,7 @@ dependency, and is ignored if this is the case. Consider the following:</p>
 <span class="k">def</span> <span class="nf">test_a</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">dependency</span><span class="p">(</span><span class="n">depends</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;test_a&#39;</span><span class="p">])</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">dependency</span><span class="p">(</span><span class="n">depends</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;test_a&quot;</span><span class="p">])</span>
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_b</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
@@ -578,7 +579,7 @@ ignored. This behavior is independent of the option. Now consider the
 following tests:</p>
 <div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">dependency</span><span class="p">(</span><span class="n">depends</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;test_b&#39;</span><span class="p">])</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">dependency</span><span class="p">(</span><span class="n">depends</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;test_b&quot;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">test_a</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
