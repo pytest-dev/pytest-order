@@ -1,3 +1,6 @@
+"""Test with ordering (as opposed to test.py) from the quick start chapter.
+See https://mrbean-bremen.github.io/pytest-order/dev/#quickstart
+"""
 import pytest
 
 

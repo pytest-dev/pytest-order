@@ -1,3 +1,6 @@
+"""Shows how to sort tests relatively to each other, see
+https://mrbean-bremen.github.io/pytest-order/dev/#order-relative-to-other-tests
+"""
 import pytest
 
 

@@ -20,6 +20,8 @@ Documentation
 Apart from this overview, the following information is available:
 - usage documentation for the [latest release](https://mrbean-bremen.github.io/pytest-order/stable/)
 - usage documentation for the [current master](https://mrbean-bremen.github.io/pytest-order/dev/)
+- all examples shown in the documentation can also be found in the 
+  [repository](https://github.com/mrbean-bremen/pytest-order/tree/master/example)
 - the [Release Notes](https://github.com/mrbean-bremen/pytest-order/blob/master/CHANGELOG.md)
   with a list of changes in the latest versions
 - a [list of open issues](https://github.com/mrbean-bremen/pytest-order/blob/master/old_issues.md)
