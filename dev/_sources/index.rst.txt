@@ -60,6 +60,12 @@ The latest master can be installed from the GitHub sources:
 
    pip install git+https://github.com/mrbean-bremen/pytest-order
 
+Examples
+--------
+All examples shown in this documentation can be also found in the repository
+under `example <https://github.com/mrbean-bremen/pytest-order/tree/master/example/>`__
+as working test files.
+
 Quickstart
 ----------
 Ordinarily pytest will run tests in the order that they appear in a module.
@@ -301,14 +307,14 @@ with a ``::`` suffix has to be prepended to the test name:
 
  class TestA:
      @pytest.mark.order(after="TestB::test_c")
-     def test_a():
+     def test_a(self):
          assert True
 
-     def test_b():
+     def test_b(self):
          assert True
 
  class TestB:
-     def test_c():
+     def test_c(self):
          assert True
 
 If the referenced test lives in another module, the test name has to be
@@ -324,7 +330,7 @@ the following module and test layout:
   test_module_b.py
       test_a
       test_b
-  test_module_c.py
+  test_module_c
       test_submodule.py
           test_1
           test_2

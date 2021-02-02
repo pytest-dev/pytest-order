@@ -96,6 +96,12 @@ the CI builds. The plugin shall work under Linux, MacOs and Windows.</p>
 </pre></div>
 </div>
 </div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>All examples shown in this documentation can be also found in the repository
+under <a class="reference external" href="https://github.com/mrbean-bremen/pytest-order/tree/master/example/">example</a>
+as working test files.</p>
+</div>
 <div class="section" id="quickstart">
 <h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h2>
 <p>Ordinarily pytest will run tests in the order that they appear in a module.
@@ -316,14 +322,14 @@ with a <code class="docutils literal"><span class="pre">::</span></code> suffix 
 
 <span class="k">class</span> <span class="nc">TestA</span><span class="p">:</span>
     <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s2">&quot;TestB::test_c&quot;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">test_a</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">test_a</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">assert</span> <span class="kc">True</span>
 
-    <span class="k">def</span> <span class="nf">test_b</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">test_b</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">assert</span> <span class="kc">True</span>
 
 <span class="k">class</span> <span class="nc">TestB</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">test_c</span><span class="p">():</span>
+    <span class="k">def</span> <span class="nf">test_c</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">assert</span> <span class="kc">True</span>
 </pre></div>
 </div>
@@ -337,7 +343,7 @@ the following module and test layout:</p>
 <span class="n">test_module_b</span><span class="o">.</span><span class="n">py</span>
     <span class="n">test_a</span>
     <span class="n">test_b</span>
-<span class="n">test_module_c</span><span class="o">.</span><span class="n">py</span>
+<span class="n">test_module_c</span>
     <span class="n">test_submodule</span><span class="o">.</span><span class="n">py</span>
         <span class="n">test_1</span>
         <span class="n">test_2</span>
@@ -646,6 +652,7 @@ pytest with <code class="docutils literal"><span class="pre">--dist=loadfile</sp
 <li><a class="reference internal" href="#relationship-with-pytest-ordering">Relationship with pytest-ordering</a></li>
 <li><a class="reference internal" href="#supported-python-and-pytest-versions">Supported Python and pytest versions</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
 <li><a class="reference internal" href="#quickstart">Quickstart</a></li>
 </ul>
 </li>
