@@ -78,6 +78,7 @@ Features
 - ordering of tests relative to each other (via the `before` and `after`
   marker attributes) 
 - session-, module- and class-scope ordering via the ``order-scope`` option
+- hierarchical ordering via the ``group-order-scope`` option
 - ordering tests with `pytest-dependency` markers if using the
   ``order-dependencies`` option
 - sparse ordering of tests via the ``sparse-ordering`` option

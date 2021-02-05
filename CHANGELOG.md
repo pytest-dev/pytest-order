@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Added
+- added `group-order-scope` option to allow hierarchical ordering on module
+  and class scope. 
+  See [#6](https://github.com/mrbean-bremen/pytest-order/issues/6)
+
 ## [Version 0.9.4](https://pypi.org/project/pytest-order/0.9.4/) (2021-01-27)
 Patch release to make packaging easier. 
 

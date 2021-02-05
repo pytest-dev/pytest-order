@@ -8,6 +8,11 @@ import pytest
 
 from ._version import __version__  # noqa: F401
 
+# replace by Enum class after Python 2 support is gone
+CLASS = 1
+MODULE = 2
+SESSION = 3
+
 orders_map = {
     "first": 0,
     "second": 1,
@@ -50,7 +55,7 @@ def pytest_configure(config):
         # manually replace it.
         # Python 2.7 didn"t allow arbitrary attributes on methods, so we have
         # to keep the function as a function and then add it to the class as a
-        # pseudomethod.  Since the class is purely for structuring and `self`
+        # pseudo method.  Since the class is purely for structuring and `self`
         # is never referenced, this seems reasonable.
         OrderingPlugin.pytest_collection_modifyitems = pytest.hookimpl(
             function=modify_items, tryfirst=True)
@@ -71,7 +76,14 @@ def pytest_addoption(parser):
     group.addoption("--order-scope", action="store",
                     dest="order_scope",
                     help="Defines the scope used for ordering. Possible values"
-                         "are 'session' (default), 'module', and 'class'")
+                         "are 'session' (default), 'module', and 'class'."
+                         "Ordering is only done inside a scope.")
+    group.addoption("--order-group-scope", action="store",
+                    dest="order_group_scope",
+                    help="Defines the scope used for order groups. Possible "
+                         "values are 'session' (default), 'module', "
+                         "and 'class'. Ordering is first done inside a group, "
+                         "then between groups.")
     group.addoption("--sparse-ordering", action="store_true",
                     dest="sparse_ordering",
                     help="If there are gaps between ordinals they are filled "
@@ -94,21 +106,40 @@ class OrderingPlugin(object):
 class Settings:
     sparse_ordering = False
     order_dependencies = False
-    scope = "session"
+    scope = SESSION
+    group_scope = SESSION
+
+    valid_scopes = {
+        "class": CLASS,
+        "module": MODULE,
+        "session": SESSION
+    }
 
     @classmethod
     def initialize(cls, config):
         cls.sparse_ordering = config.getoption("sparse_ordering")
         cls.order_dependencies = config.getoption("order_dependencies")
         scope = config.getoption("order_scope")
-        if scope in ("session", "module", "class"):
-            cls.scope = scope
+        if scope in cls.valid_scopes:
+            cls.scope = cls.valid_scopes[scope]
         else:
             if scope is not None:
                 warn("Unknown order scope '{}', ignoring it. "
                      "Valid scopes are 'session', 'module' and 'class'."
                      .format(scope))
-            cls.scope = "session"
+            cls.scope = SESSION
+        group_scope = config.getoption("order_group_scope")
+        if group_scope in cls.valid_scopes:
+            cls.group_scope = cls.valid_scopes[group_scope]
+        else:
+            if group_scope is not None:
+                warn("Unknown order group scope '{}', ignoring it. "
+                     "Valid scopes are 'session', 'module' and 'class'."
+                     .format(group_scope))
+            cls.group_scope = cls.scope
+        if cls.group_scope > cls.scope:
+            warn("Group scope is larger than order scope, ignoring it.")
+            cls.group_scope = cls.scope
 
 
 def full_name(item, name=None):
@@ -212,6 +243,64 @@ def insert_after(name, items, sort):
     return False
 
 
+def sorted_groups(groups):
+    start_groups = []
+    middle_groups = []
+    end_groups = []
+    # TODO: handle relative markers
+    for group in groups:
+        if group[0] is None:
+            middle_groups.append(group[1])
+        elif group[0] >= 0:
+            start_groups.append(group)
+        else:
+            end_groups.append(group)
+
+    start_groups = sorted(start_groups)
+    end_groups = sorted(end_groups)
+    groups_sorted = [group[1] for group in start_groups]
+    groups_sorted.extend(middle_groups)
+    groups_sorted.extend([group[1] for group in end_groups])
+    if start_groups:
+        group_order = start_groups[0][0]
+    elif end_groups:
+        group_order = end_groups[-1][0]
+    else:
+        group_order = None
+    return group_order, groups_sorted
+
+
+def modify_item_groups(items):
+    if Settings.group_scope < Settings.scope:
+        sorted_list = []
+        if Settings.scope == SESSION:
+            module_items = module_item_groups(items)
+            module_groups = []
+            if Settings.group_scope == CLASS:
+                for module_item in module_items.values():
+                    class_items = class_item_groups(module_item)
+                    class_groups = [do_modify_items(item) for item in
+                                    class_items.values()]
+                    module_group = []
+                    group_order, class_groups = sorted_groups(class_groups)
+                    for group in class_groups:
+                        module_group.extend(group)
+                    module_groups.append((group_order, module_group))
+            else:
+                module_groups = [do_modify_items(item) for item in
+                                 module_items.values()]
+            for group in sorted_groups(module_groups)[1]:
+                sorted_list.extend(group)
+        else:  # module scope / class group scope
+            class_items = class_item_groups(items)
+            class_groups = [do_modify_items(item) for item in
+                            class_items.values()]
+            for group in sorted_groups(class_groups)[1]:
+                sorted_list.extend(group)
+        return sorted_list
+    return do_modify_items(items)[1]
+
+
 def do_modify_items(items):
     before_item = {}
     after_item = {}
@@ -272,7 +361,14 @@ def do_modify_items(items):
         sys.stdout.flush()
         print("enqueue them behind the others")
 
-    return sorted_list
+    if start_item:
+        group_order = start_item[0][0]
+    elif end_item:
+        group_order = end_item[-1][0]
+    else:
+        group_order = None
+
+    return group_order, sorted_list
 
 
 def sort_numbered_items(start_item, end_item, unordered_list):
@@ -300,26 +396,36 @@ def sort_numbered_items(start_item, end_item, unordered_list):
 
 def modify_items(session, config, items):
     Settings.initialize(config)
-    if Settings.scope == "session":
-        sorted_list = do_modify_items(items)
-    elif Settings.scope == "module":
-        module_items = OrderedDict()
-        for item in items:
-            module_path = item.nodeid[:item.nodeid.index("::")]
-            module_items.setdefault(module_path, []).append(item)
+    if Settings.scope == SESSION:
+        sorted_list = modify_item_groups(items)
+    elif Settings.scope == MODULE:
+        module_items = module_item_groups(items)
         sorted_list = []
         for module_item_list in module_items.values():
-            sorted_list.extend(do_modify_items(module_item_list))
+            sorted_list.extend(modify_item_groups(module_item_list))
     else:  # class scope
-        class_items = OrderedDict()
-        for item in items:
-            delim_index = item.nodeid.index("::")
-            if "::" in item.nodeid[delim_index + 2:]:
-                delim_index = item.nodeid.index("::", delim_index + 2)
-            class_path = item.nodeid[:delim_index]
-            class_items.setdefault(class_path, []).append(item)
+        class_items = class_item_groups(items)
         sorted_list = []
         for class_item_list in class_items.values():
-            sorted_list.extend(do_modify_items(class_item_list))
+            sorted_list.extend(modify_item_groups(class_item_list))
 
     items[:] = sorted_list
+
+
+def module_item_groups(items):
+    module_items = OrderedDict()
+    for item in items:
+        module_path = item.nodeid[:item.nodeid.index("::")]
+        module_items.setdefault(module_path, []).append(item)
+    return module_items
+
+
+def class_item_groups(items):
+    class_items = OrderedDict()
+    for item in items:
+        delim_index = item.nodeid.index("::")
+        if "::" in item.nodeid[delim_index + 2:]:
+            delim_index = item.nodeid.index("::", delim_index + 2)
+        class_path = item.nodeid[:delim_index]
+        class_items.setdefault(class_path, []).append(item)
+    return class_items
