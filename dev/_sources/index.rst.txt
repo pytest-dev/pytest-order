@@ -479,6 +479,107 @@ Here is what you get using session and module-scoped sorting:
     tests/test_module2.py:5: test2 PASSED
 
 
+``--order-group-scope``
+-----------------------
+This option is also related to the order scope. It defines the scope inside
+which tests may be reordered. Consider you have several test modules which
+you want to order, but you don't want to mix the tests of several modules
+because the module setup is costly. In this case you can set the group order
+scope to "module", meaning that first the tests are ordered inside each
+module (the same as with the module order scope), but afterwards the modules
+themselves are sorted without changing the order inside each module.
+
+Consider these two test modules:
+
+**tests/test_module1.py**:
+
+.. code::
+
+  import pytest
+
+  @pytest.mark.order(2)
+  def test1():
+      pass
+
+  def test2():
+      pass
+
+**tests/test_module2.py**:
+
+.. code::
+
+  import pytest
+
+  @pytest.mark.order(1)
+  def test1():
+      pass
+
+  def test2():
+      pass
+
+Here is what you get using different scopes:
+
+::
+
+    $ pytest tests -vv
+    ============================= test session starts ==============================
+    ...
+
+    tests/test_module2.py:9: test1 PASSED
+    tests/test_module1.py:9: test1 PASSED
+    tests/test_module1.py:5: test2 PASSED
+    tests/test_module2.py:5: test2 PASSED
+
+
+::
+
+    $ pytest tests -vv --order-scope=module
+    ============================= test session starts ==============================
+    ...
+
+    tests/test_module1.py:9: test1 PASSED
+    tests/test_module1.py:5: test2 PASSED
+    tests/test_module2.py:9: test1 PASSED
+    tests/test_module2.py:5: test2 PASSED
+
+
+::
+
+    $ pytest tests -vv --order-group-scope=module
+    ============================= test session starts ==============================
+    ...
+
+    tests/test_module2.py:9: test1 PASSED
+    tests/test_module2.py:5: test2 PASSED
+    tests/test_module1.py:9: test1 PASSED
+    tests/test_module1.py:5: test2 PASSED
+
+The ordering of the module groups is done based on the lowest
+non-negative order number present in the module (e.g. the order number of
+the first test). If only negative numbers are present, the highest negative
+number (e.g. the number of the last test) is used, and these modules will be
+ordered at the end. Modules without order numbers will be sorted between
+modules with a non-negative order number and modules with a negative order
+number, the same way tests are sorted inside a module.
+
+The group order scope defaults to the order scope. In this case the tests are
+ordered the same way as without the group order scope. The setting takes effect
+only if the scope is less than the order scope, e.g. there are three
+possibilities:
+
+- order scope "session", order group scope "module" - this is shown in the
+  example above: first tests in eac module are ordered, afterwards the modules
+- order scope "module", order group scope "class" - first orders tests inside
+  each class, then the classes inside each module
+- order scope "session", order group scope "class" - first orders tests inside
+  each class, then the classes inside each module, and finally the modules
+  relatively to each other
+
+.. note::
+  This option currently does not work with relative markers - respective
+  support may be added later. It will also not work together with the sparse
+  ordering option.
+
 ``--indulgent-ordering``
 ------------------------
 You may sometimes find that you want to suggest an ordering of tests, while

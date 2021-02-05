@@ -476,6 +476,96 @@ tests/test_module2.py:5: test2 PASSED
 </pre></div>
 </div>
 </div>
+<div class="section" id="order-group-scope">
+<h2><code class="docutils literal"><span class="pre">--order-group-scope</span></code><a class="headerlink" href="#order-group-scope" title="Permalink to this headline">¶</a></h2>
+<p>This option is also related to the order scope. It defines the scope inside
+which tests may be reordered. Consider you have several test modules which
+you want to order, but you don’t want to mix the tests of several modules
+because the module setup is costly. In this case you can set the group order
+scope to “module”, meaning that first the tests are ordered inside each
+module (the same as with the module order scope), but afterwards the modules
+themselves are sorted without changing the order inside each module.</p>
+<p>Consider these two test modules:</p>
+<p><strong>tests/test_module1.py</strong>:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test1</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span> <span class="nf">test2</span><span class="p">():</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p><strong>tests/test_module2.py</strong>:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test1</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span> <span class="nf">test2</span><span class="p">():</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Here is what you get using different scopes:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest tests -vv
+============================= test session starts ==============================
+...
+
+tests/test_module2.py:9: test1 PASSED
+tests/test_module1.py:9: test1 PASSED
+tests/test_module1.py:5: test2 PASSED
+tests/test_module2.py:5: test2 PASSED
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest tests -vv --order-scope=module
+============================= test session starts ==============================
+...
+
+tests/test_module1.py:9: test1 PASSED
+tests/test_module1.py:5: test2 PASSED
+tests/test_module2.py:9: test1 PASSED
+tests/test_module2.py:5: test2 PASSED
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest tests -vv --order-group-scope=module
+============================= test session starts ==============================
+...
+
+tests/test_module2.py:9: test1 PASSED
+tests/test_module2.py:5: test2 PASSED
+tests/test_module1.py:9: test1 PASSED
+tests/test_module1.py:5: test2 PASSED
+</pre></div>
+</div>
+<p>The ordering of the module groups is done based on the lowest
+non-negative order number present in the module (e.g. the order number of
+the first test). If only negative numbers are present, the highest negative
+number (e.g. the number of the last test) is used, and these modules will be
+ordered at the end. Modules without order numbers will be sorted between
+modules with a non-negative order number and modules with a negative order
+number, the same way tests are sorted inside a module.</p>
+<p>The group order scope defaults to the order scope. In this case the tests are
+ordered the same way as without the group order scope. The setting takes effect
+only if the scope is less than the order scope, e.g. there are three
+possibilities:</p>
+<ul class="simple">
+<li>order scope “session”, order group scope “module” - this is shown in the
+example above: first tests in eac module are ordered, afterwards the modules</li>
+<li>order scope “module”, order group scope “class” - first orders tests inside
+each class, then the classes inside each module</li>
+<li>order scope “session”, order group scope “class” - first orders tests inside
+each class, then the classes inside each module, and finally the modules
+relatively to each other</li>
+</ul>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This option currently does not work with relative markers - respective
+support may be added later. It will also not work together with the sparse
+ordering option.</p>
+</div>
+</div>
 <div class="section" id="indulgent-ordering">
 <h2><code class="docutils literal"><span class="pre">--indulgent-ordering</span></code><a class="headerlink" href="#indulgent-ordering" title="Permalink to this headline">¶</a></h2>
 <p>You may sometimes find that you want to suggest an ordering of tests, while
@@ -673,6 +763,7 @@ pytest with <code class="docutils literal"><span class="pre">--dist=loadfile</sp
 </li>
 <li><a class="reference internal" href="#configuration">Configuration</a><ul>
 <li><a class="reference internal" href="#order-scope"><code class="docutils literal"><span class="pre">--order-scope</span></code></a></li>
+<li><a class="reference internal" href="#order-group-scope"><code class="docutils literal"><span class="pre">--order-group-scope</span></code></a></li>
 <li><a class="reference internal" href="#indulgent-ordering"><code class="docutils literal"><span class="pre">--indulgent-ordering</span></code></a></li>
 <li><a class="reference internal" href="#sparse-ordering"><code class="docutils literal"><span class="pre">--sparse-ordering</span></code></a></li>
 <li><a class="reference internal" href="#order-dependencies"><code class="docutils literal"><span class="pre">--order-dependencies</span></code></a></li>
