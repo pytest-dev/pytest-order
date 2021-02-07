@@ -2,10 +2,15 @@
 
 ## Unreleased
 
-### Added
+### Changes
+- tests with unresolved relative markers are now handled like tests
+  without order markers instead of being enqueued after all other tests   
+
+### New features
 - added `group-order-scope` option to allow hierarchical ordering on module
   and class scope. 
   See [#6](https://github.com/mrbean-bremen/pytest-order/issues/6)
+ 
 
 ## [Version 0.9.4](https://pypi.org/project/pytest-order/0.9.4/) (2021-01-27)
 Patch release to make packaging easier. 
@@ -49,7 +54,7 @@ demand-driven.
 ### Changes
 - removed support for pytest 3.6 (it still may work, just isn't tested anymore)
 
-### Added
+### New features
 - added configuration option for sparse sorting, e.g. the possibility to
   fill gaps between ordinals with unordered tests (see also 
   [this issue](https://github.com/ftobia/pytest-ordering/issues/14) in
@@ -60,7 +65,7 @@ demand-driven.
   defined by the `pytest-dependency` plugin
 - added ``index`` keyword for ordering as alternative to raw number
 
-### Fixed
+### Fixes
 - correctly handle combined index and dependency attributes
   
 ### Infrastructure
@@ -69,7 +74,7 @@ demand-driven.
  
 ## [Version 0.8.1](https://pypi.org/project/pytest-order/0.8.1/) (2020-11-02)
 
-### Added
+### New features
 - added configuration option for sorting scope,
   see [#2](https://github.com/mrbean-bremen/pytest-order/issues/2)
 
@@ -104,7 +109,7 @@ including some PRs (manually merged).
 Note: this version has been removed from PyPi to avoid confusion with the
 changed name in the next release.
 
-### Added
+### New features
 - added support for markers like run(before=...), run(after=),
   run("first") etc.
   (imported from [PR #37](https://github.com/ftobia/pytest-ordering/pull/37))

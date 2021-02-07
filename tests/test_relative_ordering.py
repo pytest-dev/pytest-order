@@ -225,8 +225,8 @@ def test_false_insert(item_names_for):
     def test_first():
         pass
     """
-    assert item_names_for(test_content) == ["test_second", "test_first",
-                                            "test_third"]
+    assert item_names_for(test_content) == ["test_third", "test_second",
+                                            "test_first"]
 
 
 def test_mixed_markers1(item_names_for):
@@ -332,10 +332,10 @@ def test_dependency_after_unknown_test(item_names_for, capsys):
     def test_2():
         pass
     """
-    assert item_names_for(test_content) == ["test_2", "test_1"]
+    assert item_names_for(test_content) == ["test_1", "test_2"]
     out, err = capsys.readouterr()
     warning = ("cannot execute test relative to others: "
-               "some_module.test_2 enqueue them behind the others")
+               "some_module.test_2 - ignoring the marker")
     assert warning in out
 
 
@@ -353,11 +353,11 @@ def test_dependency_before_unknown_test(item_names_for, capsys):
     def test_3():
         pass
     """
-    assert item_names_for(test_content) == ["test_1", "test_3", "test_2"]
+    assert item_names_for(test_content) == ["test_1", "test_2", "test_3"]
     out, err = capsys.readouterr()
     warning = ("cannot execute test relative to others: "
-               "test_dependency_before_unknown_test.test_4 enqueue them "
-               "behind the others")
+               "test_dependency_before_unknown_test.test_4 - "
+               "ignoring the marker")
     assert warning in out
 
 
@@ -376,11 +376,11 @@ def test_dependency_in_class_before_unknown_test(item_names_for, capsys):
         def test_3(self):
             pass
     """
-    assert item_names_for(test_content) == ["test_1", "test_3", "test_2"]
+    assert item_names_for(test_content) == ["test_1", "test_2", "test_3"]
     out, err = capsys.readouterr()
     warning = ("cannot execute test relative to others: "
                "test_dependency_in_class_before_unknown_test.Test::test_4 "
-               "enqueue them behind the others")
+               "- ignoring the marker")
     assert warning in out
 
 
@@ -400,9 +400,9 @@ def test_dependency_loop(item_names_for, capsys):
     def test_3():
         pass
     """
-    assert item_names_for(test_content) == ["test_2", "test_3", "test_1"]
+    assert item_names_for(test_content) == ["test_2", "test_1", "test_3"]
     out, err = capsys.readouterr()
     warning = ("cannot execute test relative to others: "
                "test_dependency_loop.test_1 test_dependency_loop.test_3 "
-               "enqueue them behind the others")
+               "- ignoring the marker")
     assert warning in out

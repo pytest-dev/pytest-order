@@ -2,15 +2,6 @@
 
 import pytest
 
-import pytest_order
-
-
-@pytest.fixture
-def order_dependencies(ignore_settings):
-    pytest_order.Settings.order_dependencies = True
-    yield
-    pytest_order.Settings.order_dependencies = False
-
 
 def test_ignore_order_with_dependency(item_names_for):
     tests_content = """
@@ -196,10 +187,10 @@ def test_unresolved_dependency_in_class(item_names_for, order_dependencies,
         def test_c(self):
             assert True
     """
-    assert item_names_for(tests_content) == ["test_c", "test_a", "test_b"]
+    assert item_names_for(tests_content) == ["test_a", "test_b", "test_c"]
     out, err = capsys.readouterr()
     warning = ("cannot execute test relative to others: "
-               "test_c enqueue them behind the others")
+               "test_c - ignoring the marker")
     assert warning in out
 
 
@@ -271,10 +262,10 @@ def test_unknown_dependency(item_names_for, order_dependencies, capsys):
         def test_c(self):
             assert True
     """
-    assert item_names_for(tests_content) == ["test_a", "test_c", "test_b"]
+    assert item_names_for(tests_content) == ["test_a", "test_b", "test_c"]
     out, err = capsys.readouterr()
     warning = ("cannot execute test relative to others: "
-               "test_3 enqueue them behind the others")
+               "test_3 - ignoring the marker")
     assert warning in out
 
 
@@ -291,4 +282,4 @@ def test_unsupported_order_with_dependency(item_names_for):
         pass
     """
     with pytest.warns(UserWarning, match="Unknown order attribute:'unknown'"):
-        assert item_names_for(test_content) == ["test_2", "test_1"]
+        assert item_names_for(test_content) == ["test_1", "test_2"]

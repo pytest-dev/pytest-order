@@ -2,6 +2,8 @@ import uuid
 
 import pytest
 
+import pytest_order
+
 pytest_plugins = ["pytester"]
 
 
@@ -28,3 +30,10 @@ def test_path(tmpdir):
 def ignore_settings(mocker):
     mocker.patch("pytest_order.Settings.initialize")
     yield
+
+
+@pytest.fixture
+def order_dependencies(ignore_settings):
+    pytest_order.Settings.order_dependencies = True
+    yield
+    pytest_order.Settings.order_dependencies = False
