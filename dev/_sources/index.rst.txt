@@ -419,10 +419,6 @@ separate test functions, these test functions are handled separately from the
 test classes. If a module has no test classes, the effect is the same as
 if using ``--order-scope=module``.
 
-.. note::
-  This option only affects ordinal ordering. Ordering relative to other tests
-  is always global, as the related tests are referenced by name.
-
 For example consider two test modules:
 
 **tests/test_module1.py**:
@@ -568,17 +564,74 @@ only if the scope is less than the order scope, e.g. there are three
 possibilities:
 
 - order scope "session", order group scope "module" - this is shown in the
-  example above: first tests in eac module are ordered, afterwards the modules
+  example above: first tests in each module are ordered, afterwards the modules
 - order scope "module", order group scope "class" - first orders tests inside
   each class, then the classes inside each module
 - order scope "session", order group scope "class" - first orders tests inside
   each class, then the classes inside each module, and finally the modules
   relatively to each other
 
+This option will also work with relative markers.
+
+Here is a similar example using relative markers:
+
+**tests/test_module1.py**:
+
+.. code::
+
+  import pytest
+
+  @pytest.mark.order(after="test_module2.test1")
+  def test1():
+      pass
+
+  def test2():
+      pass
+
+**tests/test_module2.py**:
+
+.. code::
+
+  import pytest
+
+  def test1():
+      pass
+
+  @pytest.mark.order(before="test1")
+  def test2():
+      pass
+
+Here is what you get using different scopes:
+
+::
+
+    $ pytest tests -vv
+    ============================= test session starts ==============================
+    ...
+
+    tests/test_module1.py:5: test2 PASSED
+    tests/test_module2.py:9: test1 PASSED
+    tests/test_module2.py:5: test2 PASSED
+    tests/test_module1.py:9: test1 PASSED
+
+::
+
+    $ pytest tests -vv --order-group-scope=module
+    ============================= test session starts ==============================
+    ...
+
+    tests/test_module2.py:9: test1 PASSED
+    tests/test_module2.py:5: test2 PASSED
+    tests/test_module1.py:9: test1 PASSED
+    tests/test_module1.py:5: test2 PASSED
+
+You can see that in the second run the second test module is run before the
+first because of the dependency, but the tests inside each module remain in
+the same order as before. Note that using module scope as in the example
+above doesn't make sense here due to the dependencies between modules.
+
 .. note::
-  This option currently does not work with relative markers - respective
-  support may be added later. It will also not work together with the sparse
-  ordering option.
+  This option will not work together well with the sparse ordering option.
 
 ``--indulgent-ordering``
 ------------------------

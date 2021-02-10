@@ -424,11 +424,6 @@ separately for ordering the tests. If a module has both test classes and
 separate test functions, these test functions are handled separately from the
 test classes. If a module has no test classes, the effect is the same as
 if using <code class="docutils literal"><span class="pre">--order-scope=module</span></code>.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This option only affects ordinal ordering. Ordering relative to other tests
-is always global, as the related tests are referenced by name.</p>
-</div>
 <p>For example consider two test modules:</p>
 <p><strong>tests/test_module1.py</strong>:</p>
 <div class="code highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
@@ -552,18 +547,65 @@ only if the scope is less than the order scope, e.g. there are three
 possibilities:</p>
 <ul class="simple">
 <li>order scope “session”, order group scope “module” - this is shown in the
-example above: first tests in eac module are ordered, afterwards the modules</li>
+example above: first tests in each module are ordered, afterwards the modules</li>
 <li>order scope “module”, order group scope “class” - first orders tests inside
 each class, then the classes inside each module</li>
 <li>order scope “session”, order group scope “class” - first orders tests inside
 each class, then the classes inside each module, and finally the modules
 relatively to each other</li>
 </ul>
+<p>This option will also work with relative markers.</p>
+<p>Here is a similar example using relative markers:</p>
+<p><strong>tests/test_module1.py</strong>:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s2">&quot;test_module2.test1&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test1</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span> <span class="nf">test2</span><span class="p">():</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p><strong>tests/test_module2.py</strong>:</p>
+<div class="code highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="k">def</span> <span class="nf">test1</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">before</span><span class="o">=</span><span class="s2">&quot;test1&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test2</span><span class="p">():</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>Here is what you get using different scopes:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest tests -vv
+============================= test session starts ==============================
+...
+
+tests/test_module1.py:5: test2 PASSED
+tests/test_module2.py:9: test1 PASSED
+tests/test_module2.py:5: test2 PASSED
+tests/test_module1.py:9: test1 PASSED
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest tests -vv --order-group-scope=module
+============================= test session starts ==============================
+...
+
+tests/test_module2.py:9: test1 PASSED
+tests/test_module2.py:5: test2 PASSED
+tests/test_module1.py:9: test1 PASSED
+tests/test_module1.py:5: test2 PASSED
+</pre></div>
+</div>
+<p>You can see that in the second run the second test module is run before the
+first because of the dependency, but the tests inside each module remain in
+the same order as before. Note that using module scope as in the example
+above doesn’t make sense here due to the dependencies between modules.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">This option currently does not work with relative markers - respective
-support may be added later. It will also not work together with the sparse
-ordering option.</p>
+<p class="last">This option will not work together well with the sparse ordering option.</p>
 </div>
 </div>
 <div class="section" id="indulgent-ordering">
