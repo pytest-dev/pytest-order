@@ -164,16 +164,18 @@ def mark_binning(item, keys, start, end, before, after, dep, unordered, alias):
         if Settings.order_dependencies or "order" in keys:
             dependent_mark = mark.kwargs.get("depends")
             if dependent_mark:
+                scope = mark.kwargs.get("scope", "module")
                 for name in dependent_mark:
-                    dep.setdefault(name, []).append(item)
+                    dep.setdefault((name, scope), []).append(item)
                     handled = True
         # we always collect the names of the dependent items, because
         # we need them in both cases
         name_mark = mark.kwargs.get("name")
-        # the default name in pytest-dependency is the last part of the nodeid
+        # the default name in pytest-dependency the nodeid or a part
+        # of the nodeid, depending on the scope
         if not name_mark:
             # in pytest < 4 the nodeid has an unwanted ::() part
-            name_mark = item.nodeid.split("::", 1)[1].replace("::()", "")
+            name_mark = item.nodeid.replace("::()", "")
         alias[name_mark] = full_name(item)
 
     if "order" in keys:
@@ -279,15 +281,31 @@ def insert_after_group(label, scope, items, groups):
         return False
 
 
-def sorted_groups(groups, scope, before_items, after_items, dep_items,
-                  alias_names):
+def insert_after_dep_group(group_index, items, groups):
+    if group_index is not None:
+        found = True
+        for item in reversed(items):
+            for index, group in reversed(list(enumerate(groups))):
+                if item in group[1][0]:
+                    if index < group_index:
+                        moved_group = groups[index]
+                        del groups[index]
+                        group_index -= 1
+                        groups.insert(group_index + 1, moved_group)
+                else:
+                    found = False
+        return found
+    return False
+
+
+def sorted_groups(groups, scope, before_items, after_items, dep_items):
     start_groups = []
     middle_groups = []
     end_groups = []
     # first handle ordinal markers
     for group in groups:
         if group[0] is None:
-            middle_groups.append(group[1])
+            middle_groups.append((group[1], group[2]))
         elif group[0] >= 0:
             start_groups.append(group)
         else:
@@ -295,9 +313,9 @@ def sorted_groups(groups, scope, before_items, after_items, dep_items,
 
     start_groups = sorted(start_groups)
     end_groups = sorted(end_groups)
-    groups_sorted = [group[1] for group in start_groups]
+    groups_sorted = [(group[1], group[2]) for group in start_groups]
     groups_sorted.extend(middle_groups)
-    groups_sorted.extend([group[1] for group in end_groups])
+    groups_sorted.extend([(group[1], group[2]) for group in end_groups])
     if start_groups:
         group_order = start_groups[0][0]
     elif end_groups:
@@ -311,7 +329,7 @@ def sorted_groups(groups, scope, before_items, after_items, dep_items,
 
     # handle relative markers the same way single items are handled
     # add the group specific label to the sorted groups
-    groups = [(scoped_label_from_item(group[0], scope), group)
+    groups = [(scoped_label_from_item(group[0][0], scope), group)
               for group in groups_sorted]
     still_left = 0
     while length and still_left != length:
@@ -331,15 +349,16 @@ def sorted_groups(groups, scope, before_items, after_items, dep_items,
             del after_items[label]
 
         remove_labels = []
-        for label, after in dep_items.items():
-            if insert_after_group(
-                    alias_names.get(label), scope, after, groups):
-                remove_labels.append(label)
-        for label in remove_labels:
-            del dep_items[label]
+        for (label, dep_scope), after in dep_items.items():
+            group_index = group_index_from_label(
+                groups, label, dep_scope)
+            if insert_after_dep_group(group_index, after, groups):
+                remove_labels.append((label, dep_scope))
+        for (label, dep_scope) in remove_labels:
+            del dep_items[(label, dep_scope)]
 
+    # remove the label from the groups
     groups_sorted = [group[1] for group in groups]
-
     return group_order, groups_sorted
 
 
@@ -347,7 +366,6 @@ def modify_item_groups(items):
     before_items = {}
     after_items = {}
     dep_items = {}
-    alias_names = {}
     if Settings.group_scope < Settings.scope:
         sorted_list = []
         if Settings.scope == SESSION:
@@ -357,40 +375,38 @@ def modify_item_groups(items):
                 for module_item in module_items.values():
                     class_items = class_item_groups(module_item)
                     class_groups = [do_modify_items(item, CLASS, before_items,
-                                                    after_items, dep_items,
-                                                    alias_names)
+                                                    after_items, dep_items)
                                     for item in class_items.values()]
-                    module_group = []
+                    module_group = [[], {}]
                     group_order, class_groups = sorted_groups(
                         class_groups, CLASS,
-                        before_items, after_items, dep_items, alias_names
+                        before_items, after_items, dep_items
                     )
                     for group in class_groups:
-                        module_group.extend(group)
-                    module_groups.append((group_order, module_group))
+                        module_group[0].extend(group[0])
+                        module_group[1].update(group[1])
+                    module_groups.append((group_order, module_group[0],
+                                          module_group[1]))
             else:
                 module_groups = [do_modify_items(item, MODULE, before_items,
-                                                 after_items, dep_items,
-                                                 alias_names)
+                                                 after_items, dep_items)
                                  for item in module_items.values()]
             for group in sorted_groups(
                     module_groups, MODULE,
-                    before_items, after_items, dep_items, alias_names)[1]:
-                sorted_list.extend(group)
+                    before_items, after_items, dep_items)[1]:
+                sorted_list.extend(group[0])
         else:  # module scope / class group scope
             class_items = class_item_groups(items)
             class_groups = [do_modify_items(item, CLASS, before_items,
-                                            after_items, dep_items,
-                                            alias_names)
+                                            after_items, dep_items)
                             for item in class_items.values()]
             for group in sorted_groups(
                     class_groups, CLASS,
-                    before_items, after_items, dep_items, alias_names)[1]:
-                sorted_list.extend(group)
+                    before_items, after_items, dep_items)[1]:
+                sorted_list.extend(group[0])
     else:
         sorted_list = do_modify_items(
-            items, SESSION, before_items, after_items,
-            dep_items, alias_names)[1]
+            items, SESSION, before_items, after_items, dep_items)[1]
 
     show_unresolved_dep_items(dep_items)
     return sorted_list
@@ -427,13 +443,14 @@ def needed_for_group_sort(label, item, scope):
 
 
 def do_modify_items(items, scope, out_before_items, out_after_items,
-                    out_dep_items, alias_names):
+                    out_dep_items):
     start_item = {}
     end_item = {}
     unordered_list = []
     before_items = {}
     after_items = {}
     dep_items = {}
+    alias_names = {}
 
     for item in items:
         mark_binning(item, item.keywords.keys(), start_item, end_item,
@@ -447,7 +464,7 @@ def do_modify_items(items, scope, out_before_items, out_after_items,
 
     still_left = 0
     length = len(before_items) + len(after_items) + len(dep_items)
-    for rel_items in (before_items, after_items, dep_items):
+    for rel_items in (before_items, after_items):
         for label, entry in rel_items.items():
             if needed_for_group_sort(label, entry[0], scope):
                 for item in rel_items[label]:
@@ -470,11 +487,19 @@ def do_modify_items(items, scope, out_before_items, out_after_items,
             del after_items[label]
 
         remove_labels = []
-        for label, after in dep_items.items():
-            if insert_after(alias_names.get(label), after, sorted_list):
-                remove_labels.append(label)
-        for label in remove_labels:
-            del dep_items[label]
+        for (label, dep_scope), after in dep_items.items():
+            name = label_from_alias(alias_names, label, dep_scope)
+            if name is None:
+                for item in after:
+                    if item.is_rel_mark:
+                        item.is_rel_mark = False
+                        # the label is related to another group,
+                        # so the item can now be handled
+                        still_left += 1
+            elif insert_after(name, after, sorted_list):
+                remove_labels.append((label, dep_scope))
+        for (label, dep_scope) in remove_labels:
+            del dep_items[(label, dep_scope)]
 
         length = len(before_items) + len(after_items) + len(dep_items)
     if length:
@@ -497,7 +522,28 @@ def do_modify_items(items, scope, out_before_items, out_after_items,
     else:
         group_order = None
 
-    return group_order, sorted_list
+    return group_order, sorted_list, alias_names
+
+
+def group_index_from_label(groups, label, scope):
+    for index, group in enumerate(groups):
+        if label_from_alias(group[1][1], label, scope):
+            return index
+
+
+def label_from_alias(alias_names, label, scope):
+    name = alias_names.get(label)
+    if name or scope in ("session", "package"):
+        return name
+    for alias in alias_names:
+        if "::" in alias:
+            name = alias.split("::", 1)[1]
+            if scope == "class" and "::" in name:
+                name = name.split("::")[1]
+        else:
+            name = alias
+        if name == label:
+            return alias_names[alias]
 
 
 def handle_unhandled_items(items, out_items, scope):
@@ -509,12 +555,13 @@ def handle_unhandled_items(items, out_items, scope):
 
 def handle_unhandled_dep_items(items, out_items, scope, alias_names):
     msg = ""
-    for label, entries in items.items():
-        if label not in alias_names:
-            out_items.setdefault(label, []).extend(entries)
+    for (label, dep_scope), entries in items.items():
+        name = label_from_alias(alias_names, label, dep_scope)
+        if name is not None:
+            msg += handle_unhandled_item(entries, name, out_items, scope)
         else:
-            label = alias_names[label]
-            msg += handle_unhandled_item(entries, label, out_items, scope)
+            new_label = label  # scoped_label(label, scope)
+            out_items.setdefault((new_label, dep_scope), []).extend(entries)
     return msg
 
 
@@ -533,7 +580,7 @@ def show_unresolved_dep_items(dep_items):
     if dep_items:
         sys.stdout.write(
             "\nWARNING: cannot resolve the dependency marker(s): ")
-        sys.stdout.write(", ".join(dep_items))
+        sys.stdout.write(", ".join(item[0] for item in dep_items))
         sys.stdout.write(" - ignoring the markers.\n")
         sys.stdout.flush()
 

@@ -1,6 +1,33 @@
 # -*- coding: utf-8 -*-
+import os
+import re
+import shutil
 
 import pytest
+
+import pytest_order
+
+try:
+    from tests.utils import write_test, assert_test_order
+except ImportError:
+    from utils import write_test, assert_test_order
+
+
+NODEID_ROOT = ""
+
+
+def test_nodeid(get_nodeid, capsys):
+    """Helper test to define the real nodeid."""
+    global NODEID_ROOT
+    args = ["-sq", get_nodeid]
+    pytest.main(args)
+    out, err = capsys.readouterr()
+    match = re.match(".*NODEID=!!!(.*)!!!.*", out)
+    NODEID_ROOT = match.group(1)
+    if "/" in NODEID_ROOT:
+        NODEID_ROOT = NODEID_ROOT[:NODEID_ROOT.rindex("/") + 1]
+    else:
+        NODEID_ROOT = ""
 
 
 def test_ignore_order_with_dependency(item_names_for):
@@ -245,6 +272,106 @@ def test_dependencies_in_classes(item_names_for, order_dependencies):
     assert item_names_for(tests_content) == [
         "test_c", "test_d", "test_a", "test_e", "test_b", "test_f"
     ]
+
+
+@pytest.fixture
+def fixture_path_named(tmpdir_factory):
+    fixture_path = str(tmpdir_factory.mktemp("named_dep"))
+    testname = os.path.join(fixture_path, "test_ndep1.py")
+    test_contents = """
+import pytest
+
+class Test1:
+    def test_one(self):
+        assert True
+
+    @pytest.mark.dependency(depends=['dep2_test_one'], scope='session')
+    def test_two(self):
+        assert True
+"""
+    write_test(testname, test_contents)
+    test_contents = """
+import pytest
+
+@pytest.mark.dependency(name='dep2_test_one')
+def test_one():
+    assert True
+
+def test_two():
+    assert True
+    """
+    testname = os.path.join(fixture_path, "test_ndep2.py")
+    write_test(testname, test_contents)
+    yield fixture_path
+    shutil.rmtree(fixture_path, ignore_errors=True)
+
+
+@pytest.mark.skipif(pytest.__version__.startswith("3.7."),
+                    reason="pytest-dependency < 0.5 does not support "
+                           "session scope")
+def test_named_dependency_in_modules(fixture_path_named, capsys):
+    args = ["-v", "--order-dependencies", fixture_path_named]
+    pytest.main(args, [pytest_order])
+    out, err = capsys.readouterr()
+    expected = (
+        "test_ndep1.py::Test1::test_one",
+        "test_ndep2.py::test_one",
+        "test_ndep1.py::Test1::test_two",
+        "test_ndep2.py::test_two",
+    )
+    assert_test_order(expected, out)
+    assert "SKIPPED" not in out
+
+
+@pytest.fixture
+def fixture_path_unnamed(tmpdir_factory):
+    fixture_path = str(tmpdir_factory.mktemp("unnamed_dep"))
+    testname = os.path.join(fixture_path, "test_unnamed_dep1.py")
+    nodeid_root = NODEID_ROOT.replace("nodeid_path", "unnamed_dep")
+    test_contents = """
+import pytest
+
+class Test1:
+    def test_one(self):
+        assert True
+
+    @pytest.mark.dependency(depends=['{}test_unnamed_dep2.py::test_one'],
+                            scope='session')
+    def test_two(self):
+        assert True
+""".format(nodeid_root)
+    write_test(testname, test_contents)
+    test_contents = """
+import pytest
+
+@pytest.mark.dependency
+def test_one():
+    assert True
+
+def test_two():
+    assert True
+    """
+    testname = os.path.join(fixture_path, "test_unnamed_dep2.py")
+    write_test(testname, test_contents)
+    yield fixture_path
+    shutil.rmtree(fixture_path, ignore_errors=True)
+
+
+@pytest.mark.skipif(pytest.__version__.startswith("3.7."),
+                    reason="pytest-dependency < 0.5 does not support "
+                           "session scope")
+def test_dependency_in_modules(fixture_path_unnamed, capsys):
+    args = ["-v", "--order-dependencies", fixture_path_unnamed]
+    pytest.main(args, [pytest_order])
+    out, err = capsys.readouterr()
+    expected = (
+        "test_unnamed_dep1.py::Test1::test_one",
+        "test_unnamed_dep2.py::test_one",
+        "test_unnamed_dep1.py::Test1::test_two",
+        "test_unnamed_dep2.py::test_two",
+    )
+    assert_test_order(expected, out)
+    assert "SKIPPED" not in out
 
 
 def test_unknown_dependency(item_names_for, order_dependencies, capsys):

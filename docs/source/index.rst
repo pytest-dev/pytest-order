@@ -631,8 +631,7 @@ the same order as before. Note that using module scope as in the example
 above doesn't make sense here due to the dependencies between modules.
 
 This will also work with dependency markers if using the
-:ref:`order-dependencies` option (within the constraints where sorting of
-dependency makers works).
+:ref:`order-dependencies` option.
 
 
 .. note::
@@ -802,16 +801,10 @@ can use both plugins together to get this behavior.
 Note that ``pytest-order`` does not replace ``pytest-dependency``--it just
 adds ordering to the existing functionality if needed.
 
-.. caution::
+.. note::
   This feature is considered experimental. It may not handle all cases of
   defined dependencies. Please write an issue if you find any problems.
 
-*Known issues:*
-
-- the scope of dependency markers is currently ignored - session scope is
-  always assumed
-- dependencies to named markers in other modules that are referenced by their
-  qualified name (as opposed to a specified name) may not be correctly sorted
 
 .. note::
 

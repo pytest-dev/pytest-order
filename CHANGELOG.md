@@ -10,6 +10,12 @@
 - added `group-order-scope` option to allow hierarchical ordering on module
   and class scope. 
   See [#6](https://github.com/mrbean-bremen/pytest-order/issues/6)
+  
+### Fixes
+- the dependency marker scope is now considered for resolving marker names 
+  (module scope had been assumed before)
+- dependency markers in session scope referenced by the nodeid are now
+  correctly sorted if using the `order-dependencies` option
  
 
 ## [Version 0.9.4](https://pypi.org/project/pytest-order/0.9.4/) (2021-01-27)

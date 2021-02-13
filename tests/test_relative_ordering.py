@@ -139,7 +139,7 @@ def test_relative_in_classes(item_names_for):
 
 @pytest.fixture
 def fixture_path(tmpdir_factory):
-    fixture_path = str(tmpdir_factory.mktemp("fixtures"))
+    fixture_path = str(tmpdir_factory.mktemp("relative"))
     tests_content1 = """
 import pytest
 

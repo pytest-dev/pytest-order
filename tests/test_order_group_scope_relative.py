@@ -14,7 +14,7 @@ except ImportError:
 
 @pytest.fixture(scope="module")
 def fixture_path(tmpdir_factory):
-    fixture_path = str(tmpdir_factory.mktemp("fixtures"))
+    fixture_path = str(tmpdir_factory.mktemp("rel_scope"))
     testname = os.path.join(fixture_path, "test_rel1.py")
     test_class_contents = """
 import pytest
