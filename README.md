@@ -72,7 +72,7 @@ yields the output:
 Features
 --------
 `pytest-order` provides the following features:
-- ordering of tests by index, as show above
+- ordering of tests by index, as shown above
 - ordering of tests both from the start and from the end (via negative
   index)
 - ordering of tests relative to each other (via the `before` and `after`

@@ -28,6 +28,7 @@ class Test1:
         assert True
 
 class Test2:
+    @pytest.mark.order(after='invalid')
     def test_one(self):
         assert True
 
@@ -59,6 +60,8 @@ def test_two():
     testname = os.path.join(fixture_path, "test_rel3.py")
     write_test(testname, test_function_contents)
     test_function_contents = """
+import pytest
+
 def test_one():
     assert True
 
@@ -99,6 +102,7 @@ def test_session_scope(fixture_path, capsys):
         "test_rel4.py::test_two",
     )
     assert_test_order(expected, out)
+    assert "invalid - ignoring the marker." in out
 
 
 def test_module_group_scope(fixture_path, capsys):

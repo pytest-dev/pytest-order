@@ -2,14 +2,11 @@
 
 import pytest
 
-import pytest_order
-
 
 @pytest.fixture
 def sparse_ordering(ignore_settings):
-    pytest_order.Settings.sparse_ordering = True
+    ignore_settings.return_value.sparse_ordering = True
     yield
-    pytest_order.Settings.sparse_ordering = False
 
 
 @pytest.fixture(scope="module")

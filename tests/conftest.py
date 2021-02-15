@@ -4,7 +4,7 @@ import uuid
 
 import pytest
 
-import pytest_order
+from pytest_order.sorter import SESSION
 
 try:
     from tests.utils import write_test
@@ -35,15 +35,18 @@ def test_path(tmpdir):
 
 @pytest.fixture
 def ignore_settings(mocker):
-    mocker.patch("pytest_order.Settings.initialize")
-    yield
+    settings = mocker.patch("pytest_order.sorter.Settings")
+    settings.return_value.sparse_ordering = False
+    settings.return_value.order_dependencies = False
+    settings.return_value.scope = SESSION
+    settings.return_value.group_scope = SESSION
+    yield settings
 
 
 @pytest.fixture
 def order_dependencies(ignore_settings):
-    pytest_order.Settings.order_dependencies = True
+    ignore_settings.return_value.order_dependencies = True
     yield
-    pytest_order.Settings.order_dependencies = False
 
 
 @pytest.fixture
