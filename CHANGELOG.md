@@ -1,6 +1,8 @@
 # pytest-order Release Notes
 
-## Unreleased
+## [Version 0.9.4](https://pypi.org/project/pytest-order/0.9.4/) (2021-02-16)
+Introduces hierarchical ordering option and fixes ordering of session-scoped
+dependency markers. 
 
 ### Changes
 - tests with unresolved relative markers are now handled like tests
