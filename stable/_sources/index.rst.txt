@@ -60,6 +60,12 @@ The latest master can be installed from the GitHub sources:
 
    pip install git+https://github.com/mrbean-bremen/pytest-order
 
+Examples
+--------
+All examples shown in this documentation can be also found in the repository
+under `example <https://github.com/mrbean-bremen/pytest-order/tree/master/example/>`__
+as working test files.
+
 Quickstart
 ----------
 Ordinarily pytest will run tests in the order that they appear in a module.
@@ -122,9 +128,9 @@ The above is a trivial example, but ordering is respected across test files.
 
 .. note::
   The scope of the ordering is global per default, e.g. tests with lower
-  ordinal numbers are always executed before tests with higher numbers,
-  regardless of the module and class they reside in. This can be changed
-  by using the :ref:`order-scope` option.
+  ordinal numbers are always executed before tests with higher numbers in
+  the same test session, regardless of the module and class they reside in.
+  This can be changed by using the :ref:`order-scope` option.
 
 Ordering is done either absolutely, by using ordinal numbers that define the
 order, or relative to other tests, using the ``before`` and ``after``
@@ -186,25 +192,26 @@ Order using ordinals
 
 Instead of the numbers, you can use ordinal names such as "first", "second",
 "last", and "second_to_last". These are convenience notations, and have the
-same effect as the numbers 0, 1, -1 and -2 that have been shown above:
+same effect as the numbers 0, 1, -1 and -2, respectively, that have been shown
+above:
 
 .. code:: python
 
  import pytest
 
- @pytest.mark.order('second_to_last')
+ @pytest.mark.order("second_to_last")
  def test_three():
      assert True
 
- @pytest.mark.order('last')
+ @pytest.mark.order("last")
  def test_four():
      assert True
 
- @pytest.mark.order('second')
+ @pytest.mark.order("second")
  def test_two():
      assert True
 
- @pytest.mark.order('first')
+ @pytest.mark.order("first")
  def test_one():
      assert True
 
@@ -226,29 +233,29 @@ same effect as the numbers 0, 1, -1 and -2 that have been shown above:
 Convenience names are only defined for the first and the last 8 numbers.
 Here is the complete list with the corresponding numbers:
 
-- 'first': 0
-- 'second': 1
-- 'third': 2
-- 'fourth': 3
-- 'fifth': 4
-- 'sixth': 5
-- 'seventh': 6
-- 'eighth': 7
-- 'last': -1
-- 'second_to_last': -2
-- 'third_to_last': -3
-- 'fourth_to_last': -4
-- 'fifth_to_last': -5
-- 'sixth_to_last': -6
-- 'seventh_to_last': -7
-- 'eighth_to_last': -8
+- "first": 0
+- "second": 1
+- "third": 2
+- "fourth": 3
+- "fifth": 4
+- "sixth": 5
+- "seventh": 6
+- "eighth": 7
+- "last": -1
+- "second_to_last": -2
+- "third_to_last": -3
+- "fourth_to_last": -4
+- "fifth_to_last": -5
+- "sixth_to_last": -6
+- "seventh_to_last": -7
+- "eighth_to_last": -8
 
 Handling of unordered tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 By default, tests with no ``order`` mark are executed after all tests with
 positive ordinal numbers (or the respective names), and before tests with
 negative ordinal numbers. The order of these tests in relationship to each
-other is not changed. This behavior may slightly change if the option
+other is not changed. This behavior will slightly change if the option
 :ref:`sparse-ordering` is used and the ordinals are not contiguous.
 
 
@@ -262,14 +269,14 @@ by their name:
 
  import pytest
 
- @pytest.mark.order(after='test_second')
+ @pytest.mark.order(after="test_second")
  def test_third():
      assert True
 
  def test_second():
      assert True
 
- @pytest.mark.order(before='test_second')
+ @pytest.mark.order(before="test_second")
  def test_first():
      assert True
 
@@ -299,15 +306,15 @@ with a ``::`` suffix has to be prepended to the test name:
  import pytest
 
  class TestA:
-     @pytest.mark.order(after='TestB::test_c')
-     def test_a():
+     @pytest.mark.order(after="TestB::test_c")
+     def test_a(self):
          assert True
 
-     def test_b():
+     def test_b(self):
          assert True
 
  class TestB:
-     def test_c():
+     def test_c(self):
          assert True
 
 If the referenced test lives in another module, the test name has to be
@@ -323,7 +330,7 @@ the following module and test layout:
   test_module_b.py
       test_a
       test_b
-  test_module_c.py
+  test_module_c
       test_submodule.py
           test_1
           test_2
@@ -337,11 +344,11 @@ modules, this could be expressed like:
 
  import pytest
 
- @pytest.mark.order(after='test_module_a.TestA::test_a')
+ @pytest.mark.order(after="test_module_a.TestA::test_a")
  def test_a():
      assert True
 
- @pytest.mark.order(before='test_module_c.test_submodule.test_2')
+ @pytest.mark.order(before="test_module_c.test_submodule.test_2")
  def test_b():
      assert True
 
@@ -358,7 +365,7 @@ ones. This means that relative ordering always takes preference:
 
  import pytest
 
- @pytest.mark.order(index=0, after='test_second')
+ @pytest.mark.order(index=0, after="test_second")
  def test_first():
      assert True
 
@@ -411,10 +418,6 @@ separately for ordering the tests. If a module has both test classes and
 separate test functions, these test functions are handled separately from the
 test classes. If a module has no test classes, the effect is the same as
 if using ``--order-scope=module``.
-
-.. note::
-  This option only affects ordinal ordering. Ordering relative to other tests
-  is always global, as the related tests are referenced by name.
 
 For example consider two test modules:
 
@@ -471,6 +474,168 @@ Here is what you get using session and module-scoped sorting:
     tests/test_module2.py:9: test1 PASSED
     tests/test_module2.py:5: test2 PASSED
 
+
+``--order-group-scope``
+-----------------------
+This option is also related to the order scope. It defines the scope inside
+which tests may be reordered. Consider you have several test modules which
+you want to order, but you don't want to mix the tests of several modules
+because the module setup is costly. In this case you can set the group order
+scope to "module", meaning that first the tests are ordered inside each
+module (the same as with the module order scope), but afterwards the modules
+themselves are sorted without changing the order inside each module.
+
+Consider these two test modules:
+
+**tests/test_module1.py**:
+
+.. code::
+
+  import pytest
+
+  @pytest.mark.order(2)
+  def test1():
+      pass
+
+  def test2():
+      pass
+
+**tests/test_module2.py**:
+
+.. code::
+
+  import pytest
+
+  @pytest.mark.order(1)
+  def test1():
+      pass
+
+  def test2():
+      pass
+
+Here is what you get using different scopes:
+
+::
+
+    $ pytest tests -vv
+    ============================= test session starts ==============================
+    ...
+
+    tests/test_module2.py:9: test1 PASSED
+    tests/test_module1.py:9: test1 PASSED
+    tests/test_module1.py:5: test2 PASSED
+    tests/test_module2.py:5: test2 PASSED
+
+
+::
+
+    $ pytest tests -vv --order-scope=module
+    ============================= test session starts ==============================
+    ...
+
+    tests/test_module1.py:9: test1 PASSED
+    tests/test_module1.py:5: test2 PASSED
+    tests/test_module2.py:9: test1 PASSED
+    tests/test_module2.py:5: test2 PASSED
+
+
+::
+
+    $ pytest tests -vv --order-group-scope=module
+    ============================= test session starts ==============================
+    ...
+
+    tests/test_module2.py:9: test1 PASSED
+    tests/test_module2.py:5: test2 PASSED
+    tests/test_module1.py:9: test1 PASSED
+    tests/test_module1.py:5: test2 PASSED
+
+The ordering of the module groups is done based on the lowest
+non-negative order number present in the module (e.g. the order number of
+the first test). If only negative numbers are present, the highest negative
+number (e.g. the number of the last test) is used, and these modules will be
+ordered at the end. Modules without order numbers will be sorted between
+modules with a non-negative order number and modules with a negative order
+number, the same way tests are sorted inside a module.
+
+The group order scope defaults to the order scope. In this case the tests are
+ordered the same way as without the group order scope. The setting takes effect
+only if the scope is less than the order scope, e.g. there are three
+possibilities:
+
+- order scope "session", order group scope "module" - this is shown in the
+  example above: first tests in each module are ordered, afterwards the modules
+- order scope "module", order group scope "class" - first orders tests inside
+  each class, then the classes inside each module
+- order scope "session", order group scope "class" - first orders tests inside
+  each class, then the classes inside each module, and finally the modules
+  relatively to each other
+
+This option will also work with relative markers.
+
+Here is a similar example using relative markers:
+
+**tests/test_module1.py**:
+
+.. code::
+
+  import pytest
+
+  @pytest.mark.order(after="test_module2.test1")
+  def test1():
+      pass
+
+  def test2():
+      pass
+
+**tests/test_module2.py**:
+
+.. code::
+
+  import pytest
+
+  def test1():
+      pass
+
+  @pytest.mark.order(before="test1")
+  def test2():
+      pass
+
+Here is what you get using different scopes:
+
+::
+
+    $ pytest tests -vv
+    ============================= test session starts ==============================
+    ...
+
+    tests/test_module1.py:5: test2 PASSED
+    tests/test_module2.py:9: test1 PASSED
+    tests/test_module2.py:5: test2 PASSED
+    tests/test_module1.py:9: test1 PASSED
+
+::
+
+    $ pytest tests -vv --order-group-scope=module
+    ============================= test session starts ==============================
+    ...
+
+    tests/test_module2.py:9: test1 PASSED
+    tests/test_module2.py:5: test2 PASSED
+    tests/test_module1.py:9: test1 PASSED
+    tests/test_module1.py:5: test2 PASSED
+
+You can see that in the second run the second test module is run before the
+first because of the dependency, but the tests inside each module remain in
+the same order as before. Note that using module scope as in the example
+above doesn't make sense here due to the dependencies between modules.
+
+This will also work with dependency markers if using the
+:ref:`order-dependencies` option.
+
+
+.. note::
+  This option will not work together well with the sparse ordering option.
 
 ``--indulgent-ordering``
 ------------------------
@@ -587,7 +752,7 @@ dependency, and is ignored if this is the case. Consider the following:
  def test_a():
      assert True
 
- @pytest.mark.dependency(depends=['test_a'])
+ @pytest.mark.dependency(depends=["test_a"])
  @pytest.mark.order("first")
  def test_b():
      assert True
@@ -600,7 +765,7 @@ following tests:
 
   import pytest
 
-  @pytest.mark.dependency(depends=['test_b'])
+  @pytest.mark.dependency(depends=["test_b"])
   def test_a():
       assert True
 
@@ -639,6 +804,9 @@ adds ordering to the existing functionality if needed.
 .. note::
   This feature is considered experimental. It may not handle all cases of
   defined dependencies. Please write an issue if you find any problems.
+
+
+.. note::
 
 Miscellaneous
 =============
