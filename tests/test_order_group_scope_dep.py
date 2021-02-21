@@ -6,12 +6,7 @@ import shutil
 import pytest
 
 import pytest_order
-
-try:
-    from tests.utils import write_test, assert_test_order
-except ImportError:
-    from utils import write_test, assert_test_order
-
+from tests.utils import write_test, assert_test_order
 
 NODEID_ROOT = ""
 

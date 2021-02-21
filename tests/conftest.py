@@ -1,15 +1,12 @@
 import os
 import shutil
 import uuid
+from random import randint
 
 import pytest
 
 from pytest_order.sorter import SESSION
-
-try:
-    from tests.utils import write_test
-except ImportError:
-    from utils import write_test
+from tests.utils import write_test
 
 pytest_plugins = ["pytester"]
 
@@ -73,3 +70,9 @@ def test_node(nodeid):
 
     yield fixture_path
     shutil.rmtree(fixture_path, ignore_errors=True)
+
+
+def pytest_collection_modifyitems(config, items):
+    for item in items:
+        if item.name.startswith("test_performance"):
+            item.add_marker(pytest.mark.order(randint(-100, 100)))

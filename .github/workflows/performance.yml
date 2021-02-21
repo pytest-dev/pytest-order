@@ -1,0 +1,42 @@
+name: PerformanceTests
+
+on:
+  push
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: [2.7, 3.6, 3.9]
+    env:
+      OS: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Get pip cache dir
+      id: pip-cache
+      run: |
+        python -m pip install -U pip
+        echo "::set-output name=dir::$(pip cache dir)"
+    - name: pip cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.pip-cache.outputs.dir }}
+        key: py${{ matrix.python-version }}-${{ matrix.os }}-pip
+    - name: Test environment setup
+      run: |
+        python -m pip install wheel
+        python -m pip install pytest
+    - name: Run tests
+      run: |
+        python -m pytest -s perf_tests
