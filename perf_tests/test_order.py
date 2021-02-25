@@ -36,15 +36,20 @@ def fixture_path_relative(tmpdir_factory):
         test_contents = """
 import pytest
 """
-        for i in range(100):
+        for i in range(90):
             test_contents += """
 @pytest.mark.order(after="test_{}")
 def test_{}():
     assert True
-""".format(i + 10 % 100, i)
+""".format(i + 10, i)
+        for i in range(10):
+            test_contents += """
+def test_{}():
+    assert True
+""".format(i + 90)
         write_test(testname, test_contents)
     yield fixture_path
-    shutil.rmtree(fixture_path, ignore_errors=True)
+    # shutil.rmtree(fixture_path, ignore_errors=True)
 
 
 @pytest.fixture
@@ -91,4 +96,4 @@ class TestPerformance:
         pytest.main(args, [pytest_order])
         overhead_time = time.time() - start_time - self.__class__.base_time
         print("Overhead per test: {:.3f} ms".format(overhead_time))
-        assert overhead_time < 0.8
+        assert overhead_time < 1.5
