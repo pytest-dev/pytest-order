@@ -109,95 +109,90 @@ class ScopeSorter:
     def __init__(self, settings, items):
         self.settings = settings
         self.items = items
+        self.before_items = {}
+        self.after_items = {}
+        self.dep_items = {}
 
     def sort_items(self):
-        before_items = {}
-        after_items = {}
-        dep_items = {}
         if self.settings.group_scope < self.settings.scope:
-            sorted_list = []
             if self.settings.scope == SESSION:
-                module_items = module_item_groups(self.items)
-                module_groups = []
-                if self.settings.group_scope == CLASS:
-                    for module_item in module_items.values():
-                        class_items = class_item_groups(module_item)
-                        class_groups = [
-                            self.do_modify_items(item, CLASS, before_items,
-                                                 after_items, dep_items)
-                            for item in class_items.values()]
-                        module_group = [[], {}]
-                        sorter = GroupSorter(class_groups)
-                        group_order, class_groups = sorter.sorted_groups(
-                            CLASS, before_items, after_items, dep_items
-                        )
-                        for group in class_groups:
-                            module_group[0].extend(group[0])
-                            module_group[1].update(group[1])
-                        module_groups.append((group_order, module_group[0],
-                                              module_group[1]))
-                else:
-                    module_groups = [
-                        self.do_modify_items(item, MODULE, before_items,
-                                             after_items, dep_items)
-                        for item in module_items.values()]
-                sorter = GroupSorter(module_groups)
-                for group in sorter.sorted_groups(
-                        MODULE, before_items, after_items, dep_items)[1]:
-                    sorted_list.extend(group[0])
+                sorted_list = self.sort_in_session_scope()
             else:  # module scope / class group scope
-                class_items = class_item_groups(self.items)
-                class_groups = [self.do_modify_items(item, CLASS, before_items,
-                                                     after_items, dep_items)
-                                for item in class_items.values()]
-                sorter = GroupSorter(class_groups)
-                for group in sorter.sorted_groups(
-                        CLASS, before_items, after_items, dep_items)[1]:
-                    sorted_list.extend(group[0])
+                sorted_list = self.sort_in_module_scope()
         else:
-            sorted_list = self.do_modify_items(
-                self.items, SESSION, before_items, after_items, dep_items)[1]
+            sorted_list = self.modify_items(self.items, SESSION).items
 
-        self.show_unresolved_dep_items(dep_items)
+        self.show_unresolved_dep_items()
         return sorted_list
 
-    def do_modify_items(self, items, scope, before_items, after_items,
-                        dep_items):
+    def sort_in_session_scope(self):
+        sorted_list = []
+        module_items = module_item_groups(self.items)
+        if self.settings.group_scope == CLASS:
+            module_groups = self.sort_class_groups(module_items)
+        else:
+            module_groups = [
+                self.modify_items(item, MODULE)
+                for item in module_items.values()]
+        sorter = GroupSorter(MODULE, module_groups, self.before_items,
+                             self.after_items, self.dep_items)
+        for group in sorter.sorted_groups()[1]:
+            sorted_list.extend(group.items)
+        return sorted_list
 
-        item_group = ItemGroup(items, self.settings, scope)
+    def sort_in_module_scope(self):
+        sorted_list = []
+        class_items = class_item_groups(self.items)
+        class_groups = [self.modify_items(item, CLASS)
+                        for item in class_items.values()]
+        sorter = GroupSorter(CLASS, class_groups, self.before_items,
+                             self.after_items, self.dep_items)
+        for group in sorter.sorted_groups()[1]:
+            sorted_list.extend(group.items)
+        return sorted_list
+
+    def sort_class_groups(self, module_items):
+        module_groups = []
+        for module_item in module_items.values():
+            class_items = class_item_groups(module_item)
+            class_groups = [
+                self.modify_items(item, CLASS)
+                for item in class_items.values()]
+            module_group = ItemGroup()
+            sorter = GroupSorter(CLASS, class_groups, self.before_items,
+                                 self.after_items, self.dep_items)
+            group_order, class_groups = sorter.sorted_groups()
+            module_group.extend(class_groups, group_order)
+            module_groups.append(module_group)
+        return module_groups
+
+    def modify_items(self, items, scope):
+        item_list = ItemList(items, self.settings, scope)
         for item in items:
-            item_group.mark_binning(item)
+            item_list.mark_binning(item)
 
-        sorted_list = item_group.sort_numbered_items()
-        item_group.update_rel_mark()
+        sorted_list = item_list.sort_numbered_items()
+        item_list.update_rel_mark()
 
         still_left = 0
-        length = item_group.number_of_rel_groups()
+        length = item_list.number_of_rel_groups()
         while length and still_left != length:
             still_left = length
-            item_group.handle_before_items(sorted_list)
-            item_group.handle_after_items(sorted_list)
-            still_left += item_group.handle_dep_items(sorted_list)
-            length = item_group.number_of_rel_groups()
+            item_list.handle_before_items(sorted_list)
+            item_list.handle_after_items(sorted_list)
+            still_left += item_list.handle_dep_items(sorted_list)
+            length = item_list.number_of_rel_groups()
         if length:
-            item_group.print_unhandled_items(
-                before_items, after_items, dep_items)
+            item_list.print_unhandled_items(
+                self.before_items, self.after_items, self.dep_items)
+        return ItemGroup(sorted_list, item_list.group_order(),
+                         item_list.aliases)
 
-        if item_group.start_items:
-            group_order = item_group.start_items[0][0]
-        elif item_group.end_items:
-            group_order = item_group.end_items[-1][0]
-        else:
-            group_order = None
-
-        return group_order, sorted_list, item_group.aliases
-
-    @staticmethod
-    def show_unresolved_dep_items(dep_items):
-        if dep_items:
+    def show_unresolved_dep_items(self):
+        if self.dep_items:
             sys.stdout.write(
                 "\nWARNING: cannot resolve the dependency marker(s): ")
-            sys.stdout.write(", ".join(item[0] for item in dep_items))
+            sys.stdout.write(", ".join(item[0] for item in self.dep_items))
             sys.stdout.write(" - ignoring the markers.\n")
             sys.stdout.flush()
 
@@ -230,132 +225,135 @@ def scoped_label(label, scope):
 
 
 class GroupSorter:
-    def __init__(self, groups):
+    def __init__(self, scope, groups, before_items, after_items, dep_items):
+        self.scope = scope
         self.groups = groups
+        self.before_items = before_items
+        self.after_items = after_items
+        self.dep_items = dep_items
 
-    def sorted_groups(self, scope, before_items, after_items, dep_items):
-        start_groups = []
-        middle_groups = []
-        end_groups = []
-        # first handle ordinal markers
-        for group in self.groups:
-            if group[0] is None:
-                middle_groups.append((group[1], group[2]))
-            elif group[0] >= 0:
-                start_groups.append(group)
-            else:
-                end_groups.append(group)
-
-        start_groups = sorted(start_groups)
-        end_groups = sorted(end_groups)
-        groups_sorted = [(group[1], group[2]) for group in start_groups]
-        groups_sorted.extend(middle_groups)
-        groups_sorted.extend([(group[1], group[2]) for group in end_groups])
-        if start_groups:
-            group_order = start_groups[0][0]
-        elif end_groups:
-            group_order = end_groups[-1][0]
-        else:
-            group_order = None
-
-        length = len(before_items) + len(after_items) + len(dep_items)
+    def sorted_groups(self):
+        group_order = self.sort_by_ordinal_markers()
+        length = len(self.before_items) + len(self.after_items) + len(
+            self.dep_items)
         if length == 0:
-            return group_order, groups_sorted
+            return group_order, self.groups
 
         # handle relative markers the same way single items are handled
         # add the group specific label to the sorted groups
-        groups = [(group[0][0].scoped_label(scope), group)
-                  for group in groups_sorted]
+        for group in self.groups:
+            group.label = group.items[0].scoped_label(self.scope)
+
         still_left = 0
         while length and still_left != length:
             still_left = length
-            remove_labels = []
-            for label, before in before_items.items():
-                if self.insert_before_group(label, scope, before, groups):
-                    remove_labels.append(label)
-            for label in remove_labels:
-                del before_items[label]
+            self.handle_before_items()
+            self.handle_after_items()
+            self.handle_dep_items()
+        return group_order, self.groups
 
-            remove_labels = []
-            for label, after in after_items.items():
-                if self.insert_after_group(label, scope, after, groups):
-                    remove_labels.append(label)
-            for label in remove_labels:
-                del after_items[label]
-
-            remove_labels = []
-            for (label, dep_scope), after in dep_items.items():
-                group_index = self.group_index_from_label(
-                    groups, label, dep_scope)
-                if self.insert_after_dep_group(group_index, after, groups):
-                    remove_labels.append((label, dep_scope))
-            for (label, dep_scope) in remove_labels:
-                del dep_items[(label, dep_scope)]
-
-        # remove the label from the groups
-        groups_sorted = [group[1] for group in groups]
-        return group_order, groups_sorted
+    def sort_by_ordinal_markers(self):
+        start_groups = []
+        middle_groups = []
+        end_groups = []
+        for group in self.groups:
+            if group.order is None:
+                middle_groups.append(group)
+            elif group.order >= 0:
+                start_groups.append(group)
+            else:
+                end_groups.append(group)
+        start_groups = sorted(start_groups, key=lambda g: g.order)
+        end_groups = sorted(end_groups, key=lambda g: g.order)
+        self.groups = start_groups + middle_groups + end_groups
+        if start_groups:
+            group_order = start_groups[0].order
+        elif end_groups:
+            group_order = end_groups[-1].order
+        else:
+            group_order = None
+        return group_order
 
     @staticmethod
-    def insert_before_group(label, scope, items, groups):
-        label = scoped_label(label, scope)
-        sorted_labels = [group[0] for group in groups]
-        item_labels = [item.scoped_label(scope) for item in items]
-        for pos, (group_label, group) in enumerate(groups):
-            if group_label.endswith(label):
+    def handle_rel_items(items, handler):
+        remove_labels = []
+        for label, item in items.items():
+            if label and handler(label, item):
+                remove_labels.append(label)
+        for label in remove_labels:
+            del items[label]
+
+    def handle_before_items(self):
+        self.handle_rel_items(self.before_items, self.insert_before_group)
+
+    def handle_after_items(self):
+        self.handle_rel_items(self.after_items, self.insert_after_group)
+
+    def handle_dep_items(self):
+        remove_labels = []
+        for (label, dep_scope), after in self.dep_items.items():
+            group_index = self.group_index_from_label(
+                label, dep_scope)
+            if self.insert_after_dep_group(group_index, after):
+                remove_labels.append((label, dep_scope))
+        for (label, dep_scope) in remove_labels:
+            del self.dep_items[(label, dep_scope)]
+
+    def insert_before_group(self, label, items):
+        label = scoped_label(label, self.scope)
+        sorted_labels = [group.label for group in self.groups]
+        item_labels = [item.scoped_label(self.scope) for item in items]
+        for pos, group in enumerate(self.groups):
+            if group.label.endswith(label):
                 for item_label in item_labels:
                     if item_label in sorted_labels:
                         index = sorted_labels.index(item_label)
                         if index > pos:
-                            moved_group = groups[index]
-                            del groups[index]
-                            groups.insert(pos, moved_group)
+                            moved_group = self.groups[index]
+                            del self.groups[index]
+                            self.groups.insert(pos, moved_group)
                 return True
         return False
 
-    @staticmethod
-    def insert_after_group(label, scope, items, groups):
-        if label:
-            label = scoped_label(label, scope)
-            sorted_labels = [group[0] for group in groups]
-            item_labels = [item.scoped_label(scope) for item in items]
-            for pos, (group_label, group) in reversed(list(enumerate(groups))):
-                if group_label.endswith(label):
-                    for item_label in reversed(item_labels):
-                        if item_label in sorted_labels:
-                            index = sorted_labels.index(item_label)
-                            if index < pos + 1:
-                                moved_group = groups[index]
-                                del groups[index]
-                                del sorted_labels[index]
-                                pos -= 1
-                                groups.insert(pos + 1, moved_group)
-                                sorted_labels.insert(pos + 1, moved_group[0])
-                    return True
-            return False
+    def insert_after_group(self, label, items):
+        label = scoped_label(label, self.scope)
+        sorted_labels = [group.label for group in self.groups]
+        item_labels = [item.scoped_label(self.scope) for item in items]
+        for pos, group in reversed(list(enumerate(self.groups))):
+            if group.label.endswith(label):
+                for item_label in reversed(item_labels):
+                    if item_label in sorted_labels:
+                        index = sorted_labels.index(item_label)
+                        if index < pos + 1:
+                            moved_group = self.groups[index]
+                            del self.groups[index]
+                            del sorted_labels[index]
+                            pos -= 1
+                            self.groups.insert(pos + 1, moved_group)
+                            sorted_labels.insert(pos + 1, moved_group.label)
+                return True
+        return False
 
-    @staticmethod
-    def insert_after_dep_group(group_index, items, groups):
+    def insert_after_dep_group(self, group_index, items):
         if group_index is not None:
             found = True
             for item in reversed(items):
                 found_item = False
-                for index, group in reversed(list(enumerate(groups))):
-                    if item in group[1][0]:
+                for index, group in reversed(list(enumerate(self.groups))):
+                    if item in group.items:
                         found_item = True
                         if index < group_index:
-                            moved_group = groups[index]
-                            del groups[index]
+                            moved_group = self.groups[index]
+                            del self.groups[index]
                             group_index -= 1
-                            groups.insert(group_index + 1, moved_group)
+                            self.groups.insert(group_index + 1, moved_group)
                 found = found and found_item
             return found
         return False
 
-    @staticmethod
-    def group_index_from_label(groups, label, scope):
-        for index, group in enumerate(groups):
-            if label_from_alias(group[1][1], label, scope):
+    def group_index_from_label(self, label, scope):
+        for index, group in enumerate(self.groups):
+            if label_from_alias(group.aliases, label, scope):
                 return index
 
 
@@ -407,7 +405,7 @@ class Item:
         return scoped_label(self.label, scope)
 
 
-class ItemGroup:
+class ItemList:
     def __init__(self, items, settings, scope):
         self.items = items
         self.settings = settings
@@ -602,6 +600,12 @@ class ItemGroup:
             del self.dep_items[(label, dep_scope)]
         return nr_unhandled
 
+    def group_order(self):
+        if self.start_items:
+            return self.start_items[0][0]
+        if self.end_items:
+            return self.end_items[-1][0]
+
     @staticmethod
     def insert_before(name, items, sort):
         for pos, item in enumerate(sort):
@@ -617,17 +621,30 @@ class ItemGroup:
 
     @staticmethod
     def insert_after(name, items, sort):
-        if name:
-            for pos, item in zip(range(len(sort) - 1, -1, -1), reversed(sort)):
-                if item.full_name().endswith(name):
-                    if item.is_rel_mark:
-                        return False
-                    for item_to_insert in reversed(items):
-                        index = sort.index(item_to_insert)
-                        if index < pos + 1:
-                            del sort[index]
-                            pos -= 1
-                            item_to_insert.is_rel_mark = False
-                            sort.insert(pos + 1, item_to_insert)
-                    return True
+        for pos, item in zip(range(len(sort) - 1, -1, -1), reversed(sort)):
+            if item.full_name().endswith(name):
+                if item.is_rel_mark:
+                    return False
+                for item_to_insert in reversed(items):
+                    index = sort.index(item_to_insert)
+                    if index < pos + 1:
+                        del sort[index]
+                        pos -= 1
+                        item_to_insert.is_rel_mark = False
+                        sort.insert(pos + 1, item_to_insert)
+                return True
         return False
+
+
+class ItemGroup:
+    def __init__(self, items=None, order=None, aliases=None):
+        self.items = items or []
+        self.order = order
+        self.aliases = aliases or {}
+        self.label = ""
+
+    def extend(self, groups, order):
+        for group in groups:
+            self.items.extend(group.items)
+            self.aliases.update(group.aliases)
+        self.order = order
