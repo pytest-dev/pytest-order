@@ -95,10 +95,10 @@ def module_item_groups(items):
 def class_item_groups(items):
     class_items = OrderedDict()
     for item in items:
-        delim_index = item.node_id.index("::")
-        if "::" in item.node_id[delim_index + 2:]:
-            delim_index = item.node_id.index("::", delim_index + 2)
-        class_path = item.node_id[:delim_index]
+        delimiter_index = item.node_id.index("::")
+        if "::" in item.node_id[delimiter_index + 2:]:
+            delimiter_index = item.node_id.index("::", delimiter_index + 2)
+        class_path = item.node_id[:delimiter_index]
         class_items.setdefault(class_path, []).append(item)
     return class_items
 
@@ -161,214 +161,36 @@ class ScopeSorter:
         self.show_unresolved_dep_items(dep_items)
         return sorted_list
 
-    def do_modify_items(self, items, scope, out_before_items, out_after_items,
-                        out_dep_items):
-        start_item = {}
-        end_item = {}
-        unordered_list = []
-        before_items = {}
-        after_items = {}
-        dep_items = {}
-        alias_names = {}
+    def do_modify_items(self, items, scope, before_items, after_items,
+                        dep_items):
 
+        item_group = ItemGroup(items, self.settings, scope)
         for item in items:
-            self.mark_binning(item, start_item, end_item,
-                              before_items, after_items, dep_items,
-                              unordered_list, alias_names)
+            item_group.mark_binning(item)
 
-        start_item = sorted(start_item.items())
-        end_item = sorted(end_item.items())
-
-        sorted_list = self.sort_numbered_items(
-            start_item, end_item, unordered_list)
+        sorted_list = item_group.sort_numbered_items()
+        item_group.update_rel_mark()
 
         still_left = 0
-        length = len(before_items) + len(after_items) + len(dep_items)
-        for rel_items in (before_items, after_items):
-            for label, entry in rel_items.items():
-                if self.needed_for_group_sort(label, entry[0], scope):
-                    for item in rel_items[label]:
-                        item.is_rel_mark = False
-
+        length = item_group.number_of_rel_groups()
         while length and still_left != length:
             still_left = length
-            remove_labels = []
-            for label, before in before_items.items():
-                if self.insert_before(label, before, sorted_list):
-                    remove_labels.append(label)
-            for label in remove_labels:
-                del before_items[label]
-
-            remove_labels = []
-            for label, after in after_items.items():
-                if self.insert_after(label, after, sorted_list):
-                    remove_labels.append(label)
-            for label in remove_labels:
-                del after_items[label]
-
-            remove_labels = []
-            for (label, dep_scope), after in dep_items.items():
-                name = label_from_alias(alias_names, label, dep_scope)
-                if name is None:
-                    for item in after:
-                        if item.is_rel_mark:
-                            item.is_rel_mark = False
-                            # the label is related to another group,
-                            # so the item can now be handled
-                            still_left += 1
-                elif self.insert_after(name, after, sorted_list):
-                    remove_labels.append((label, dep_scope))
-            for (label, dep_scope) in remove_labels:
-                del dep_items[(label, dep_scope)]
-
-            length = len(before_items) + len(after_items) + len(dep_items)
+            item_group.handle_before_items(sorted_list)
+            item_group.handle_after_items(sorted_list)
+            still_left += item_group.handle_dep_items(sorted_list)
+            length = item_group.number_of_rel_groups()
         if length:
-            msg = ""
-            msg += self.handle_unhandled_items(
-                before_items, out_before_items, scope)
-            msg += self.handle_unhandled_items(
-                after_items, out_after_items, scope)
-            msg += self.handle_unhandled_dep_items(
-                dep_items, out_dep_items)
-            if msg:
-                sys.stdout.write(
-                    "\nWARNING: cannot execute test relative to others: ")
-                sys.stdout.write(msg)
-                sys.stdout.write("- ignoring the marker.\n")
-                sys.stdout.flush()
+            item_group.print_unhandled_items(
+                before_items, after_items, dep_items)
 
-        if start_item:
-            group_order = start_item[0][0]
-        elif end_item:
-            group_order = end_item[-1][0]
+        if item_group.start_items:
+            group_order = item_group.start_items[0][0]
+        elif item_group.end_items:
+            group_order = item_group.end_items[-1][0]
         else:
             group_order = None
 
-        return group_order, sorted_list, alias_names
-
-    def mark_binning(self, item, start, end, before, after, dep,
-                     unordered, alias):
-        handled = False
-        order = None
-        keys = item.item.keywords.keys()
-        if "dependency" in keys:
-            # always order dependencies if an order mark is present
-            # otherwise only if order-dependencies is set
-            mark = item.item.get_closest_marker("dependency")
-            if self.settings.order_dependencies or "order" in keys:
-                dependent_mark = mark.kwargs.get("depends")
-                if dependent_mark:
-                    scope = mark.kwargs.get("scope", "module")
-                    for name in dependent_mark:
-                        dep.setdefault((name, scope), []).append(item)
-                        handled = True
-            # we always collect the names of the dependent items, because
-            # we need them in both cases
-            name_mark = mark.kwargs.get("name")
-            # the default name in pytest-dependency is the nodeid or a part
-            # of the nodeid, depending on the scope
-            if not name_mark:
-                name_mark = item.node_id
-            alias[name_mark] = item.full_name()
-
-        if "order" in keys:
-            mark = item.item.get_closest_marker("order")
-            order = mark.args[0] if mark.args else mark.kwargs.get("index")
-            before_mark = mark.kwargs.get("before")
-            after_mark = mark.kwargs.get("after")
-            if order is not None:
-                if isinstance(order, int):
-                    order = int(order)
-                elif order in orders_map:
-                    order = orders_map[order]
-                else:
-                    warn("Unknown order attribute:'{}'".format(order))
-                    item.is_rel_mark = handled
-                    unordered.append(item)
-                    if not handled:
-                        return False
-                    return True
-                if order < 0:
-                    end.setdefault(order, []).append(item)
-                else:
-                    start.setdefault(order, []).append(item)
-            if before_mark:
-                before.setdefault(
-                    item.full_name(before_mark), []).append(item)
-            if after_mark:
-                after.setdefault(
-                    item.full_name(after_mark), []).append(item)
-            handled = True
-        item.is_rel_mark = handled and order is None
-        if not handled or order is None:
-            unordered.append(item)
-            return False
-        return True
-
-    @staticmethod
-    def insert_before(name, items, sort):
-        if name:
-            for pos, item in enumerate(sort):
-                if not item.is_rel_mark and item.full_name().endswith(name):
-                    for item_to_insert in items:
-                        index = sort.index(item_to_insert)
-                        if index > pos:
-                            del sort[index]
-                            item_to_insert.is_rel_mark = False
-                            sort.insert(pos, item_to_insert)
-                    return True
-        return False
-
-    @staticmethod
-    def insert_after(name, items, sort):
-        if name:
-            for pos, item in zip(range(len(sort)-1, -1, -1), reversed(sort)):
-                if item.full_name().endswith(name):
-                    if item.is_rel_mark:
-                        return False
-                    for item_to_insert in reversed(items):
-                        index = sort.index(item_to_insert)
-                        if index < pos + 1:
-                            del sort[index]
-                            pos -= 1
-                            item_to_insert.is_rel_mark = False
-                            sort.insert(pos + 1, item_to_insert)
-                    return True
-        return False
-
-    def needed_for_group_sort(self, label, item, scope):
-        if self.settings.group_scope >= self.settings.scope:
-            return False
-
-        name = scoped_label(label, scope)
-        itemid = item.scoped_label(scope)
-        needed = name != itemid
-        if not needed and scope == CLASS and self.settings.scope == SESSION:
-            return self.needed_for_group_sort(label, item, MODULE)
-        return needed
-
-    def handle_unhandled_items(self, items, out_items, scope):
-        msg = ""
-        for label, entries in items.items():
-            msg += self.handle_unhandled_item(entries, label, out_items, scope)
-        return msg
-
-    @staticmethod
-    def handle_unhandled_dep_items(items, out_items):
-        msg = ""
-        for (label, dep_scope), entries in items.items():
-            out_items.setdefault((label, dep_scope), []).extend(entries)
-        return msg
-
-    def handle_unhandled_item(self, entries, label, out_items, scope):
-        msg = ""
-        for entry in entries:
-            if not self.needed_for_group_sort(label, entry, scope):
-                msg = label + " "
-            else:
-                new_label = scoped_label(label, scope)
-                out_items.setdefault(new_label, []).append(entry)
-        return msg
+        return group_order, sorted_list, item_group.aliases
 
     @staticmethod
     def show_unresolved_dep_items(dep_items):
@@ -378,28 +200,6 @@ class ScopeSorter:
             sys.stdout.write(", ".join(item[0] for item in dep_items))
             sys.stdout.write(" - ignoring the markers.\n")
             sys.stdout.flush()
-
-    def sort_numbered_items(self, start_item, end_item, unordered_list):
-        sorted_list = []
-        index = 0
-        for entries in start_item:
-            if self.settings.sparse_ordering:
-                while entries[0] > index and unordered_list:
-                    sorted_list.append(unordered_list.pop(0))
-                    index += 1
-            sorted_list += entries[1]
-            index += len(entries[1])
-        mid_index = len(sorted_list)
-        index = -1
-        for entries in reversed(end_item):
-            if self.settings.sparse_ordering:
-                while entries[0] < index and unordered_list:
-                    sorted_list.insert(mid_index, unordered_list.pop())
-                    index -= 1
-            sorted_list[mid_index:mid_index] = entries[1]
-            index -= len(entries[1])
-        sorted_list[mid_index:mid_index] = unordered_list
-        return sorted_list
 
 
 def label_from_alias(alias_names, label, scope):
@@ -566,7 +366,7 @@ class Item:
         # cache properties that are called often for the same item
         self._node_id = None
         self._label = None
-        self._fullnames = {}
+        self._full_names = {}
 
     @property
     def module_path(self):
@@ -598,10 +398,236 @@ class Item:
 
     def full_name(self, name=None):
         try:
-            return self._fullnames[name]
+            return self._full_names[name]
         except KeyError:
-            self._fullnames[name] = self.calc_full_name(name)
-            return self._fullnames[name]
+            self._full_names[name] = self.calc_full_name(name)
+            return self._full_names[name]
 
     def scoped_label(self, scope):
         return scoped_label(self.label, scope)
+
+
+class ItemGroup:
+    def __init__(self, items, settings, scope):
+        self.items = items
+        self.settings = settings
+        self.scope = scope
+        self.start_items = []
+        self.end_items = []
+        self.unordered_items = []
+        self._start_items = {}
+        self._end_items = {}
+        self.before_items = {}
+        self.after_items = {}
+        self.dep_items = {}
+        self.aliases = {}
+
+    def mark_binning(self, item):
+        order = None
+        keys = item.item.keywords.keys()
+        has_dependency = "dependency" in keys
+        has_order = "order" in keys
+        if has_dependency:
+            self.handle_dependency_mark(item, has_order)
+        if has_order:
+            order = self.handle_order_mark(item)
+        if item.is_rel_mark or order is None:
+            self.unordered_items.append(item)
+
+    def handle_dependency_mark(self, item, has_order):
+        # always order dependencies if an order mark is present
+        # otherwise only if order-dependencies is set
+        mark = item.item.get_closest_marker("dependency")
+        if self.settings.order_dependencies or has_order:
+            dependent_mark = mark.kwargs.get("depends")
+            if dependent_mark:
+                scope = mark.kwargs.get("scope", "module")
+                for name in dependent_mark:
+                    self.dep_items.setdefault((name, scope), []).append(item)
+                    item.is_rel_mark = True
+        # we always collect the names of the dependent items, because
+        # we need them in both cases
+        name_mark = mark.kwargs.get("name")
+        # the default name in pytest-dependency is the nodeid or a part
+        # of the nodeid, depending on the scope
+        if not name_mark:
+            name_mark = item.node_id
+        self.aliases[name_mark] = item.full_name()
+
+    def handle_order_mark(self, item):
+        mark = item.item.get_closest_marker("order")
+        order = mark.args[0] if mark.args else mark.kwargs.get("index")
+        before_mark = mark.kwargs.get("before")
+        after_mark = mark.kwargs.get("after")
+        if order is not None:
+            if isinstance(order, int):
+                order = int(order)
+            elif order in orders_map:
+                order = orders_map[order]
+            else:
+                warn("Unknown order attribute:'{}'".format(order))
+                order = None
+            if order is not None:
+                if order < 0:
+                    self._end_items.setdefault(order, []).append(item)
+                else:
+                    self._start_items.setdefault(order, []).append(item)
+        if before_mark:
+            self.before_items.setdefault(
+                item.full_name(before_mark), []).append(item)
+        if after_mark:
+            self.after_items.setdefault(
+                item.full_name(after_mark), []).append(item)
+        if order is not None:
+            item.is_rel_mark = False
+        elif before_mark or after_mark:
+            item.is_rel_mark = True
+        return order
+
+    def sort_numbered_items(self):
+        self.start_items = sorted(self._start_items.items())
+        self.end_items = sorted(self._end_items.items())
+        sorted_list = []
+        index = 0
+        for entries in self.start_items:
+            if self.settings.sparse_ordering:
+                while entries[0] > index and self.unordered_items:
+                    sorted_list.append(self.unordered_items.pop(0))
+                    index += 1
+            sorted_list += entries[1]
+            index += len(entries[1])
+        mid_index = len(sorted_list)
+        index = -1
+        for entries in reversed(self.end_items):
+            if self.settings.sparse_ordering:
+                while entries[0] < index and self.unordered_items:
+                    sorted_list.insert(mid_index, self.unordered_items.pop())
+                    index -= 1
+            sorted_list[mid_index:mid_index] = entries[1]
+            index -= len(entries[1])
+        sorted_list[mid_index:mid_index] = self.unordered_items
+        return sorted_list
+
+    def update_rel_mark(self):
+        for rel_items in (self.before_items, self.after_items):
+            for label, entry in rel_items.items():
+                if self.needed_for_group_sort(label, entry[0], self.scope):
+                    for item in rel_items[label]:
+                        item.is_rel_mark = False
+
+    def needed_for_group_sort(self, label, item, scope):
+        if self.settings.group_scope >= self.settings.scope:
+            return False
+
+        name = scoped_label(label, scope)
+        item_id = item.scoped_label(scope)
+        needed = name != item_id
+        if (not needed and scope == CLASS and
+                self.settings.scope == SESSION):
+            return self.needed_for_group_sort(label, item, MODULE)
+        return needed
+
+    def handle_unhandled_item(self, entries, label, out_items, scope):
+        msg = ""
+        for entry in entries:
+            if not self.needed_for_group_sort(label, entry, scope):
+                msg = label + " "
+            else:
+                new_label = scoped_label(label, scope)
+                out_items.setdefault(new_label, []).append(entry)
+        return msg
+
+    def print_unhandled_items(self, before_items, after_items, dep_items):
+        msg = ""
+        msg += self.handle_unhandled_items(
+            self.before_items, before_items, self.scope)
+        msg += self.handle_unhandled_items(
+            self.after_items, after_items, self.scope)
+        msg += self.handle_unhandled_dep_items(dep_items)
+        if msg:
+            sys.stdout.write(
+                "\nWARNING: cannot execute test relative to others: ")
+            sys.stdout.write(msg)
+            sys.stdout.write("- ignoring the marker.\n")
+            sys.stdout.flush()
+
+    def handle_unhandled_items(self, items, out_items, scope):
+        msg = ""
+        for label, entries in items.items():
+            msg += self.handle_unhandled_item(entries, label, out_items, scope)
+        return msg
+
+    def handle_unhandled_dep_items(self, out_items):
+        msg = ""
+        for (label, dep_scope), entries in self.dep_items.items():
+            out_items.setdefault((label, dep_scope), []).extend(entries)
+        return msg
+
+    def number_of_rel_groups(self):
+        return len(self.before_items) + len(self.after_items) + len(
+            self.dep_items)
+
+    @staticmethod
+    def handle_rel_items(items, handler, sorted_list):
+        remove_labels = []
+        for label, item in items.items():
+            if label and handler(label, item, sorted_list):
+                remove_labels.append(label)
+        for label in remove_labels:
+            del items[label]
+
+    def handle_before_items(self, sorted_list):
+        self.handle_rel_items(
+            self.before_items, self.insert_before, sorted_list)
+
+    def handle_after_items(self, sorted_list):
+        self.handle_rel_items(
+            self.after_items, self.insert_after, sorted_list)
+
+    def handle_dep_items(self, sorted_list):
+        remove_labels = []
+        nr_unhandled = 0
+        for (label, dep_scope), after in self.dep_items.items():
+            name = label_from_alias(self.aliases, label, dep_scope)
+            if name is None:
+                for item in after:
+                    if item.is_rel_mark:
+                        # the label is related to another group,
+                        # so the item can now be handled
+                        item.is_rel_mark = False
+                        nr_unhandled += 1
+            elif self.insert_after(name, after, sorted_list):
+                remove_labels.append((label, dep_scope))
+        for (label, dep_scope) in remove_labels:
+            del self.dep_items[(label, dep_scope)]
+        return nr_unhandled
+
+    @staticmethod
+    def insert_before(name, items, sort):
+        for pos, item in enumerate(sort):
+            if not item.is_rel_mark and item.full_name().endswith(name):
+                for item_to_insert in items:
+                    index = sort.index(item_to_insert)
+                    if index > pos:
+                        del sort[index]
+                        item_to_insert.is_rel_mark = False
+                        sort.insert(pos, item_to_insert)
+                return True
+        return False
+
+    @staticmethod
+    def insert_after(name, items, sort):
+        if name:
+            for pos, item in zip(range(len(sort) - 1, -1, -1), reversed(sort)):
+                if item.full_name().endswith(name):
+                    if item.is_rel_mark:
+                        return False
+                    for item_to_insert in reversed(items):
+                        index = sort.index(item_to_insert)
+                        if index < pos + 1:
+                            del sort[index]
+                            pos -= 1
+                            item_to_insert.is_rel_mark = False
+                            sort.insert(pos + 1, item_to_insert)
+                    return True
+        return False
