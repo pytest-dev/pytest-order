@@ -37,6 +37,7 @@ jobs:
       run: |
         python -m pip install wheel
         python -m pip install pytest
+        python -m pip install pytest-dependency
     - name: Run tests
       run: |
         python -m pytest -s perf_tests

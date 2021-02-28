@@ -269,6 +269,27 @@ def test_dependencies_in_classes(item_names_for, order_dependencies):
     ]
 
 
+def test_class_scope_dependencies(item_names_for, order_dependencies):
+    tests_content = """
+    import pytest
+
+    class TestA:
+        @pytest.mark.dependency(depends=["test_c"], scope='class')
+        def test_a(self):
+            assert True
+
+        def test_b(self):
+            assert True
+
+        @pytest.mark.dependency
+        def test_c(self):
+            assert True
+    """
+    assert item_names_for(tests_content) == [
+        "test_b", "test_c", "test_a"
+    ]
+
+
 @pytest.fixture
 def fixture_path_named(tmpdir_factory):
     fixture_path = str(tmpdir_factory.mktemp("named_dep"))
@@ -364,6 +385,56 @@ def test_dependency_in_modules(fixture_path_unnamed, capsys):
         "test_unnamed_dep2.py::test_one",
         "test_unnamed_dep1.py::Test1::test_two",
         "test_unnamed_dep2.py::test_two",
+    )
+    assert_test_order(expected, out)
+    assert "SKIPPED" not in out
+
+
+@pytest.fixture
+def fixture_path_modules_with_same_dep(tmpdir_factory):
+    fixture_path = str(tmpdir_factory.mktemp("modules_dep"))
+    testname = os.path.join(fixture_path, "test_module_dep1.py")
+    test_contents = """
+import pytest
+
+@pytest.mark.dependency(depends=['test_two'])
+def test_one():
+    assert True
+
+@pytest.mark.dependency
+def test_two():
+    assert True
+"""
+    write_test(testname, test_contents)
+    test_contents = """
+import pytest
+
+@pytest.mark.dependency(depends=['test_two'])
+def test_one():
+    assert True
+
+@pytest.mark.dependency
+def test_two():
+    assert True
+    """
+    testname = os.path.join(fixture_path, "test_module_dep2.py")
+    write_test(testname, test_contents)
+    yield fixture_path
+    shutil.rmtree(fixture_path, ignore_errors=True)
+
+
+def test_same_dependency_in_modules(
+        fixture_path_modules_with_same_dep, capsys):
+    # regression test - make sure that the same dependency in different
+    # modules works correctly
+    args = ["-v", "--order-dependencies", fixture_path_modules_with_same_dep]
+    pytest.main(args, [pytest_order])
+    out, err = capsys.readouterr()
+    expected = (
+        "test_module_dep1.py::test_two",
+        "test_module_dep1.py::test_one",
+        "test_module_dep2.py::test_two",
+        "test_module_dep2.py::test_one",
     )
     assert_test_order(expected, out)
     assert "SKIPPED" not in out

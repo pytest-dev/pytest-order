@@ -197,14 +197,25 @@ class ScopeSorter:
             sys.stdout.flush()
 
 
-def label_from_alias(alias_names, label, scope):
+def scope_from_name(name):
+    if name == "module":
+        return MODULE
+    if name == "class":
+        return CLASS
+    return SESSION
+
+
+def label_from_alias(alias_names, label, scope, prefix):
     name = alias_names.get(label)
-    if name or scope in ("session", "package"):
+    if name or scope == SESSION:
         return name
+    prefixed_label = prefix + "::" + label
+    if prefixed_label in alias_names:
+        return alias_names[prefixed_label]
     for alias in alias_names:
         if "::" in alias:
             name = alias.split("::", 1)[1]
-            if scope == "class" and "::" in name:
+            if scope == CLASS and "::" in name:
                 name = name.split("::")[1]
         else:
             name = alias
@@ -220,8 +231,16 @@ def scoped_label(label, scope):
     if scope == CLASS:
         if "::" not in label:
             return label
-        return label.split("::")[0]
+        return label[:label.index("::")]
     return label
+
+
+def scoped_node_id(node_id, scope):
+    if scope == MODULE:
+        return node_id[:node_id.index("::")]
+    if scope == CLASS:
+        return node_id[:node_id.rindex("::")]
+    return ""
 
 
 class GroupSorter:
@@ -291,13 +310,13 @@ class GroupSorter:
 
     def handle_dep_items(self):
         remove_labels = []
-        for (label, dep_scope), after in self.dep_items.items():
+        for (label, dep_scope, prefix), after in self.dep_items.items():
             group_index = self.group_index_from_label(
-                label, dep_scope)
+                label, dep_scope, prefix)
             if self.insert_after_dep_group(group_index, after):
-                remove_labels.append((label, dep_scope))
-        for (label, dep_scope) in remove_labels:
-            del self.dep_items[(label, dep_scope)]
+                remove_labels.append((label, dep_scope, prefix))
+        for (label, dep_scope, prefix) in remove_labels:
+            del self.dep_items[(label, dep_scope, prefix)]
 
     def insert_before_group(self, label, items):
         label = scoped_label(label, self.scope)
@@ -351,9 +370,9 @@ class GroupSorter:
             return found
         return False
 
-    def group_index_from_label(self, label, scope):
+    def group_index_from_label(self, label, scope, prefix):
         for index, group in enumerate(self.groups):
-            if label_from_alias(group.aliases, label, scope):
+            if label_from_alias(group.aliases, label, scope, prefix):
                 return index
 
 
@@ -439,9 +458,11 @@ class ItemList:
         if self.settings.order_dependencies or has_order:
             dependent_mark = mark.kwargs.get("depends")
             if dependent_mark:
-                scope = mark.kwargs.get("scope", "module")
+                scope = scope_from_name(mark.kwargs.get("scope", "module"))
+                prefix = scoped_node_id(item.node_id, scope)
                 for name in dependent_mark:
-                    self.dep_items.setdefault((name, scope), []).append(item)
+                    self.dep_items.setdefault(
+                        (name, scope, prefix), []).append(item)
                     item.is_rel_mark = True
         # we always collect the names of the dependent items, because
         # we need them in both cases
@@ -557,8 +578,9 @@ class ItemList:
 
     def handle_unhandled_dep_items(self, out_items):
         msg = ""
-        for (label, dep_scope), entries in self.dep_items.items():
-            out_items.setdefault((label, dep_scope), []).extend(entries)
+        for (label, dep_scope, prefix), entries in self.dep_items.items():
+            out_items.setdefault(
+                (label, dep_scope, prefix), []).extend(entries)
         return msg
 
     def number_of_rel_groups(self):
@@ -585,8 +607,8 @@ class ItemList:
     def handle_dep_items(self, sorted_list):
         remove_labels = []
         nr_unhandled = 0
-        for (label, dep_scope), after in self.dep_items.items():
-            name = label_from_alias(self.aliases, label, dep_scope)
+        for (label, dep_scope, prefix), after in self.dep_items.items():
+            name = label_from_alias(self.aliases, label, dep_scope, prefix)
             if name is None:
                 for item in after:
                     if item.is_rel_mark:
@@ -595,9 +617,9 @@ class ItemList:
                         item.is_rel_mark = False
                         nr_unhandled += 1
             elif self.insert_after(name, after, sorted_list):
-                remove_labels.append((label, dep_scope))
-        for (label, dep_scope) in remove_labels:
-            del self.dep_items[(label, dep_scope)]
+                remove_labels.append((label, dep_scope, prefix))
+        for (label, dep_scope, prefix) in remove_labels:
+            del self.dep_items[(label, dep_scope, prefix)]
         return nr_unhandled
 
     def group_order(self):

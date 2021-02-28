@@ -180,27 +180,28 @@ def test_class_group_scope(fixture_path, capsys):
     assert_test_order(expected, out)
     assert "SKIPPED" not in out
 
-# @pytest.mark.skipif(pytest.__version__.startswith("3.7."),
-#                     reason="pytest-dependency < 0.5 does not support "
-#                            "session scope")
-# def test_class_group_scope_module_scope(fixture_path, capsys):
-#     args = ["-v", "--order-dependencies", "--order-group-scope=class",
-#             "--order-scope=module", fixture_path]
-#     pytest.main(args, [pytest_order])
-#     out, err = capsys.readouterr()
-#     expected = (
-#         "test_dep1.py::Test1::test_one",
-#         "test_dep1.py::Test1::test_three",
-#         "test_dep1.py::Test1::test_two",
-#         "test_dep1.py::Test2::test_one",
-#         "test_dep1.py::Test2::test_two",
-#         "test_dep2.py::test_one",
-#         "test_dep2.py::test_two",
-#         "test_dep3.py::test_one",
-#         "test_dep3.py::test_two",
-#         "test_dep4.py::test_one",
-#         "test_dep4.py::test_two",
-#     )
-#     assert_test_order(expected, out)
-#     # with module scope, dependencies cannot be ordered as needed
-#     assert "SKIPPED" in out
+
+@pytest.mark.skipif(pytest.__version__.startswith("3.7."),
+                    reason="pytest-dependency < 0.5 does not support "
+                           "session scope")
+def test_class_group_scope_module_scope(fixture_path, capsys):
+    args = ["-v", "--order-dependencies", "--order-group-scope=class",
+            "--order-scope=module", fixture_path]
+    pytest.main(args, [pytest_order])
+    out, err = capsys.readouterr()
+    expected = (
+        "test_dep1.py::Test2::test_one",
+        "test_dep1.py::Test2::test_two",
+        "test_dep1.py::Test1::test_one",
+        "test_dep1.py::Test1::test_three",
+        "test_dep1.py::Test1::test_two",
+        "test_dep2.py::test_one",
+        "test_dep2.py::test_two",
+        "test_dep3.py::test_one",
+        "test_dep3.py::test_two",
+        "test_dep4.py::test_one",
+        "test_dep4.py::test_two",
+    )
+    assert_test_order(expected, out)
+    # with module scope, dependencies cannot be ordered as needed
+    assert "SKIPPED" in out

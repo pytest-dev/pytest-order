@@ -2,8 +2,12 @@
 
 ## Unreleased
 
+### Fixes
+- fixed sorting of dependency markers that depend on an item with the same
+  name in different modules
+
 ### Infrastructure
-- add performance tests to prevent performance degradation
+- added performance tests to prevent performance degradation
 
 ## [Version 0.9.5](https://pypi.org/project/pytest-order/0.9.5/) (2021-02-16)
 Introduces hierarchical ordering option and fixes ordering of session-scoped

@@ -31,5 +31,6 @@ def test_{}():
 @mock.patch("pytest_order.Sorter", TimedSorter)
 def test_performance_ordinal(fixture_path_ordinal):
     args = [fixture_path_ordinal]
+    TimedSorter.nr_marks = 1000
     pytest.main(args, [pytest_order])
     assert TimedSorter.elapsed < 0.02
