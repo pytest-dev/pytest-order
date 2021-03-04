@@ -1,6 +1,6 @@
 """Shows how to use both positive and negative numbers for sorting,
 and the use of the long form (index attribute) and short form (number only).
-See https://mrbean-bremen.github.io/pytest-order/dev/#order-by-index
+See https://pytest-dev.github.io/pytest-order/dev/#order-by-index
 """
 import pytest
 

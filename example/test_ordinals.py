@@ -1,5 +1,5 @@
 """Shows how to use ordinal names for sorting.
-See https://mrbean-bremen.github.io/pytest-order/dev/#order-using-ordinals
+See https://pytest-dev.github.io/pytest-order/dev/#order-using-ordinals
 """
 import pytest
 

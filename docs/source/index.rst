@@ -58,12 +58,12 @@ The latest master can be installed from the GitHub sources:
 
 .. code:: bash
 
-   pip install git+https://github.com/mrbean-bremen/pytest-order
+   pip install git+https://github.com/pytest-dev/pytest-order
 
 Examples
 --------
 All examples shown in this documentation can be also found in the repository
-under `example <https://github.com/mrbean-bremen/pytest-order/tree/master/example/>`__
+under `example <https://github.com/pytest-dev/pytest-order/tree/master/example/>`__
 as working test files.
 
 Quickstart

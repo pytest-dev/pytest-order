@@ -21,7 +21,7 @@ Tracks the state of all open issues in pytest-ordering for reference.
 - [Ordering with multiple files](https://github.com/ftobia/pytest-ordering/issues/25)  
   behavior can be configured with `--order-scope=module` :heavy_check_mark:
 - [Move to pytest-dev organization](https://github.com/ftobia/pytest-ordering/issues/32)  
-  handled in mirrored [issue](https://github.com/mrbean-bremen/pytest-order/issues/4) :heavy_check_mark:
+  handled in mirrored [issue](https://github.com/pytest-dev/pytest-order/issues/4) :heavy_check_mark:
 - [Ordering of test suite](https://github.com/ftobia/pytest-ordering/issues/33)  
   don't understand the issue, ignoring :-1:
 - [Ensure compatibility with xdist](https://github.com/ftobia/pytest-ordering/issues/36)  

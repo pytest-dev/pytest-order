@@ -20,7 +20,7 @@ dependency markers.
 ### New features
 - added `group-order-scope` option to allow hierarchical ordering on module
   and class scope. 
-  See [#6](https://github.com/mrbean-bremen/pytest-order/issues/6)
+  See [#6](https://github.com/pytest-dev/pytest-order/issues/6)
   
 ### Fixes
 - the dependency marker scope is now considered for resolving marker names 
@@ -93,7 +93,7 @@ demand-driven.
 
 ### New features
 - added configuration option for sorting scope,
-  see [#2](https://github.com/mrbean-bremen/pytest-order/issues/2)
+  see [#2](https://github.com/pytest-dev/pytest-order/issues/2)
 
 ## [Version 0.8.0](https://pypi.org/project/pytest-order/0.8.0/) (2020-10-30)
 This release is mostly related to the consolidation of infrastructure
@@ -141,4 +141,4 @@ changed name in the next release.
 - added more pytest versions, fix pytest-cov compatibility issue,
   remove Python 3.4, add Python 3.8
   (imported from [PR #74](https://github.com/ftobia/pytest-ordering/pull/74))
-- moved documentation to [GitHub Pages](https://mrbean-bremen.github.io/pytest-order/)
+- moved documentation to [GitHub Pages](https://pytest-dev.github.io/pytest-order/)
