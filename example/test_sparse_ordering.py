@@ -1,5 +1,5 @@
 """Test file showing the behavior of the --sparse-ordering option.
-See https://mrbean-bremen.github.io/pytest-order/dev/#sparse-ordering
+See https://pytest-dev.github.io/pytest-order/dev/#sparse-ordering
 """
 import pytest
 

@@ -1,5 +1,5 @@
 """Test showing the behavior of the --order-dependencies option.
-See https://mrbean-bremen.github.io/pytest-order/dev/#order-dependencies
+See https://pytest-dev.github.io/pytest-order/dev/#order-dependencies
 """
 import pytest
 

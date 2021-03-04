@@ -12,7 +12,7 @@ def pytest_configure(config):
 
     provided_by_pytest_order = (
         "Provided by pytest-order. "
-        "See also: https://mrbean-bremen.github.io/pytest-order/"
+        "See also: https://pytest-dev.github.io/pytest-order/"
     )
 
     config_line = (

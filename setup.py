@@ -19,7 +19,7 @@ setup(
     version=__version__,
     author="mrbean-bremen",
     author_email="hansemrbean@googlemail.com",
-    url="https://github.com/mrbean-bremen/pytest-order",
+    url="https://github.com/pytest-dev/pytest-order",
     packages=["pytest_order"],
     license="MIT",
     entry_points={
