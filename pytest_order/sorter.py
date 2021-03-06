@@ -215,8 +215,6 @@ def label_from_alias(alias_names, label, scope, prefix):
     for alias in alias_names:
         if "::" in alias:
             name = alias.split("::", 1)[1]
-            if scope == CLASS and "::" in name:
-                name = name.split("::")[1]
         else:
             name = alias
         if name == label:
@@ -402,22 +400,24 @@ class Item:
             self._label = self.node_id.replace(".py::", ".").replace("/", ".")
         return self._label
 
-    def calc_full_name(self, name):
+    def calc_full_name(self, name, is_cls_mark):
         if name and "." in name:
             # assumed to be sufficiently qualified
             return name
         path = self.label
         if name is None:
+            if is_cls_mark and "::" in path:
+                return path[:path.rindex("::")]
             return path
-        if "::" in path and "::" not in name:
+        if "::" in path and "::" not in name and not is_cls_mark:
             return path[:path.rindex("::") + 2] + name
         return path[:path.rindex(".") + 1] + name
 
-    def full_name(self, name=None):
+    def full_name(self, name=None, is_cls_mark=False):
         try:
             return self._full_names[name]
         except KeyError:
-            self._full_names[name] = self.calc_full_name(name)
+            self._full_names[name] = self.calc_full_name(name, is_cls_mark)
             return self._full_names[name]
 
     def scoped_label(self, scope):
@@ -476,8 +476,6 @@ class ItemList:
     def handle_order_mark(self, item):
         mark = item.item.get_closest_marker("order")
         order = mark.args[0] if mark.args else mark.kwargs.get("index")
-        before_mark = mark.kwargs.get("before")
-        after_mark = mark.kwargs.get("after")
         if order is not None:
             if isinstance(order, int):
                 order = int(order)
@@ -491,17 +489,34 @@ class ItemList:
                     self._end_items.setdefault(order, []).append(item)
                 else:
                     self._start_items.setdefault(order, []).append(item)
-        if before_mark:
-            self.before_items.setdefault(
-                item.full_name(before_mark), []).append(item)
-        if after_mark:
-            self.after_items.setdefault(
-                item.full_name(after_mark), []).append(item)
+        has_relative_marker = self.handle_relative_mark(item, mark)
         if order is not None:
             item.is_rel_mark = False
-        elif before_mark or after_mark:
+        elif has_relative_marker:
             item.is_rel_mark = True
         return order
+
+    def handle_relative_mark(self, item, mark):
+        def is_class_mark(test_name):
+            return (
+                    "::" not in test_name and
+                    item.item.cls and
+                    item.item.parent.get_closest_marker("order") == mark
+            )
+
+        before_mark = mark.kwargs.get("before")
+        after_mark = mark.kwargs.get("after")
+        if before_mark:
+            is_cls_mark = is_class_mark(before_mark)
+            self.before_items.setdefault(
+                (item.full_name(before_mark, is_cls_mark),
+                 is_cls_mark), []).append(item)
+        if after_mark:
+            is_cls_mark = is_class_mark(after_mark)
+            self.after_items.setdefault(
+                (item.full_name(after_mark, is_cls_mark),
+                 is_cls_mark), []).append(item)
+        return before_mark or after_mark
 
     def sort_numbered_items(self):
         self.start_items = sorted(self._start_items.items())
@@ -529,9 +544,9 @@ class ItemList:
 
     def update_rel_mark(self):
         for rel_items in (self.before_items, self.after_items):
-            for label, entry in rel_items.items():
+            for (label, is_cls_mark), entry in rel_items.items():
                 if self.needed_for_group_sort(label, entry[0], self.scope):
-                    for item in rel_items[label]:
+                    for item in rel_items[(label, is_cls_mark)]:
                         item.is_rel_mark = False
 
     def needed_for_group_sort(self, label, item, scope):
@@ -572,7 +587,7 @@ class ItemList:
 
     def handle_unhandled_items(self, items, out_items, scope):
         msg = ""
-        for label, entries in items.items():
+        for (label, _), entries in items.items():
             msg += self.handle_unhandled_item(entries, label, out_items, scope)
         return msg
 
@@ -590,11 +605,11 @@ class ItemList:
     @staticmethod
     def handle_rel_items(items, handler, sorted_list):
         remove_labels = []
-        for label, item in items.items():
-            if label and handler(label, item, sorted_list):
-                remove_labels.append(label)
-        for label in remove_labels:
-            del items[label]
+        for (label, is_cls_mark), item in items.items():
+            if label and handler(label, is_cls_mark, item, sorted_list):
+                remove_labels.append((label, is_cls_mark))
+        for (label, is_cls_mark) in remove_labels:
+            del items[(label, is_cls_mark)]
 
     def handle_before_items(self, sorted_list):
         self.handle_rel_items(
@@ -616,7 +631,7 @@ class ItemList:
                         # so the item can now be handled
                         item.is_rel_mark = False
                         nr_unhandled += 1
-            elif self.insert_after(name, after, sorted_list):
+            elif self.insert_after(name, False, after, sorted_list):
                 remove_labels.append((label, dep_scope, prefix))
         for (label, dep_scope, prefix) in remove_labels:
             del self.dep_items[(label, dep_scope, prefix)]
@@ -629,10 +644,11 @@ class ItemList:
             return self.end_items[-1][0]
 
     @staticmethod
-    def insert_before(name, items, sort):
+    def insert_before(name, is_cls_mark, items, sort):
         for pos, item in enumerate(sort):
-            if not item.is_rel_mark and item.full_name().endswith(name):
-                for item_to_insert in items:
+            if (not item.is_rel_mark and
+                    item.full_name(is_cls_mark=is_cls_mark).endswith(name)):
+                for item_to_insert in reversed(items):
                     index = sort.index(item_to_insert)
                     if index > pos:
                         del sort[index]
@@ -642,9 +658,9 @@ class ItemList:
         return False
 
     @staticmethod
-    def insert_after(name, items, sort):
+    def insert_after(name, is_cls_mark, items, sort):
         for pos, item in zip(range(len(sort) - 1, -1, -1), reversed(sort)):
-            if item.full_name().endswith(name):
+            if item.full_name(is_cls_mark=is_cls_mark).endswith(name):
                 if item.is_rel_mark:
                     return False
                 for item_to_insert in reversed(items):

@@ -188,7 +188,9 @@ def test_dependency_in_class(item_names_for, order_dependencies):
         def test_c(self):
             assert True
     """
-    assert item_names_for(tests_content) == ["test_c", "test_a", "test_b"]
+    assert item_names_for(tests_content) == [
+        "Test::test_c", "Test::test_a", "Test::test_b"
+    ]
 
 
 def test_unresolved_dependency_in_class(item_names_for, order_dependencies,
@@ -209,7 +211,9 @@ def test_unresolved_dependency_in_class(item_names_for, order_dependencies,
         def test_c(self):
             assert True
     """
-    assert item_names_for(tests_content) == ["test_a", "test_b", "test_c"]
+    assert item_names_for(tests_content) == [
+        "Test::test_a", "Test::test_b", "Test::test_c"
+    ]
     out, err = capsys.readouterr()
     warning = ("cannot resolve the dependency marker(s): "
                "test_c - ignoring the marker")
@@ -233,7 +237,9 @@ def test_named_dependency_in_class(item_names_for, order_dependencies):
         def test_c(self):
             assert True
     """
-    assert item_names_for(tests_content) == ["test_c", "test_a", "test_b"]
+    assert item_names_for(tests_content) == [
+        "Test::test_c", "Test::test_a", "Test::test_b"
+    ]
 
 
 def test_dependencies_in_classes(item_names_for, order_dependencies):
@@ -245,7 +251,7 @@ def test_dependencies_in_classes(item_names_for, order_dependencies):
         def test_a(self):
             assert True
 
-        @pytest.mark.dependency(depends=["TestB::test_e"])
+        @pytest.mark.dependency(depends=["TestB::test_b"])
         def test_b(self):
             assert True
 
@@ -254,18 +260,19 @@ def test_dependencies_in_classes(item_names_for, order_dependencies):
 
     class TestB:
         @pytest.mark.dependency(name="test_2")
-        def test_d(self):
+        def test_a(self):
             assert True
 
         @pytest.mark.dependency()
-        def test_e(self):
+        def test_b(self):
             assert True
 
-        def test_f(self):
+        def test_c(self):
             assert True
     """
     assert item_names_for(tests_content) == [
-        "test_c", "test_d", "test_a", "test_e", "test_b", "test_f"
+        "TestA::test_c", "TestB::test_a", "TestA::test_a",
+        "TestB::test_b", "TestA::test_b", "TestB::test_c"
     ]
 
 
@@ -286,7 +293,7 @@ def test_class_scope_dependencies(item_names_for, order_dependencies):
             assert True
     """
     assert item_names_for(tests_content) == [
-        "test_b", "test_c", "test_a"
+        "TestA::test_b", "TestA::test_c", "TestA::test_a"
     ]
 
 
@@ -455,7 +462,9 @@ def test_unknown_dependency(item_names_for, order_dependencies, capsys):
         def test_c(self):
             assert True
     """
-    assert item_names_for(tests_content) == ["test_a", "test_b", "test_c"]
+    assert item_names_for(tests_content) == [
+        "Test::test_a", "Test::test_b", "Test::test_c"
+    ]
     out, err = capsys.readouterr()
     warning = ("cannot resolve the dependency marker(s): "
                "test_3 - ignoring the marker")

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### New features
+- added support for class level relative markers,
+  see [#7](https://github.com/pytest-dev/pytest-order/issues/7)
+
 ### Fixes
 - fixed sorting of dependency markers that depend on an item with the same
   name in different modules
@@ -19,8 +23,8 @@ dependency markers.
 
 ### New features
 - added `group-order-scope` option to allow hierarchical ordering on module
-  and class scope. 
-  See [#6](https://github.com/pytest-dev/pytest-order/issues/6)
+  and class scope, 
+  see [#6](https://github.com/pytest-dev/pytest-order/issues/6)
   
 ### Fixes
 - the dependency marker scope is now considered for resolving marker names 
