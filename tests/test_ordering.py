@@ -196,7 +196,9 @@ def test_first_mark_class(item_names_for):
 
     """
 
-    assert item_names_for(tests_content) == ["test_3", "test_2", "test_1"]
+    assert item_names_for(tests_content) == [
+        "TestSuite::test_3", "TestSuite::test_2", "test_1"
+    ]
 
 
 def test_last_mark_class(item_names_for):
@@ -214,7 +216,9 @@ def test_last_mark_class(item_names_for):
     def test_3(): pass
     """
 
-    assert item_names_for(tests_content) == ["test_3", "test_1", "test_2"]
+    assert item_names_for(tests_content) == [
+        "test_3", "TestSuite::test_1", "TestSuite::test_2"
+    ]
 
 
 def test_first_last_mark_class(item_names_for):
@@ -229,20 +233,21 @@ def test_first_last_mark_class(item_names_for):
         def test_2(self): pass
 
 
-    def test_3(): pass
+    def test_0(): pass
 
 
     @pytest.mark.order("first")
     class TestFirst(object):
 
-        def test_4(self): pass
+        def test_1(self): pass
 
-        def test_5(self): pass
+        def test_2(self): pass
 
     """
 
-    assert item_names_for(tests_content) == ["test_4", "test_5", "test_3",
-                                             "test_1", "test_2"]
+    assert item_names_for(tests_content) == [
+        "TestFirst::test_1", "TestFirst::test_2",
+        "test_0", "TestLast::test_1", "TestLast::test_2"]
 
 
 def test_order_mark_class(item_names_for):
@@ -251,26 +256,22 @@ def test_order_mark_class(item_names_for):
 
     @pytest.mark.order(-1)
     class TestLast(object):
-
         def test_1(self): pass
-
         def test_2(self): pass
 
-
     @pytest.mark.order(0)
-    def test_3(): pass
-
+    def test_0(): pass
 
     @pytest.mark.order(-2)
     class TestFirst(object):
-
-        def test_4(self): pass
-
-        def test_5(self): pass
+        def test_1(self): pass
+        def test_2(self): pass
     """
 
-    assert item_names_for(tests_content) == ["test_3", "test_4", "test_5",
-                                             "test_1", "test_2"]
+    assert item_names_for(tests_content) == [
+        "test_0", "TestFirst::test_1", "TestFirst::test_2",
+        "TestLast::test_1", "TestLast::test_2"
+    ]
 
 
 def test_run_ordinals(item_names_for):

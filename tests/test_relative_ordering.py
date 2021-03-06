@@ -98,7 +98,9 @@ def test_relative_in_class(item_names_for):
         def test_c(self):
             pass
     """
-    assert item_names_for(tests_content) == ["test_b", "test_a", "test_c"]
+    assert item_names_for(tests_content) == [
+        "Test::test_b", "Test::test_a", "Test::test_c"
+    ]
 
 
 def test_relative_in_classes(item_names_for):
@@ -106,7 +108,7 @@ def test_relative_in_classes(item_names_for):
     import pytest
 
     class TestA:
-        @pytest.mark.order(after="TestB::test_e")
+        @pytest.mark.order(after="TestB::test_b")
         def test_a(self):
             pass
 
@@ -119,17 +121,18 @@ def test_relative_in_classes(item_names_for):
 
     class TestB:
         @pytest.mark.order(before="TestA::test_c")
-        def test_d(self):
+        def test_a(self):
             pass
 
-        def test_e(self):
+        def test_b(self):
             pass
 
-        def test_f(self):
+        def test_c(self):
             pass
     """
     assert item_names_for(tests_content) == [
-        "test_d", "test_c", "test_b", "test_e", "test_a", "test_f"
+        "TestB::test_a", "TestA::test_c", "TestA::test_b",
+        "TestB::test_b", "TestA::test_a", "TestB::test_c"
     ]
 
 
@@ -372,7 +375,9 @@ def test_dependency_in_class_before_unknown_test(item_names_for, capsys):
         def test_3(self):
             pass
     """
-    assert item_names_for(test_content) == ["test_1", "test_2", "test_3"]
+    assert item_names_for(test_content) == [
+        "Test::test_1", "Test::test_2", "Test::test_3"
+    ]
     out, err = capsys.readouterr()
     warning = ("cannot execute test relative to others: "
                "test_dependency_in_class_before_unknown_test.Test::test_4 "

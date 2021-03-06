@@ -62,7 +62,7 @@ The latest master can be installed from the GitHub sources:
 
 Examples
 --------
-All examples shown in this documentation can be also found in the repository
+Most examples shown in this documentation can be also found in the repository
 under `example <https://github.com/pytest-dev/pytest-order/tree/master/example/>`__
 as working test files.
 
@@ -250,6 +250,45 @@ Here is the complete list with the corresponding numbers:
 - "seventh_to_last": -7
 - "eighth_to_last": -8
 
+Markers on class level
+~~~~~~~~~~~~~~~~~~~~~~
+If setting an ``order`` mark on class level, all tests in this class will be
+handled as having the same ordinal marker, e.g. the class as a whole will be
+reordered without changing the test order inside the test class:
+
+.. code:: python
+
+    import pytest
+
+    @pytest.mark.order(1)
+    class Test1:
+        def test_1(self):
+            assert True
+
+        def test_2(self):
+            assert True
+
+    @pytest.mark.order(0)
+    class Test2:
+        def test_1(self):
+            assert True
+
+        def test_2(self):
+            assert True
+
+::
+
+    $ pytest -vv test_ordinal_class_mark.py
+    ============================= test session starts ==============================
+    ...
+    collected 4 items
+
+    test_ordinal_class_mark.py::Test2::test_1 PASSED
+    test_ordinal_class_mark.py::Test2::test_2 PASSED
+    test_ordinal_class_mark.py::Test1::test_1 PASSED
+    test_ordinal_class_mark.py::Test1::test_2 PASSED
+
+
 Handling of unordered tests
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 By default, tests with no ``order`` mark are executed after all tests with
@@ -263,7 +302,8 @@ Order relative to other tests
 -----------------------------
 
 The test order can be defined relative to other tests, which are referenced
-by their name:
+by their name. The marker attributes ``before`` and ``after`` can be used to
+define the order relative to these tests:
 
 .. code:: python
 
@@ -354,6 +394,47 @@ modules, this could be expressed like:
 
 If an unknown test is referenced, a warning is issued and the test in
 question is ordered behind all other tests.
+
+Markers on class level
+~~~~~~~~~~~~~~~~~~~~~~
+As for ordinal markers, markers on class level are handled as if they are set
+to each individual test in the class. Additionally to referencing single
+tests, you can also reference test classes if using the ``before`` or
+``after`` marker attributes:
+
+.. code:: python
+
+    import pytest
+
+    @pytest.mark.order(after="Test2")
+    class Test1:
+        def test_1(self):
+            assert True
+
+        def test_2(self):
+            assert True
+
+    class Test2:
+        def test_1(self):
+            assert True
+
+        def test_2(self):
+            assert True
+
+In this case, the tests in the marked class will be ordered behind all tests
+in the referenced class:
+
+::
+
+    $ pytest -vv test_relative_class_mark.py
+    ============================= test session starts ==============================
+    ...
+    collected 4 items
+
+    test_relative_class_marker.py::Test2::test_1 PASSED
+    test_relative_class_marker.py::Test2::test_2 PASSED
+    test_relative_class_marker.py::Test1::test_1 PASSED
+    test_relative_class_marker.py::Test1::test_2 PASSED
 
 Combination of absolute and relative ordering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -804,9 +885,6 @@ adds ordering to the existing functionality if needed.
 .. note::
   This feature is considered experimental. It may not handle all cases of
   defined dependencies. Please write an issue if you find any problems.
-
-
-.. note::
 
 Miscellaneous
 =============

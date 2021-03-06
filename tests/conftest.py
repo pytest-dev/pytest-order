@@ -14,11 +14,17 @@ pytest_plugins = ["pytester"]
 @pytest.fixture
 def item_names_for(testdir):
     def _item_names_for(tests_content):
+        def name(item):
+            if item.cls:
+                return item.cls.__name__ + "::" + item.name
+            return item.name
+
         items = testdir.getitems(tests_content)
         hook = items[0].config.hook
         hook.pytest_collection_modifyitems(session=items[0].session,
                                            config=items[0].config, items=items)
-        return [item.name for item in items]
+
+        return [name(item) for item in items]
 
     return _item_names_for
 
