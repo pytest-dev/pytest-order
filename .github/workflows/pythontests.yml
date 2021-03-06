@@ -1,7 +1,7 @@
 name: Testsuite
 
 on:
-  push
+  [push, pull_request]
 
 defaults:
   run:

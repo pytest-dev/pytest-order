@@ -1,7 +1,7 @@
 name: PerformanceTests
 
 on:
-  push
+  [push, pull_request]
 
 defaults:
   run:
