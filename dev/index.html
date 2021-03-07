@@ -98,7 +98,7 @@ the CI builds. The plugin shall work under Linux, MacOs and Windows.</p>
 </div>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
-<p>All examples shown in this documentation can be also found in the repository
+<p>Most examples shown in this documentation can be also found in the repository
 under <a class="reference external" href="https://github.com/pytest-dev/pytest-order/tree/master/example/">example</a>
 as working test files.</p>
 </div>
@@ -272,6 +272,42 @@ Here is the complete list with the corresponding numbers:</p>
 <li>“eighth_to_last”: -8</li>
 </ul>
 </div>
+<div class="section" id="markers-on-class-level">
+<h3>Markers on class level<a class="headerlink" href="#markers-on-class-level" title="Permalink to this headline">¶</a></h3>
+<p>If setting an <code class="docutils literal"><span class="pre">order</span></code> mark on class level, all tests in this class will be
+handled as having the same ordinal marker, e.g. the class as a whole will be
+reordered without changing the test order inside the test class:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Test1</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">test_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">test_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Test2</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">test_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">test_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest -vv test_ordinal_class_mark.py
+============================= test session starts ==============================
+...
+collected 4 items
+
+test_ordinal_class_mark.py::Test2::test_1 PASSED
+test_ordinal_class_mark.py::Test2::test_2 PASSED
+test_ordinal_class_mark.py::Test1::test_1 PASSED
+test_ordinal_class_mark.py::Test1::test_2 PASSED
+</pre></div>
+</div>
+</div>
 <div class="section" id="handling-of-unordered-tests">
 <h3>Handling of unordered tests<a class="headerlink" href="#handling-of-unordered-tests" title="Permalink to this headline">¶</a></h3>
 <p>By default, tests with no <code class="docutils literal"><span class="pre">order</span></code> mark are executed after all tests with
@@ -284,7 +320,8 @@ other is not changed. This behavior will slightly change if the option
 <div class="section" id="order-relative-to-other-tests">
 <h2>Order relative to other tests<a class="headerlink" href="#order-relative-to-other-tests" title="Permalink to this headline">¶</a></h2>
 <p>The test order can be defined relative to other tests, which are referenced
-by their name:</p>
+by their name. The marker attributes <code class="docutils literal"><span class="pre">before</span></code> and <code class="docutils literal"><span class="pre">after</span></code> can be used to
+define the order relative to these tests:</p>
 <div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s2">&quot;test_second&quot;</span><span class="p">)</span>
@@ -366,6 +403,44 @@ modules, this could be expressed like:</p>
 <p>If an unknown test is referenced, a warning is issued and the test in
 question is ordered behind all other tests.</p>
 </div>
+<div class="section" id="id1">
+<h3>Markers on class level<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>As for ordinal markers, markers on class level are handled as if they are set
+to each individual test in the class. Additionally to referencing single
+tests, you can also reference test classes if using the <code class="docutils literal"><span class="pre">before</span></code> or
+<code class="docutils literal"><span class="pre">after</span></code> marker attributes:</p>
+<div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s2">&quot;Test2&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Test1</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">test_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">test_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="k">class</span> <span class="nc">Test2</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">test_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">test_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>In this case, the tests in the marked class will be ordered behind all tests
+in the referenced class:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ pytest -vv test_relative_class_mark.py
+============================= test session starts ==============================
+...
+collected 4 items
+
+test_relative_class_marker.py::Test2::test_1 PASSED
+test_relative_class_marker.py::Test2::test_2 PASSED
+test_relative_class_marker.py::Test1::test_1 PASSED
+test_relative_class_marker.py::Test1::test_2 PASSED
+</pre></div>
+</div>
+</div>
 <div class="section" id="combination-of-absolute-and-relative-ordering">
 <h3>Combination of absolute and relative ordering<a class="headerlink" href="#combination-of-absolute-and-relative-ordering" title="Permalink to this headline">¶</a></h3>
 <p>If you combine absolute and relative order markers, the ordering is first done
@@ -409,7 +484,7 @@ plugin. As with any pytest option, you can add the options to your
 </pre></div>
 </div>
 <div class="section" id="order-scope">
-<span id="id1"></span><h2><code class="docutils literal"><span class="pre">--order-scope</span></code><a class="headerlink" href="#order-scope" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h2><code class="docutils literal"><span class="pre">--order-scope</span></code><a class="headerlink" href="#order-scope" title="Permalink to this headline">¶</a></h2>
 <p>By default, tests are ordered per session, e.g. across all modules in the
 test run. Sometimes, you want to order tests per module or per test class
 instead. Consider that you have a growing number of test modules that you
@@ -627,7 +702,7 @@ tests to be sorted to the front (note that in pytest versions from 6.0 on,
 this seems not to be needed anymore, at least in this specific case).</p>
 </div>
 <div class="section" id="sparse-ordering">
-<span id="id2"></span><h2><code class="docutils literal"><span class="pre">--sparse-ordering</span></code><a class="headerlink" href="#sparse-ordering" title="Permalink to this headline">¶</a></h2>
+<span id="id3"></span><h2><code class="docutils literal"><span class="pre">--sparse-ordering</span></code><a class="headerlink" href="#sparse-ordering" title="Permalink to this headline">¶</a></h2>
 <p>Ordering tests by ordinals where some numbers are missing by default behaves
 the same as if the the ordinals are consecutive. For example, these tests:</p>
 <div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
@@ -698,7 +773,7 @@ and the rest will be in between (e.g. between positive and negative numbers),
 as it is without this option.</p>
 </div>
 <div class="section" id="order-dependencies">
-<span id="id3"></span><h2><code class="docutils literal"><span class="pre">--order-dependencies</span></code><a class="headerlink" href="#order-dependencies" title="Permalink to this headline">¶</a></h2>
+<span id="id4"></span><h2><code class="docutils literal"><span class="pre">--order-dependencies</span></code><a class="headerlink" href="#order-dependencies" title="Permalink to this headline">¶</a></h2>
 <p>This defines the behavior if the <code class="docutils literal"><span class="pre">pytest-dependency</span></code> plugin is used.
 By default, <code class="docutils literal"><span class="pre">dependency</span></code> marks are only considered if they coexist with an
 <code class="docutils literal"><span class="pre">order</span></code> mark. In this case it is checked if the ordering would break the
@@ -794,11 +869,13 @@ pytest with <code class="docutils literal"><span class="pre">--dist=loadfile</sp
 <li><a class="reference internal" href="#ordering-by-numbers">Ordering by numbers</a><ul>
 <li><a class="reference internal" href="#order-by-index">Order by index</a></li>
 <li><a class="reference internal" href="#order-using-ordinals">Order using ordinals</a></li>
+<li><a class="reference internal" href="#markers-on-class-level">Markers on class level</a></li>
 <li><a class="reference internal" href="#handling-of-unordered-tests">Handling of unordered tests</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#order-relative-to-other-tests">Order relative to other tests</a><ul>
 <li><a class="reference internal" href="#referencing-of-tests-in-other-classes-or-modules">Referencing of tests in other classes or modules</a></li>
+<li><a class="reference internal" href="#id1">Markers on class level</a></li>
 <li><a class="reference internal" href="#combination-of-absolute-and-relative-ordering">Combination of absolute and relative ordering</a></li>
 <li><a class="reference internal" href="#relationship-with-pytest-dependency">Relationship with pytest-dependency</a></li>
 </ul>
