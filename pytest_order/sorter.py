@@ -46,6 +46,12 @@ class Settings:
                      "Valid scopes are 'session', 'module' and 'class'."
                      .format(scope))
             self.scope = SESSION
+        scope_level = config.getoption("order_scope_level") or 0
+        if scope_level != 0 and self.scope != SESSION:
+            warn("order-scope-level cannot be used together with "
+                 "--order-scope={}".format(scope))
+            scope_level = 0
+        self.scope_level = scope_level
         group_scope = config.getoption("order_group_scope")
         if group_scope in self.valid_scopes:
             self.group_scope = self.valid_scopes[group_scope]
@@ -69,7 +75,16 @@ class Sorter:
 
     def sort_items(self):
         if self.settings.scope == SESSION:
-            sorted_list = ScopeSorter(self.settings, self.items).sort_items()
+            if self.settings.scope_level > 0:
+                dir_groups = directory_item_groups(
+                    self.items, self.settings.scope_level)
+                sorted_list = []
+                for items in dir_groups.values():
+                    sorted_list.extend(
+                        ScopeSorter(self.settings, items).sort_items())
+            else:
+                sorted_list = ScopeSorter(
+                    self.settings, self.items).sort_items()
         elif self.settings.scope == MODULE:
             module_groups = module_item_groups(self.items)
             sorted_list = []
@@ -89,6 +104,13 @@ def module_item_groups(items):
     module_items = OrderedDict()
     for item in items:
         module_items.setdefault(item.module_path, []).append(item)
+    return module_items
+
+
+def directory_item_groups(items, level):
+    module_items = OrderedDict()
+    for item in items:
+        module_items.setdefault(item.parent_path(level), []).append(item)
     return module_items
 
 
@@ -386,6 +408,9 @@ class Item:
     @property
     def module_path(self):
         return self.item.nodeid[:self.node_id.index("::")]
+
+    def parent_path(self, level):
+        return "/".join(self.module_path.split("/")[:level])
 
     @property
     def node_id(self):
