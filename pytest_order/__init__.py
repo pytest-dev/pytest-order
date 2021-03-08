@@ -51,6 +51,13 @@ def pytest_addoption(parser):
                     help="Defines the scope used for ordering. Possible values"
                          "are 'session' (default), 'module', and 'class'."
                          "Ordering is only done inside a scope.")
+    group.addoption("--order-scope-level", action="store", type=int,
+                    dest="order_scope_level",
+                    help="Defines that the given directory level is used as "
+                         "order scope. Cannot be used with --order-scope. "
+                         "The value is a number that defines the "
+                         "hierarchical index of the directories used as "
+                         "order scope, starting with 0 at session scope.")
     group.addoption("--order-group-scope", action="store",
                     dest="order_group_scope",
                     help="Defines the scope used for order groups. Possible "

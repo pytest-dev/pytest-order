@@ -5,6 +5,9 @@
 ### New features
 - added support for class level relative markers,
   see [#7](https://github.com/pytest-dev/pytest-order/issues/7)
+- added option `--order-scope-level` which allows to groups tests on the
+  same directory level, 
+  see [#8](https://github.com/pytest-dev/pytest-order/issues/8)
 
 ### Fixes
 - fixed sorting of dependency markers that depend on an item with the same

@@ -1,10 +1,8 @@
 import os
 import shutil
 import uuid
-from random import randint
 
 import pytest
-
 from pytest_order.sorter import SESSION
 from tests.utils import write_test
 
@@ -43,6 +41,7 @@ def ignore_settings(mocker):
     settings.return_value.order_dependencies = False
     settings.return_value.scope = SESSION
     settings.return_value.group_scope = SESSION
+    settings.return_value.scope_level = 0
     yield settings
 
 
@@ -76,9 +75,3 @@ def test_node(nodeid):
 
     yield fixture_path
     shutil.rmtree(fixture_path, ignore_errors=True)
-
-
-def pytest_collection_modifyitems(config, items):
-    for item in items:
-        if item.name.startswith("test_performance"):
-            item.add_marker(pytest.mark.order(randint(-100, 100)))

@@ -78,12 +78,12 @@ Features
 - ordering of tests relative to each other (via the `before` and `after`
   marker attributes) 
 - session-, module- and class-scope ordering via the ``order-scope`` option
-- hierarchical ordering via the ``group-order-scope`` option
+- directory scope ordering via the ``order-scope-level`` option
+- hierarchical module and class-level ordering via the ``group-order-scope``
+  option
 - ordering tests with `pytest-dependency` markers if using the
   ``order-dependencies`` option
 - sparse ordering of tests via the ``sparse-ordering`` option
-- invocation of the plugin before other plugins if the
-  ``indulgent-ordering`` option is used
   
 A usage guide for each feature can be
 found in the [documentation](https://pytest-dev.github.io/pytest-order/dev/).
