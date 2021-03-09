@@ -556,6 +556,120 @@ Here is what you get using session and module-scoped sorting:
     tests/test_module2.py:5: test2 PASSED
 
 
+``--order-scope-level``
+-----------------------
+This is an alternative option to define the order scope. It defines the
+directory level which is used as the order scope, counting from the root
+directory. The resulting scope is between the session and module
+scopes defined via ``--order-scope``, where ``--order-scope-level=0`` is the
+same as session scope, while setting the level to the number of test
+directory levels would result in module scope.
+
+Consider the following directory structure:
+
+::
+
+  order_scope_level
+    feature1
+      __init__.py
+      test_a.py
+      test_b.py
+    feature2
+       __init__.py
+       test_a.py
+       test_b.py
+
+with the test contents:
+
+**test_a.py**:
+
+.. code::
+
+  import pytest
+
+  @pytest.mark.order(4)
+  def test_four():
+      pass
+
+  @pytest.mark.order(3)
+  def test_three():
+      pass
+
+**test_b.py**:
+
+.. code::
+
+  import pytest
+
+  @pytest.mark.order(2)
+  def test_two():
+      pass
+
+  @pytest.mark.order(1)
+  def test_one():
+      pass
+
+The idea here is to test each feature separately, while ordering the tests
+across the test modules for each feature.
+
+If we use session scope, we get:
+
+::
+
+    $ pytest -v order_scope_level
+    ============================= test session starts ==============================
+    ...
+
+    order_scope_level/feature1/test_a.py::test_one PASSED
+    order_scope_level/feature2/test_a.py::test_one PASSED
+    order_scope_level/feature1/test_a.py::test_two PASSED
+    order_scope_level/feature2/test_a.py::test_two PASSED
+    order_scope_level/feature1/test_b.py::test_three PASSED
+    order_scope_level/feature2/test_b.py::test_three PASSED
+    order_scope_level/feature1/test_b.py::test_four PASSED
+    order_scope_level/feature2/test_b.py::test_four PASSED
+
+which mixes the features.
+
+Using module scope instead separates the features, but does not order the
+modules as wanted:
+
+::
+
+    $ pytest -v --order-scope=module order_scope_level
+    ============================= test session starts ==============================
+    ...
+
+    order_scope_level/feature1/test_a.py::test_three PASSED
+    order_scope_level/feature1/test_a.py::test_four PASSED
+    order_scope_level/feature1/test_b.py::test_one PASSED
+    order_scope_level/feature1/test_b.py::test_two PASSED
+    order_scope_level/feature2/test_a.py::test_three PASSED
+    order_scope_level/feature2/test_a.py::test_four PASSED
+    order_scope_level/feature2/test_b.py::test_one PASSED
+    order_scope_level/feature2/test_b.py::test_two PASSED
+
+To get the wanted behavior, we can use ``--order-scope-level=2``, which keeps
+the first two directory levels:
+
+::
+
+    $ pytest tests -v --order-scope-level=2 order_scope_level
+    ============================= test session starts ==============================
+    ...
+
+    order_scope_level/feature1/test_b.py::test_one PASSED
+    order_scope_level/feature1/test_b.py::test_two PASSED
+    order_scope_level/feature1/test_a.py::test_three PASSED
+    order_scope_level/feature1/test_a.py::test_four PASSED
+    order_scope_level/feature2/test_b.py::test_one PASSED
+    order_scope_level/feature2/test_b.py::test_two PASSED
+    order_scope_level/feature2/test_a.py::test_three PASSED
+    order_scope_level/feature2/test_a.py::test_four PASSED
+
+Note that using a level of 0 or 1 would cause the same result as session
+scope, and any level greater than 2 would emulate module scope.
+
 ``--order-group-scope``
 -----------------------
 This option is also related to the order scope. It defines the scope inside
