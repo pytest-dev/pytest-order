@@ -54,7 +54,7 @@ The latest released version can be installed from
 
    pip install pytest-order
 
-The latest master can be installed from the GitHub sources:
+The latest main branch can be installed from the GitHub sources:
 
 .. code:: bash
 
@@ -63,7 +63,7 @@ The latest master can be installed from the GitHub sources:
 Examples
 --------
 Most examples shown in this documentation can be also found in the repository
-under `example <https://github.com/pytest-dev/pytest-order/tree/master/example/>`__
+under `example <https://github.com/pytest-dev/pytest-order/tree/main/example/>`__
 as working test files.
 
 Quickstart
