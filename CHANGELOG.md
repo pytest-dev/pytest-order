@@ -15,6 +15,7 @@
 
 ### Infrastructure
 - added performance tests to prevent performance degradation
+- added automated deploy workflow step triggered on creating a tag
 
 ## [Version 0.9.5](https://pypi.org/project/pytest-order/0.9.5/) (2021-02-16)
 Introduces hierarchical ordering option and fixes ordering of session-scoped
