@@ -2,7 +2,7 @@ name: DocBuild
 
 on:
   push:
-    branches: master
+    branches: main
 
 defaults:
   run:
@@ -16,7 +16,7 @@ jobs:
         os: [ubuntu-latest]
         python-version:  [3.8]
     steps:
-      - name: Checkout master
+      - name: Checkout main
         uses: actions/checkout@v2
         with:
           path: main
