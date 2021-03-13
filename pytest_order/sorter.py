@@ -404,6 +404,8 @@ class Item:
         self._node_id = None
         self._label = None
         self._full_names = {}
+        self.rel_items = set()
+        self.in_loop_check = False
 
     @property
     def module_path(self):
@@ -447,6 +449,17 @@ class Item:
 
     def scoped_label(self, scope):
         return scoped_label(self.label, scope)
+
+    def depends_on(self, item):
+        # check for cyclic dependencies
+        self.in_loop_check = True
+        for rel_item in self.rel_items:
+            if (rel_item == item or
+                    not rel_item.in_loop_check and rel_item.depends_on(item)):
+                self.in_loop_check = False
+                return True
+        self.in_loop_check = False
+        return False
 
 
 class ItemList:
@@ -671,31 +684,44 @@ class ItemList:
     @staticmethod
     def insert_before(name, is_cls_mark, items, sort):
         for pos, item in enumerate(sort):
-            if (not item.is_rel_mark and
-                    item.full_name(is_cls_mark=is_cls_mark).endswith(name)):
+            if item.full_name(is_cls_mark=is_cls_mark).endswith(name):
+                handled = True
                 for item_to_insert in reversed(items):
+                    if item.is_rel_mark:
+                        if item.depends_on(item_to_insert):
+                            item.rel_items.remove(item_to_insert)
+                        else:
+                            item_to_insert.rel_items.add(item)
+                            handled = False
+                            continue
                     index = sort.index(item_to_insert)
                     if index > pos:
                         del sort[index]
                         item_to_insert.is_rel_mark = False
                         sort.insert(pos, item_to_insert)
-                return True
+                return handled
         return False
 
     @staticmethod
     def insert_after(name, is_cls_mark, items, sort):
         for pos, item in zip(range(len(sort) - 1, -1, -1), reversed(sort)):
             if item.full_name(is_cls_mark=is_cls_mark).endswith(name):
-                if item.is_rel_mark:
-                    return False
+                handled = True
                 for item_to_insert in reversed(items):
+                    if item.is_rel_mark:
+                        if item.depends_on(item_to_insert):
+                            item.rel_items.remove(item_to_insert)
+                        else:
+                            item_to_insert.rel_items.add(item)
+                            handled = False
+                            continue
                     index = sort.index(item_to_insert)
                     if index < pos + 1:
                         del sort[index]
                         pos -= 1
                         item_to_insert.is_rel_mark = False
                         sort.insert(pos + 1, item_to_insert)
-                return True
+                return handled
         return False
 
 

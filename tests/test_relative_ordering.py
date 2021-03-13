@@ -154,7 +154,7 @@ class TestA:
     def test_c(self):
         pass
     """
-    write_test(os.path.join(fixture_path, "mod1_test.py",), tests_content1)
+    write_test(os.path.join(fixture_path, "mod1_test.py", ), tests_content1)
 
     tests_content2 = """
 import pytest
@@ -385,7 +385,7 @@ def test_dependency_in_class_before_unknown_test(item_names_for, capsys):
     assert warning in out
 
 
-def test_dependency_loop(item_names_for, capsys):
+def test_valid_dependency_loop(item_names_for, capsys):
     test_content = """
     import pytest
 
@@ -401,9 +401,23 @@ def test_dependency_loop(item_names_for, capsys):
     def test_3():
         pass
     """
+    assert item_names_for(test_content) == ["test_2", "test_3", "test_1"]
+
+
+def test_invalid_dependency_loop(item_names_for, capsys):
+    test_content = """
+    import pytest
+
+    @pytest.mark.order(after="test_3")
+    def test_1():
+        pass
+
+    @pytest.mark.order(1)
+    def test_2():
+        pass
+
+    @pytest.mark.order(after="test_1")
+    def test_3():
+        pass
+    """
     assert item_names_for(test_content) == ["test_2", "test_1", "test_3"]
-    out, err = capsys.readouterr()
-    warning = ("cannot execute test relative to others: "
-               "test_dependency_loop.test_1 test_dependency_loop.test_3 "
-               "- ignoring the marker")
-    assert warning in out

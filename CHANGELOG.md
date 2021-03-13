@@ -12,6 +12,8 @@
 ### Fixes
 - fixed sorting of dependency markers that depend on an item with the same
   name in different modules
+- fixed handling of valid dependency loops (e.g. test1 is ordered after
+  test2, and test2 is ordered before test1)
 
 ### Infrastructure
 - added performance tests to prevent performance degradation

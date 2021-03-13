@@ -84,5 +84,5 @@ class OrderingPlugin(object):
 
 
 def modify_items(session, config, items):
-    sorter = Sorter(config, items)
-    items[:] = sorter.sort_items()
+    item_sorter = Sorter(config, items)
+    items[:] = item_sorter.sort_items()
