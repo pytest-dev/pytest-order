@@ -42,4 +42,4 @@ def test_performance_dependency(fixture_path_relative):
     args = ["--order-dependencies", fixture_path_relative]
     TimedSorter.nr_marks = 400
     pytest.main(args, [pytest_order])
-    assert TimedSorter.elapsed < 0.4
+    assert TimedSorter.elapsed < 0.2

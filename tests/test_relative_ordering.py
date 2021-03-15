@@ -320,6 +320,24 @@ def test_combined_markers3(item_names_for):
     assert item_names_for(test_content) == ["test_2", "test_3", "test_1"]
 
 
+def test_mixed_markers4(item_names_for):
+    test_content = """
+    import pytest
+
+    @pytest.mark.order(2)
+    def test_1():
+        pass
+
+    @pytest.mark.order(index=1, after="test_3")
+    def test_2():
+        pass
+
+    def test_3():
+        pass
+    """
+    assert item_names_for(test_content) == ["test_3", "test_2", "test_1"]
+
+
 def test_dependency_after_unknown_test(item_names_for, capsys):
     test_content = """
     import pytest
@@ -355,8 +373,7 @@ def test_dependency_before_unknown_test(item_names_for, capsys):
     assert item_names_for(test_content) == ["test_1", "test_2", "test_3"]
     out, err = capsys.readouterr()
     warning = ("cannot execute test relative to others: "
-               "test_dependency_before_unknown_test.test_4 - "
-               "ignoring the marker")
+               "test_4 - ignoring the marker")
     assert warning in out
 
 
@@ -380,8 +397,7 @@ def test_dependency_in_class_before_unknown_test(item_names_for, capsys):
     ]
     out, err = capsys.readouterr()
     warning = ("cannot execute test relative to others: "
-               "test_dependency_in_class_before_unknown_test.Test::test_4 "
-               "- ignoring the marker")
+               "test_4 - ignoring the marker")
     assert warning in out
 
 
@@ -404,6 +420,5 @@ def test_dependency_loop(item_names_for, capsys):
     assert item_names_for(test_content) == ["test_2", "test_1", "test_3"]
     out, err = capsys.readouterr()
     warning = ("cannot execute test relative to others: "
-               "test_dependency_loop.test_1 test_dependency_loop.test_3 "
-               "- ignoring the marker")
+               "test_dependency_loop.test_3")
     assert warning in out
