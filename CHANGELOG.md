@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## [Version 0.10.0](https://pypi.org/project/pytest-order/0.10.0/) (2021-03-18)
+Adds support for class-level relative markers and directory level scope.
+
 ### New features
 - added support for class level relative markers,
   see [#7](https://github.com/pytest-dev/pytest-order/issues/7)

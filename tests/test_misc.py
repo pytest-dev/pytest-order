@@ -11,7 +11,8 @@ def test_version_exists():
 
 
 def test_version_valid():
-    assert re.match(r"[0-9]+\.[0-9]+(\.[0-9]+)?(dev)?$",
+    # check for PEP 440 conform version
+    assert re.match(r"\d+(\.\d)*((a|b|rc)\d+)?(\.post\d)?(\.dev\d)$",
                     pytest_order.__version__)
 
 
