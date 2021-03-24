@@ -41,4 +41,4 @@ def test_performance_relative(fixture_path_relative):
     args = [fixture_path_relative]
     TimedSorter.nr_marks = 400
     pytest.main(args, [pytest_order])
-    assert TimedSorter.elapsed < 0.25
+    assert TimedSorter.elapsed < 0.15
