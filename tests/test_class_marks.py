@@ -41,6 +41,28 @@ def test_after_class_mark(item_names_for):
     ]
 
 
+def test_invalid_class_mark(item_names_for, capsys):
+    tests_content = """
+    import pytest
+
+    @pytest.mark.order(after="Test3")
+    class Test1:
+        def test_1(self): pass
+        def test_2(self): pass
+
+    class Test2:
+        def test_1(self): pass
+        def test_2(self): pass
+    """
+
+    assert item_names_for(tests_content) == [
+        "Test1::test_1", "Test1::test_2", "Test2::test_1", "Test2::test_2"
+    ]
+    out, err = capsys.readouterr()
+    assert ("WARNING: cannot execute test relative to others: Test3 "
+            "- ignoring the marker" in out)
+
+
 def test_before_class_mark(item_names_for):
     tests_content = """
     import pytest

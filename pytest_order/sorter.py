@@ -73,8 +73,14 @@ class Sorter:
         self.settings = Settings(config)
         self.items = [Item(item) for item in items]
         self.node_ids = OrderedDict()
+        self.node_id_last = {}
         for item in self.items:
             self.node_ids[item.node_id] = item
+            last_parts = item.node_id.split("/")[-1].split("::")
+            # save last nodeid component to avoid to iterate over all
+            # items for each label
+            self.node_id_last.setdefault(
+                last_parts[-1], []).append(item.node_id)
         self.rel_marks = []
         self.dep_marks = []
 
@@ -154,8 +160,8 @@ class Sorter:
             else:
                 warn("Unknown order attribute:'{}'".format(order))
                 order = None
-        self.handle_relative_mark(item, mark)
         item.order = order
+        self.handle_relative_mark(item, mark)
         if order is not None:
             item.nr_rel_items = 0
         return order
@@ -164,13 +170,18 @@ class Sorter:
         label = self.node_id_from_label(label)
         item_id = item.node_id
         label_len = len(label)
-        for node_id in self.node_ids:
-            if node_id.endswith(label):
-                id_start = node_id[:-label_len]
-                if is_cls_mark and id_start.count("::") == 2:
-                    continue
-                if item_id.startswith(id_start):
-                    return self.node_ids[node_id]
+        last_comp = label.split("/")[-1].split("::")[-1]
+        try:
+            node_ids = self.node_id_last[last_comp]
+            for node_id in node_ids:
+                if node_id.endswith(label):
+                    id_start = node_id[:-label_len]
+                    if is_cls_mark and id_start.count("::") == 2:
+                        continue
+                    if item_id.startswith(id_start):
+                        return self.node_ids[node_id]
+        except KeyError:
+            return
 
     def items_from_class_label(self, label, item):
         items = []
@@ -190,7 +201,7 @@ class Sorter:
     def node_id_from_label(label):
         if "." in label:
             label_comp = label.split(".")
-            label = "/".join(label_comp[:-1]) + ".py::" + label_comp[-1]
+            label = ".py::".join(["/".join(label_comp[:-1]), label_comp[-1]])
         return label
 
     def handle_before_or_after_mark(self, item, mark, marker_name, is_after):
@@ -217,16 +228,15 @@ class Sorter:
         else:
             if is_mark_for_class():
                 items = self.items_from_class_label(marker_name, item)
-                if items:
-                    for item_for_label in items:
-                        rel_mark = RelativeMark(item_for_label,
-                                                item, move_after=is_after)
-                        if is_after:
-                            self.rel_marks.append(rel_mark)
-                        else:
-                            self.rel_marks.insert(0, rel_mark)
-                        item.inc_rel_marks()
-                    return True
+                for item_for_label in items:
+                    rel_mark = RelativeMark(item_for_label,
+                                            item, move_after=is_after)
+                    if is_after:
+                        self.rel_marks.append(rel_mark)
+                    else:
+                        self.rel_marks.insert(0, rel_mark)
+                    item.inc_rel_marks()
+                return items
         return False
 
     def handle_relative_mark(self, item, mark):
@@ -261,7 +271,7 @@ class Sorter:
                     self.dep_marks.append(RelativeMark(aliases[name], item,
                                                        move_after=True))
             else:
-                label = prefix + "::" + name
+                label = "::".join([prefix, name])
                 if label in aliases:
                     for item in items:
                         self.dep_marks.append(
@@ -514,9 +524,7 @@ class Item:
         self.item = item
         self.nr_rel_items = 0
         self.order = None
-        # cache properties that are called often for the same item
         self._node_id = None
-        self._label = None
 
     def inc_rel_marks(self):
         if self.order is None:
@@ -542,9 +550,7 @@ class Item:
 
     @property
     def label(self):
-        if self._label is None:
-            self._label = self.node_id.replace(".py::", ".").replace("/", ".")
-        return self._label
+        return self.node_id.replace(".py::", ".").replace("/", ".")
 
 
 class ItemList:
@@ -601,9 +607,8 @@ class ItemList:
         return sorted_list
 
     def print_unhandled_items(self):
-        msg = ""
-        msg += " ".join([mark.item.label for mark in self.rel_marks])
-        msg += " ".join([mark.item.label for mark in self.dep_marks])
+        msg = " ".join([mark.item.label for mark in self.rel_marks] +
+                       [mark.item.label for mark in self.dep_marks])
         if msg:
             sys.stdout.write(
                 "\nWARNING: cannot execute test relative to others: ")
