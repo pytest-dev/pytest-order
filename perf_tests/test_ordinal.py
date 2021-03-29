@@ -1,19 +1,15 @@
-import os
-import shutil
 from unittest import mock
 
 import pytest
-import pytest_order
 from perf_tests.util import TimedSorter
-from tests.utils import write_test
+
+pytest_plugins = ["pytester"]
 
 
 @pytest.fixture
-def fixture_path_ordinal(tmpdir_factory):
-    fixture_path = str(tmpdir_factory.mktemp("ordinal_perf"))
-    for module_index in range(10):
-        testname = os.path.join(
-            fixture_path, "test_performance{}.py".format(module_index))
+def fixture_path_ordinal(testdir):
+    for i_mod in range(10):
+        test_name = testdir.tmpdir.join("test_performance{}.py".format(i_mod))
         test_contents = """
 import pytest
 """
@@ -23,14 +19,12 @@ import pytest
 def test_{}():
     assert True
 """.format(50 - i, i)
-        write_test(testname, test_contents)
-    yield fixture_path
-    shutil.rmtree(fixture_path, ignore_errors=True)
+        test_name.write(test_contents)
+    yield testdir
 
 
-@mock.patch("pytest_order.Sorter", TimedSorter)
+@mock.patch("pytest_order.plugin.Sorter", TimedSorter)
 def test_performance_ordinal(fixture_path_ordinal):
-    args = [fixture_path_ordinal]
     TimedSorter.nr_marks = 1000
-    pytest.main(args, [pytest_order])
+    fixture_path_ordinal.runpytest("--quiet")
     assert TimedSorter.elapsed < 0.02
