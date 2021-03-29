@@ -1,20 +1,15 @@
-import os
-import shutil
 from unittest import mock
 
 import pytest
-
-import pytest_order
 from perf_tests.util import TimedSorter
-from tests.utils import write_test
+
+pytest_plugins = ["pytester"]
 
 
 @pytest.fixture
-def fixture_path_relative(tmpdir_factory):
-    fixture_path = str(tmpdir_factory.mktemp("dep_perf_sparse"))
-    for module_index in range(10):
-        testname = os.path.join(
-            fixture_path, "test_dep_perf{}.py".format(module_index))
+def fixture_path_relative(testdir):
+    for i_mod in range(10):
+        test_name = testdir.tmpdir.join("test_dep_perf{}.py".format(i_mod))
         test_contents = """
 import pytest
 """
@@ -30,16 +25,14 @@ def test_{}():
 def test_{}():
     assert True
 """.format(i + 40)
-        write_test(testname, test_contents)
-    yield fixture_path
-    shutil.rmtree(fixture_path, ignore_errors=True)
+        test_name.write(test_contents)
+    yield testdir
 
 
-@mock.patch("pytest_order.Sorter", TimedSorter)
+@mock.patch("pytest_order.plugin.Sorter", TimedSorter)
 def test_performance_dependency(fixture_path_relative):
     """Test performance of dependency markers that point to tests without
     an order mark (same as for test_relative does for after markers)."""
-    args = ["--order-dependencies", fixture_path_relative]
     TimedSorter.nr_marks = 400
-    pytest.main(args, [pytest_order])
-    assert TimedSorter.elapsed < 0.2
+    fixture_path_relative.runpytest("--quiet", "--order-dependencies")
+    assert TimedSorter.elapsed < 0.15

@@ -1,6 +1,6 @@
 import time
 
-from pytest_order import Sorter
+from pytest_order.sorter import Sorter
 
 
 class TimedSorter(Sorter):
@@ -13,5 +13,5 @@ class TimedSorter(Sorter):
         items = super().sort_items()
         self.__class__.elapsed = ((time.time() - start_time)
                                   / self.nr_marks * 1000)
-        print("Time per test: {:.3f} ms".format(self.__class__.elapsed))
+        print("\nTime per test: {:.3f} ms".format(self.__class__.elapsed))
         return items

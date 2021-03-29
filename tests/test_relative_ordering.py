@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
-import os
-import shutil
 
 import pytest
-
-import pytest_order
-from tests.utils import write_test, assert_test_order
 
 
 def test_relative(item_names_for):
@@ -137,42 +132,40 @@ def test_relative_in_classes(item_names_for):
 
 
 @pytest.fixture
-def fixture_path(tmpdir_factory):
-    fixture_path = str(tmpdir_factory.mktemp("relative"))
-    tests_content1 = """
-import pytest
+def fixture_path(test_path):
+    test_path.makepyfile(
+        mod1_test="""
+    import pytest
 
-class TestA:
-    @pytest.mark.order(after="mod2_test.TestB::test_b")
-    def test_a(self):
-        pass
+    class TestA:
+        @pytest.mark.order(after="mod2_test.TestB::test_b")
+        def test_a(self):
+            pass
 
-    @pytest.mark.order(after="sub.mod3_test.test_b")
-    def test_b(self):
-        pass
+        @pytest.mark.order(after="sub.mod3_test.test_b")
+        def test_b(self):
+            pass
 
-    def test_c(self):
-        pass
-    """
-    write_test(os.path.join(fixture_path, "mod1_test.py",), tests_content1)
+        def test_c(self):
+            pass
+    """,
+        mod2_test="""
+    import pytest
 
-    tests_content2 = """
-import pytest
+    class TestB:
+        @pytest.mark.order(before="mod1_test.TestA::test_c")
+        def test_a(self):
+            pass
 
-class TestB:
-    @pytest.mark.order(before="mod1_test.TestA::test_c")
-    def test_a(self):
-        pass
+        def test_b(self):
+            pass
 
-    def test_b(self):
-        pass
-
-    def test_c(self):
-        pass
-    """
-    write_test(os.path.join(fixture_path, "mod2_test.py"), tests_content2)
-
-    tests_content3 = """
+        def test_c(self):
+            pass
+    """)
+    test_path.mkpydir("sub")
+    path = test_path.tmpdir.join("sub", "mod3_test.py")
+    path.write("""
 import pytest
 
 @pytest.mark.order(before="mod2_test.TestB::test_c")
@@ -184,29 +177,24 @@ def test_b():
 
 def test_c():
     pass
-    """
-    sub_path = os.path.join(fixture_path, "sub")
-    os.mkdir(sub_path)
-    write_test(os.path.join(sub_path, "mod3_test.py"), tests_content3)
-    yield fixture_path
-    shutil.rmtree(fixture_path, ignore_errors=True)
+    """)
+    yield test_path
 
 
-def test_relative_in_modules(fixture_path, capsys):
-    pytest.main(["-v", fixture_path], [pytest_order])
-    out, err = capsys.readouterr()
-    expected = (
-        "mod2_test.py::TestB::test_a",
-        "mod1_test.py::TestA::test_c",
-        "mod2_test.py::TestB::test_b",
-        "mod1_test.py::TestA::test_a",
-        "mod3_test.py::test_a",
-        "mod2_test.py::TestB::test_c",
-        "mod3_test.py::test_b",
-        "mod1_test.py::TestA::test_b",
-        "mod3_test.py::test_c",
-    )
-    assert_test_order(expected, out)
+def test_relative_in_modules(fixture_path):
+    result = fixture_path.runpytest("-v")
+    result.assert_outcomes(passed=9, failed=0)
+    result.stdout.fnmatch_lines([
+        "mod2_test.py::TestB::test_a PASSED",
+        "mod1_test.py::TestA::test_c PASSED",
+        "mod2_test.py::TestB::test_b PASSED",
+        "mod1_test.py::TestA::test_a PASSED",
+        "sub/mod3_test.py::test_a PASSED",
+        "mod2_test.py::TestB::test_c PASSED",
+        "sub/mod3_test.py::test_b PASSED",
+        "mod1_test.py::TestA::test_b PASSED",
+        "sub/mod3_test.py::test_c PASSED"
+    ])
 
 
 def test_false_insert(item_names_for):

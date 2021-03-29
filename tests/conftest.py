@@ -1,10 +1,5 @@
-import os
-import shutil
-import uuid
-
 import pytest
 from pytest_order.sorter import SESSION
-from tests.utils import write_test
 
 pytest_plugins = ["pytester"]
 
@@ -28,10 +23,11 @@ def item_names_for(testdir):
 
 
 @pytest.fixture
-def test_path(tmpdir):
-    path = tmpdir.join("{}.py".format(str(uuid.uuid4())))
-    yield str(path)
-    path.remove()
+def test_path(testdir):
+    testdir.tmpdir.join("pytest.ini").write(
+        "[pytest]\n" "console_output_style = classic"
+    )
+    yield testdir
 
 
 @pytest.fixture
@@ -49,29 +45,3 @@ def ignore_settings(mocker):
 def order_dependencies(ignore_settings):
     ignore_settings.return_value.order_dependencies = True
     yield
-
-
-@pytest.fixture
-def get_nodeid(tmpdir_factory):
-    """Fixture to get the nodeid from tests created using tmpdir_factory.
-    At least under Windows, the nodeid for the same tests differs depending on
-    the pytest version and the environment. We need the real nodeid as it is
-    used in pytest-dependency session-scoped markers in order to create tests
-    passing under different systems.
-    """
-    fixture_path = str(tmpdir_factory.mktemp("nodeid_path"))
-    testname = os.path.join(fixture_path, "test_nodeid.py")
-    test_contents = """
-import pytest
-
-@pytest.fixture
-def nodeid(request):
-    yield request.node.nodeid
-
-def test_node(nodeid):
-    print("NODEID=!!!{}!!!".format(nodeid))
-"""
-    write_test(testname, test_contents)
-
-    yield fixture_path
-    shutil.rmtree(fixture_path, ignore_errors=True)

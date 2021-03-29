@@ -1,40 +1,34 @@
 # -*- coding: utf-8 -*-
 
-import pytest
 
-import pytest_order
+def test_run_marker_registered(test_path):
+    test_path.makepyfile(
+        test_failing="""
+    import pytest
 
+    @pytest.mark.order("second")
+    def test_me_second():
+        assert True
 
-def test_run_marker_registered(capsys, tmpdir):
-    testname = str(tmpdir.join("failing.py"))
-    with open(testname, "w") as fi:
-        fi.write(
-            """
-import pytest
+    def test_that_fails():
+        assert False
 
-@pytest.mark.order("second")
-def test_me_second():
-    assert True
+    @pytest.mark.order("first")
+    def test_me_first():
+        assert True
+    """)
+    result = test_path.runpytest("-v")
+    result.assert_outcomes(passed=2, failed=1)
+    result.stdout.fnmatch_lines([
+        "test_failing.py::test_me_first PASSED",
+        "test_failing.py::test_me_second PASSED",
+        "test_failing.py::test_that_fails FAILED"
+    ])
 
-def test_that_fails():
-    assert False
-
-@pytest.mark.order("first")
-def test_me_first():
-    assert True
-"""
-        )
-    args = ["--quiet", "--color=no", testname]
-    pytest.main(args, [pytest_order])
-    out, err = capsys.readouterr()
-    assert "..F" in out
-    args.insert(0, "--ff")
-    # pytest 6 seems to have changed the order plugins are executed
-    if int(pytest.__version__[:pytest.__version__.index(".")]) < 6:
-        pytest.main(args, [pytest_order])
-        out, err = capsys.readouterr()
-        assert "..F" in out
-    args.insert(0, "--indulgent-ordering")
-    pytest.main(args, [pytest_order])
-    out, err = capsys.readouterr()
-    assert "F.." in out
+    result = test_path.runpytest("-v", "--ff", "--indulgent-ordering")
+    result.assert_outcomes(passed=2, failed=1)
+    result.stdout.fnmatch_lines([
+        "test_failing.py::test_that_fails FAILED",
+        "test_failing.py::test_me_first PASSED",
+        "test_failing.py::test_me_second PASSED"
+    ])

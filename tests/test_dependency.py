@@ -1,28 +1,6 @@
 # -*- coding: utf-8 -*-
-import os
-import re
-import shutil
 
 import pytest
-
-import pytest_order
-from tests.utils import write_test, assert_test_order
-
-NODEID_ROOT = ""
-
-
-def test_nodeid(get_nodeid, capsys):
-    """Helper test to define the real nodeid."""
-    global NODEID_ROOT
-    args = ["-sq", get_nodeid]
-    pytest.main(args)
-    out, err = capsys.readouterr()
-    match = re.match(".*NODEID=!!!(.*)!!!.*", out)
-    NODEID_ROOT = match.group(1)
-    if "/" in NODEID_ROOT:
-        NODEID_ROOT = NODEID_ROOT[:NODEID_ROOT.rindex("/") + 1]
-    else:
-        NODEID_ROOT = ""
 
 
 def test_ignore_order_with_dependency(item_names_for):
@@ -297,154 +275,115 @@ def test_class_scope_dependencies(item_names_for, order_dependencies):
     ]
 
 
-@pytest.fixture
-def fixture_path_named(tmpdir_factory):
-    fixture_path = str(tmpdir_factory.mktemp("named_dep"))
-    testname = os.path.join(fixture_path, "test_ndep1.py")
-    test_contents = """
-import pytest
+@pytest.mark.skipif(pytest.__version__.startswith("3.7."),
+                    reason="pytest-dependency < 0.5 does not support "
+                           "session scope")
+def test_named_dependency_in_modules(test_path):
+    test_path.makepyfile(
+        test_ndep1="""
+    import pytest
 
-class Test1:
-    def test_one(self):
+    class Test1:
+        def test_one(self):
+            assert True
+
+        @pytest.mark.dependency(depends=['dep2_test_one'], scope='session')
+        def test_two(self):
+            assert True
+    """,
+        test_ndep2="""
+    import pytest
+
+    @pytest.mark.dependency(name='dep2_test_one')
+    def test_one():
         assert True
 
-    @pytest.mark.dependency(depends=['dep2_test_one'], scope='session')
-    def test_two(self):
+    def test_two():
         assert True
-"""
-    write_test(testname, test_contents)
-    test_contents = """
-import pytest
+    """)
 
-@pytest.mark.dependency(name='dep2_test_one')
-def test_one():
-    assert True
-
-def test_two():
-    assert True
-    """
-    testname = os.path.join(fixture_path, "test_ndep2.py")
-    write_test(testname, test_contents)
-    yield fixture_path
-    shutil.rmtree(fixture_path, ignore_errors=True)
+    result = test_path.runpytest("-v", "--order-dependencies")
+    result.assert_outcomes(passed=4, failed=0)
+    result.stdout.fnmatch_lines([
+        "test_ndep1.py::Test1::test_one PASSED",
+        "test_ndep2.py::test_one PASSED",
+        "test_ndep1.py::Test1::test_two PASSED",
+        "test_ndep2.py::test_two PASSED",
+    ])
 
 
 @pytest.mark.skipif(pytest.__version__.startswith("3.7."),
                     reason="pytest-dependency < 0.5 does not support "
                            "session scope")
-def test_named_dependency_in_modules(fixture_path_named, capsys):
-    args = ["-v", "--order-dependencies", fixture_path_named]
-    pytest.main(args, [pytest_order])
-    out, err = capsys.readouterr()
-    expected = (
-        "test_ndep1.py::Test1::test_one",
-        "test_ndep2.py::test_one",
-        "test_ndep1.py::Test1::test_two",
-        "test_ndep2.py::test_two",
-    )
-    assert_test_order(expected, out)
-    assert "SKIPPED" not in out
+def test_dependency_in_modules(test_path):
+    test_path.makepyfile(
+        test_unnamed_dep1="""
+    import pytest
 
+    class Test1:
+        def test_one(self):
+            assert True
 
-@pytest.fixture
-def fixture_path_unnamed(tmpdir_factory):
-    fixture_path = str(tmpdir_factory.mktemp("unnamed_dep"))
-    testname = os.path.join(fixture_path, "test_unnamed_dep1.py")
-    nodeid_root = NODEID_ROOT.replace("nodeid_path", "unnamed_dep")
-    test_contents = """
-import pytest
+        @pytest.mark.dependency(depends=['test_unnamed_dep2.py::test_one'],
+                                scope='session')
+        def test_two(self):
+            assert True
+    """,
+        test_unnamed_dep2="""
+    import pytest
 
-class Test1:
-    def test_one(self):
+    @pytest.mark.dependency
+    def test_one():
         assert True
 
-    @pytest.mark.dependency(depends=['{}test_unnamed_dep2.py::test_one'],
-                            scope='session')
-    def test_two(self):
+    def test_two():
         assert True
-""".format(nodeid_root)
-    write_test(testname, test_contents)
-    test_contents = """
-import pytest
+    """)
 
-@pytest.mark.dependency
-def test_one():
-    assert True
-
-def test_two():
-    assert True
-    """
-    testname = os.path.join(fixture_path, "test_unnamed_dep2.py")
-    write_test(testname, test_contents)
-    yield fixture_path
-    shutil.rmtree(fixture_path, ignore_errors=True)
+    result = test_path.runpytest("-v", "--order-dependencies")
+    result.assert_outcomes(passed=4, failed=0)
+    result.stdout.fnmatch_lines([
+        "test_unnamed_dep1.py::Test1::test_one PASSED",
+        "test_unnamed_dep2.py::test_one PASSED",
+        "test_unnamed_dep1.py::Test1::test_two PASSED",
+        "test_unnamed_dep2.py::test_two PASSED",
+    ])
 
 
-@pytest.mark.skipif(pytest.__version__.startswith("3.7."),
-                    reason="pytest-dependency < 0.5 does not support "
-                           "session scope")
-def test_dependency_in_modules(fixture_path_unnamed, capsys):
-    args = ["-v", "--order-dependencies", fixture_path_unnamed]
-    pytest.main(args, [pytest_order])
-    out, err = capsys.readouterr()
-    expected = (
-        "test_unnamed_dep1.py::Test1::test_one",
-        "test_unnamed_dep2.py::test_one",
-        "test_unnamed_dep1.py::Test1::test_two",
-        "test_unnamed_dep2.py::test_two",
-    )
-    assert_test_order(expected, out)
-    assert "SKIPPED" not in out
-
-
-@pytest.fixture
-def fixture_path_modules_with_same_dep(tmpdir_factory):
-    fixture_path = str(tmpdir_factory.mktemp("modules_dep"))
-    testname = os.path.join(fixture_path, "test_module_dep1.py")
-    test_contents = """
-import pytest
-
-@pytest.mark.dependency(depends=['test_two'])
-def test_one():
-    assert True
-
-@pytest.mark.dependency
-def test_two():
-    assert True
-"""
-    write_test(testname, test_contents)
-    test_contents = """
-import pytest
-
-@pytest.mark.dependency(depends=['test_two'])
-def test_one():
-    assert True
-
-@pytest.mark.dependency
-def test_two():
-    assert True
-    """
-    testname = os.path.join(fixture_path, "test_module_dep2.py")
-    write_test(testname, test_contents)
-    yield fixture_path
-    shutil.rmtree(fixture_path, ignore_errors=True)
-
-
-def test_same_dependency_in_modules(
-        fixture_path_modules_with_same_dep, capsys):
+def test_same_dependency_in_modules(test_path):
     # regression test - make sure that the same dependency in different
     # modules works correctly
-    args = ["-v", "--order-dependencies", fixture_path_modules_with_same_dep]
-    pytest.main(args, [pytest_order])
-    out, err = capsys.readouterr()
-    expected = (
-        "test_module_dep1.py::test_two",
-        "test_module_dep1.py::test_one",
-        "test_module_dep2.py::test_two",
-        "test_module_dep2.py::test_one",
-    )
-    assert_test_order(expected, out)
-    assert "SKIPPED" not in out
+    test_path.makepyfile(
+        test_module_dep1="""
+    import pytest
+
+    @pytest.mark.dependency(depends=['test_two'])
+    def test_one():
+        assert True
+
+    @pytest.mark.dependency
+    def test_two():
+        assert True
+    """,
+        test_module_dep2="""
+    import pytest
+
+    @pytest.mark.dependency(depends=['test_two'])
+    def test_one():
+        assert True
+
+    @pytest.mark.dependency
+    def test_two():
+        assert True
+    """)
+    result = test_path.runpytest("-v", "--order-dependencies")
+    result.assert_outcomes(passed=4, failed=0)
+    result.stdout.fnmatch_lines([
+        "test_module_dep1.py::test_two PASSED",
+        "test_module_dep1.py::test_one PASSED",
+        "test_module_dep2.py::test_two PASSED",
+        "test_module_dep2.py::test_one PASSED",
+    ])
 
 
 def test_unknown_dependency(item_names_for, order_dependencies, capsys):

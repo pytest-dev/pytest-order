@@ -483,7 +483,6 @@ class GroupSorter:
             return group_order, self.groups
 
         # handle relative markers the same way single items are handled
-        # add the group specific label to the sorted groups
         still_left = 0
         while length and still_left != length:
             still_left = length

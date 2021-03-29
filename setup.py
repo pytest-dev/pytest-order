@@ -24,7 +24,7 @@ setup(
     license="MIT",
     entry_points={
         "pytest11": [
-            "pytest_order = pytest_order",
+            "pytest_order = pytest_order.plugin",
         ]
     },
     install_requires=["pytest>=3.7"],
