@@ -161,7 +161,7 @@ class Sorter:
                 warn("Unknown order attribute:'{}'".format(order))
                 order = None
         item.order = order
-        self.handle_relative_mark(item, mark)
+        self.handle_relative_marks(item, mark)
         if order is not None:
             item.nr_rel_items = 0
         return order
@@ -239,18 +239,23 @@ class Sorter:
                 return items
         return False
 
-    def handle_relative_mark(self, item, mark):
-        before_mark = mark.kwargs.get("before")
-        after_mark = mark.kwargs.get("after")
-        if (before_mark and not self.handle_before_or_after_mark(
-                item, mark, before_mark, is_after=False)):
-            self.warn_about_unknown_test(before_mark)
-            before_mark = None
-        if (after_mark and not self.handle_before_or_after_mark(
-                item, mark, after_mark, is_after=True)):
-            self.warn_about_unknown_test(after_mark)
-            after_mark = None
-        return before_mark or after_mark
+    def handle_relative_marks(self, item, mark):
+        has_relative_marks = False
+        before_marks = mark.kwargs.get("before", "").split()
+        for before_mark in before_marks:
+            if self.handle_before_or_after_mark(
+                    item, mark, before_mark, is_after=False):
+                has_relative_marks = True
+            else:
+                self.warn_about_unknown_test(before_mark)
+        after_marks = mark.kwargs.get("after", "").split()
+        for after_mark in after_marks:
+            if self.handle_before_or_after_mark(
+                    item, mark, after_mark, is_after=True):
+                has_relative_marks = True
+            else:
+                self.warn_about_unknown_test(after_mark)
+        return has_relative_marks
 
     @staticmethod
     def warn_about_unknown_test(rel_mark):

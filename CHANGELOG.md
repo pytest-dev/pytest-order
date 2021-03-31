@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+_Note_:
+Support for Python 2.7 and Python 3.5 will be removed with the release of
+version 1.0.0, which is planned for the near future.
+
+### New features
+- added support for more than one relative marker for the same test
+
 ## [Version 0.10.0](https://pypi.org/project/pytest-order/0.10.0/) (2021-03-18)
 Adds support for class-level relative markers and directory level scope.
 

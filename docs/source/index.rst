@@ -457,6 +457,26 @@ ones. This means that relative ordering always takes preference:
 In this case, ``test_second`` will be executed before ``test_first``,
 regardless of the ordinal markers.
 
+Several relationships for the same marker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If you need to order a certain test relative to more than one other test, you
+can add more than one test name to the ``before`` or ``after marker
+attributes, separated by spaces:
+
+.. code:: python
+
+ import pytest
+
+ @pytest.mark.order(after="test_second other_module.test_other")
+ def test_first():
+     assert True
+
+ def test_second():
+     assert True
+
+This will ensure that ``test_first`` is executed both after ``test_second``
+and after ``test_other`` which resides in the module ``other_module``.
+
 Configuration
 =============
 There are a few command line options that change the behavior of the

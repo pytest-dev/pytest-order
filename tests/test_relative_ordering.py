@@ -326,6 +326,32 @@ def test_mixed_markers4(item_names_for):
     assert item_names_for(test_content) == ["test_3", "test_2", "test_1"]
 
 
+def test_multiple_markers_in_same_test(item_names_for):
+    test_content = """
+    import pytest
+
+    @pytest.mark.order(after="test_3 test_4 test_5")
+    def test_1():
+        pass
+
+    def test_2():
+        pass
+
+    def test_3():
+        pass
+
+    @pytest.mark.order(before="test_3   test_2")
+    def test_4():
+        pass
+
+    def test_5():
+        pass
+    """
+    assert item_names_for(test_content) == [
+        "test_4", "test_2", "test_3", "test_5", "test_1"
+    ]
+
+
 def test_dependency_after_unknown_test(item_names_for, capsys):
     test_content = """
     import pytest
