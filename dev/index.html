@@ -452,6 +452,24 @@ ones. This means that relative ordering always takes preference:</p>
 <p>In this case, <code class="docutils literal notranslate"><span class="pre">test_second</span></code> will be executed before <code class="docutils literal notranslate"><span class="pre">test_first</span></code>,
 regardless of the ordinal markers.</p>
 </div>
+<div class="section" id="several-relationships-for-the-same-marker">
+<h3>Several relationships for the same marker<a class="headerlink" href="#several-relationships-for-the-same-marker" title="Permalink to this headline">¶</a></h3>
+<p>If you need to order a certain test relative to more than one other test, you
+can add more than one test name to the <code class="docutils literal notranslate"><span class="pre">before</span></code> or <a href="#id2"><span class="problematic" id="id3">``</span></a>after marker
+attributes, separated by spaces:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s2">&quot;test_second other_module.test_other&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_first</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="k">def</span> <span class="nf">test_second</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>This will ensure that <code class="docutils literal notranslate"><span class="pre">test_first</span></code> is executed both after <code class="docutils literal notranslate"><span class="pre">test_second</span></code>
+and after <code class="docutils literal notranslate"><span class="pre">test_other</span></code> which resides in the module <code class="docutils literal notranslate"><span class="pre">other_module</span></code>.</p>
+</div>
 </div>
 </div>
 <div class="section" id="configuration">
@@ -465,7 +483,7 @@ plugin. As with any pytest option, you can add the options to your
 </pre></div>
 </div>
 <div class="section" id="order-scope">
-<span id="id2"></span><h2><code class="docutils literal notranslate"><span class="pre">--order-scope</span></code><a class="headerlink" href="#order-scope" title="Permalink to this headline">¶</a></h2>
+<span id="id4"></span><h2><code class="docutils literal notranslate"><span class="pre">--order-scope</span></code><a class="headerlink" href="#order-scope" title="Permalink to this headline">¶</a></h2>
 <p>By default, tests are ordered per session, e.g. across all modules in the
 test run. Sometimes, you want to order tests per module or per test class
 instead. Consider that you have a growing number of test modules that you
@@ -765,7 +783,7 @@ above doesn’t make sense here due to the dependencies between modules.</p>
 </div>
 </div>
 <div class="section" id="indulgent-ordering">
-<span id="id3"></span><h2><code class="docutils literal notranslate"><span class="pre">--indulgent-ordering</span></code><a class="headerlink" href="#indulgent-ordering" title="Permalink to this headline">¶</a></h2>
+<span id="id5"></span><h2><code class="docutils literal notranslate"><span class="pre">--indulgent-ordering</span></code><a class="headerlink" href="#indulgent-ordering" title="Permalink to this headline">¶</a></h2>
 <p>You may sometimes find that you want to suggest an ordering of tests, while
 allowing it to be overridden for good reason. For example, if you run your test
 suite in parallel and have a number of tests which are particularly slow, it
@@ -781,7 +799,7 @@ tests to be sorted to the front (note that in pytest versions from 6.0 on,
 this seems not to be needed anymore, at least in this specific case).</p>
 </div>
 <div class="section" id="sparse-ordering">
-<span id="id4"></span><h2><code class="docutils literal notranslate"><span class="pre">--sparse-ordering</span></code><a class="headerlink" href="#sparse-ordering" title="Permalink to this headline">¶</a></h2>
+<span id="id6"></span><h2><code class="docutils literal notranslate"><span class="pre">--sparse-ordering</span></code><a class="headerlink" href="#sparse-ordering" title="Permalink to this headline">¶</a></h2>
 <p>Ordering tests by ordinals where some numbers are missing by default behaves
 the same as if the the ordinals are consecutive. For example, these tests:</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
@@ -852,7 +870,7 @@ and the rest will be in between (e.g. between positive and negative numbers),
 as it is without this option.</p>
 </div>
 <div class="section" id="order-dependencies">
-<span id="id5"></span><h2><code class="docutils literal notranslate"><span class="pre">--order-dependencies</span></code><a class="headerlink" href="#order-dependencies" title="Permalink to this headline">¶</a></h2>
+<span id="id7"></span><h2><code class="docutils literal notranslate"><span class="pre">--order-dependencies</span></code><a class="headerlink" href="#order-dependencies" title="Permalink to this headline">¶</a></h2>
 <p>This defines the behavior if the <code class="docutils literal notranslate"><span class="pre">pytest-dependency</span></code> plugin is used.
 By default, <code class="docutils literal notranslate"><span class="pre">dependency</span></code> marks are only considered if they coexist with an
 <code class="docutils literal notranslate"><span class="pre">order</span></code> mark. In this case it is checked if the ordering would break the
@@ -1017,6 +1035,7 @@ each group of dependent tests in one file, and call pytest with
 <li><a class="reference internal" href="#referencing-of-tests-in-other-classes-or-modules">Referencing of tests in other classes or modules</a></li>
 <li><a class="reference internal" href="#id1">Markers on class level</a></li>
 <li><a class="reference internal" href="#combination-of-absolute-and-relative-ordering">Combination of absolute and relative ordering</a></li>
+<li><a class="reference internal" href="#several-relationships-for-the-same-marker">Several relationships for the same marker</a></li>
 </ul>
 </li>
 </ul>
