@@ -70,7 +70,7 @@ ordering, all configuration options) that are not available in
 </div>
 <div class="section" id="supported-python-and-pytest-versions">
 <h2>Supported Python and pytest versions<a class="headerlink" href="#supported-python-and-pytest-versions" title="Permalink to this headline">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> supports python 2.7, 3.5 - 3.9, and pypy/pypy3, and is
+<p><code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> supports python 2.7, 3.5 - 3.10, and pypy/pypy3, and is
 compatible with pytest 3.7.0 or newer. Note that support for Python 2 will
 be removed in one of the next versions.</p>
 <p>All supported combinations of Python and pytest versions are tested in
@@ -455,7 +455,7 @@ regardless of the ordinal markers.</p>
 <div class="section" id="several-relationships-for-the-same-marker">
 <h3>Several relationships for the same marker<a class="headerlink" href="#several-relationships-for-the-same-marker" title="Permalink to this headline">¶</a></h3>
 <p>If you need to order a certain test relative to more than one other test, you
-can add more than one test name to the <code class="docutils literal notranslate"><span class="pre">before</span></code> or <a href="#id2"><span class="problematic" id="id3">``</span></a>after marker
+can add more than one test name to the <code class="docutils literal notranslate"><span class="pre">before</span></code> or <code class="docutils literal notranslate"><span class="pre">after</span></code> marker
 attributes, separated by spaces:</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
@@ -483,7 +483,7 @@ plugin. As with any pytest option, you can add the options to your
 </pre></div>
 </div>
 <div class="section" id="order-scope">
-<span id="id4"></span><h2><code class="docutils literal notranslate"><span class="pre">--order-scope</span></code><a class="headerlink" href="#order-scope" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h2><code class="docutils literal notranslate"><span class="pre">--order-scope</span></code><a class="headerlink" href="#order-scope" title="Permalink to this headline">¶</a></h2>
 <p>By default, tests are ordered per session, e.g. across all modules in the
 test run. Sometimes, you want to order tests per module or per test class
 instead. Consider that you have a growing number of test modules that you
@@ -783,7 +783,7 @@ above doesn’t make sense here due to the dependencies between modules.</p>
 </div>
 </div>
 <div class="section" id="indulgent-ordering">
-<span id="id5"></span><h2><code class="docutils literal notranslate"><span class="pre">--indulgent-ordering</span></code><a class="headerlink" href="#indulgent-ordering" title="Permalink to this headline">¶</a></h2>
+<span id="id3"></span><h2><code class="docutils literal notranslate"><span class="pre">--indulgent-ordering</span></code><a class="headerlink" href="#indulgent-ordering" title="Permalink to this headline">¶</a></h2>
 <p>You may sometimes find that you want to suggest an ordering of tests, while
 allowing it to be overridden for good reason. For example, if you run your test
 suite in parallel and have a number of tests which are particularly slow, it
@@ -799,7 +799,7 @@ tests to be sorted to the front (note that in pytest versions from 6.0 on,
 this seems not to be needed anymore, at least in this specific case).</p>
 </div>
 <div class="section" id="sparse-ordering">
-<span id="id6"></span><h2><code class="docutils literal notranslate"><span class="pre">--sparse-ordering</span></code><a class="headerlink" href="#sparse-ordering" title="Permalink to this headline">¶</a></h2>
+<span id="id4"></span><h2><code class="docutils literal notranslate"><span class="pre">--sparse-ordering</span></code><a class="headerlink" href="#sparse-ordering" title="Permalink to this headline">¶</a></h2>
 <p>Ordering tests by ordinals where some numbers are missing by default behaves
 the same as if the the ordinals are consecutive. For example, these tests:</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
@@ -870,7 +870,7 @@ and the rest will be in between (e.g. between positive and negative numbers),
 as it is without this option.</p>
 </div>
 <div class="section" id="order-dependencies">
-<span id="id7"></span><h2><code class="docutils literal notranslate"><span class="pre">--order-dependencies</span></code><a class="headerlink" href="#order-dependencies" title="Permalink to this headline">¶</a></h2>
+<span id="id5"></span><h2><code class="docutils literal notranslate"><span class="pre">--order-dependencies</span></code><a class="headerlink" href="#order-dependencies" title="Permalink to this headline">¶</a></h2>
 <p>This defines the behavior if the <code class="docutils literal notranslate"><span class="pre">pytest-dependency</span></code> plugin is used.
 By default, <code class="docutils literal notranslate"><span class="pre">dependency</span></code> marks are only considered if they coexist with an
 <code class="docutils literal notranslate"><span class="pre">order</span></code> mark. In this case it is checked if the ordering would break the
@@ -943,8 +943,8 @@ tests you can use <code class="docutils literal notranslate"><span class="pre">p
 combined, you can use both plugins together with the
 option <a class="reference internal" href="#order-dependencies"><span class="std std-ref">--order-dependencies</span></a>, described above.</p>
 </div>
-<div class="section" id="using-together-with-pytest-randomly">
-<h2>Using together with pytest-randomly<a class="headerlink" href="#using-together-with-pytest-randomly" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="usage-with-other-ordering-plugins">
+<h2>Usage with other ordering plugins<a class="headerlink" href="#usage-with-other-ordering-plugins" title="Permalink to this headline">¶</a></h2>
 <p>There is a number of other pytest plugins that change the order in which tests
 are executed, the most widely known probably being
 <a class="reference external" href="https://pypi.org/project/pytest-randomly/">pytest-randomly</a>, which
@@ -991,6 +991,13 @@ following tests:</p>
 <p>The same is true for relative ordering. The tests will be correctly ordered
 before and after the tests as configured, but all other tests will be in an
 arbitrary order.</p>
+<p>Note that it does not make much sense to use ordering plugins together that
+have a similar goal as <code class="docutils literal notranslate"><span class="pre">pytest-order</span></code>, as for example <code class="docutils literal notranslate"><span class="pre">pytest-ordering</span></code>.
+As mentioned, both plugins can co-exist without problems due to the
+different marker names, but using markers of both plugins in the same test
+run is not recommended. One plugin may partially revert the effects of the
+other plugin in unpredictable ways. The same is true for other plugins that
+define the test order.</p>
 </div>
 <div class="section" id="usage-with-pytest-xdist">
 <h2>Usage with pytest-xdist<a class="headerlink" href="#usage-with-pytest-xdist" title="Permalink to this headline">¶</a></h2>
@@ -1051,7 +1058,7 @@ each group of dependent tests in one file, and call pytest with
 </li>
 <li><a class="reference internal" href="#using-pytest-order-with-other-pytest-plugins">Using pytest-order with other pytest plugins</a><ul>
 <li><a class="reference internal" href="#relationship-with-pytest-dependency">Relationship with pytest-dependency</a></li>
-<li><a class="reference internal" href="#using-together-with-pytest-randomly">Using together with pytest-randomly</a></li>
+<li><a class="reference internal" href="#usage-with-other-ordering-plugins">Usage with other ordering plugins</a></li>
 <li><a class="reference internal" href="#usage-with-pytest-xdist">Usage with pytest-xdist</a></li>
 </ul>
 </li>
