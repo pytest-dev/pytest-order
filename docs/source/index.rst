@@ -38,7 +38,7 @@ ordering, all configuration options) that are not available in
 
 Supported Python and pytest versions
 ------------------------------------
-``pytest-order`` supports python 2.7, 3.5 - 3.9, and pypy/pypy3, and is
+``pytest-order`` supports python 2.7, 3.5 - 3.10, and pypy/pypy3, and is
 compatible with pytest 3.7.0 or newer. Note that support for Python 2 will
 be removed in one of the next versions.
 
@@ -460,7 +460,7 @@ regardless of the ordinal markers.
 Several relationships for the same marker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you need to order a certain test relative to more than one other test, you
-can add more than one test name to the ``before`` or ``after marker
+can add more than one test name to the ``before`` or ``after`` marker
 attributes, separated by spaces:
 
 .. code:: python
@@ -1016,7 +1016,7 @@ Using pytest-order with other pytest plugins
 
 Relationship with pytest-dependency
 -----------------------------------
-The `pytest-dependency <https://pypi.org/project/pytest-dependency/>`__
+The `pytest-dependency`_
 plugin also manages dependencies between tests (skips tests that depend
 on skipped or failed tests), but currently doesn't do any ordering. If you
 want to execute the tests in a specific order to each other, you can use
@@ -1025,11 +1025,11 @@ tests you can use ``pytest-dependency``. If you want to have both behaviors
 combined, you can use both plugins together with the
 option :ref:`order-dependencies`, described above.
 
-Using together with pytest-randomly
------------------------------------
+Usage with other ordering plugins
+---------------------------------
 There is a number of other pytest plugins that change the order in which tests
 are executed, the most widely known probably being
-`pytest-randomly <https://pypi.org/project/pytest-randomly/>`__, which
+`pytest-randomly`_, which
 executes tests in a random order to avoid unknown test dependencies.
 ``pytest-order`` should still work with these as long as it is executed
 *after* the other plugins (which it should by default, except if you use
@@ -1080,10 +1080,17 @@ The same is true for relative ordering. The tests will be correctly ordered
 before and after the tests as configured, but all other tests will be in an
 arbitrary order.
 
+Note that it does not make much sense to use ordering plugins together that
+have a similar goal as ``pytest-order``, as for example ``pytest-ordering``.
+As mentioned, both plugins can co-exist without problems due to the
+different marker names, but using markers of both plugins in the same test
+run is not recommended. One plugin may partially revert the effects of the
+other plugin in unpredictable ways. The same is true for other plugins that
+define the test order.
 
 Usage with pytest-xdist
 -----------------------
-The `pytest-xdist <https://pypi.org/project/pytest-xdist/>`__ plugin
+The `pytest-xdist`_ plugin
 schedules tests unordered, and the order configured by ``pytest-order``
 will normally not be preserved. But if we use the ``--dist=loadfile``
 option, provided by ``xdist``, all tests from one file will be run in the
@@ -1094,3 +1101,8 @@ each group of dependent tests in one file, and call pytest with
 
 .. toctree::
    :maxdepth: 2
+
+
+.. _`pytest-xdist`: https://pypi.org/project/pytest-xdist/
+.. _`pytest-randomly`: https://pypi.org/project/pytest-randomly/
+.. _`pytest-dependency`: https://pypi.org/project/pytest-dependency/

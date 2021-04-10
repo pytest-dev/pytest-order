@@ -12,8 +12,8 @@ test shall be run relative to the other tests.
 some additional features - see [below](#comparison-with-pytest_ordering) for
 details.
 
-`pytest-order` works with Python 2.7 and 3.5 - 3.9, with pytest 
-versions >= 3.7.0, and runs on Linux, MacOs and Windows.
+`pytest-order` works with Python 2.7 and 3.5 - 3.10, with pytest 
+versions >= 3.7.0, and runs on Linux, macOS and Windows.
 
 Documentation
 -------------
@@ -88,6 +88,17 @@ Features
 A usage guide for each feature can be
 found in the [documentation](https://pytest-dev.github.io/pytest-order/dev/).
 
+Contributing
+------------
+Contributions are very welcome. Tests can be run with 
+[tox](https://tox.readthedocs.io/en/latest/), please ensure
+the coverage at least stays the same before you submit a pull request.
+
+License
+-------
+Distributed under the terms of the [MIT](http://opensource.org/licenses/MIT)
+license, `pytest-order` is free and open source software.
+
 History
 -------
 This is a fork of [pytest-ordering](https://github.com/ftobia/pytest-ordering).
@@ -104,7 +115,7 @@ with `pytest-ordering` due to the changed marker name (`order` instead of
 rationale see also
 [this issue](https://github.com/ftobia/pytest-ordering/issues/38)).
 
-Ordering relative to other tests and all of the configuration options are not
+Ordering relative to other tests and all the configuration options are not
 available in the released version of `pytest-ordering`.
 However, most of these features are derived from 
 [issues](https://github.com/pytest-dev/pytest-order/blob/main/old_issues.md)
