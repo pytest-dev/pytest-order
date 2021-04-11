@@ -392,8 +392,8 @@ modules, this could be expressed like:</p>
     <span class="k">assert</span> <span class="kc">True</span>
 </pre></div>
 </div>
-<p>If an unknown test is referenced, a warning is issued and the test in
-question is ordered behind all other tests.</p>
+<p>If an unknown test is referenced, a warning is issued and the execution
+order of the test in is not changed.</p>
 </div>
 <div class="section" id="id1">
 <h3>Markers on class level<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
@@ -456,10 +456,10 @@ regardless of the ordinal markers.</p>
 <h3>Several relationships for the same marker<a class="headerlink" href="#several-relationships-for-the-same-marker" title="Permalink to this headline">¶</a></h3>
 <p>If you need to order a certain test relative to more than one other test, you
 can add more than one test name to the <code class="docutils literal notranslate"><span class="pre">before</span></code> or <code class="docutils literal notranslate"><span class="pre">after</span></code> marker
-attributes, separated by spaces:</p>
+attributes by using a list of test names:</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s2">&quot;test_second other_module.test_other&quot;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;test_second&quot;</span><span class="p">,</span> <span class="s2">&quot;other_module.test_other&quot;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">test_first</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
@@ -560,9 +560,9 @@ directory levels would result in module scope.</p>
     <span class="n">test_a</span><span class="o">.</span><span class="n">py</span>
     <span class="n">test_b</span><span class="o">.</span><span class="n">py</span>
   <span class="n">feature2</span>
-     <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
-     <span class="n">test_a</span><span class="o">.</span><span class="n">py</span>
-     <span class="n">test_b</span><span class="o">.</span><span class="n">py</span>
+    <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">test_a</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">test_b</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
 <p>with the test contents:</p>
@@ -641,7 +641,7 @@ order_scope_level/feature2/test_a.py::test_four PASSED
 </pre></div>
 </div>
 <p>Note that using a level of 0 or 1 would cause the same result as session
-scope, and any level greater than 2 would emulate module scope.</p>
+scope in this example, and any level greater than 2 would emulate module scope.</p>
 </div>
 <div class="section" id="order-group-scope">
 <h2><code class="docutils literal notranslate"><span class="pre">--order-group-scope</span></code><a class="headerlink" href="#order-group-scope" title="Permalink to this headline">¶</a></h2>
