@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
+from typing import List
 
 import pytest
+from _pytest.config import Config
+from _pytest.config.argparsing import Parser
+from _pytest.main import Session
+from _pytest.python import Function
 
 from pytest_order.sorter import Sorter
 
 
-def pytest_configure(config):
+def pytest_configure(config: Config) -> None:
     """Register the "order" marker and configure the plugin depending
      on the CLI options"""
 
@@ -37,7 +42,7 @@ def pytest_configure(config):
     config.pluginmanager.register(OrderingPlugin(), "orderingplugin")
 
 
-def pytest_addoption(parser):
+def pytest_addoption(parser: Parser) -> None:
     """Set up CLI option for pytest"""
     group = parser.getgroup("order")
     group.addoption("--indulgent-ordering", action="store_true",
@@ -73,7 +78,7 @@ def pytest_addoption(parser):
                          "be ordered if needed.")
 
 
-class OrderingPlugin(object):
+class OrderingPlugin:
     """
     Plugin implementation
 
@@ -82,6 +87,7 @@ class OrderingPlugin(object):
     """
 
 
-def modify_items(session, config, items):
+def modify_items(
+        session: Session, config: Config, items: List[Function]) -> None:
     sorter = Sorter(config, items)
     items[:] = sorter.sort_items()

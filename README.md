@@ -12,7 +12,7 @@ test shall be run relative to the other tests.
 some additional features - see [below](#comparison-with-pytest_ordering) for
 details.
 
-`pytest-order` works with Python 2.7 and 3.5 - 3.10, with pytest 
+`pytest-order` works with Python 3.6 - 3.10, with pytest 
 versions >= 3.7.0, and runs on Linux, macOS and Windows.
 
 Documentation

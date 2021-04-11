@@ -1,0 +1,209 @@
+import sys
+from typing import List, Optional, Union, Dict, Tuple
+
+from _pytest.python import Function
+
+from pytest_order.settings import Scope, Settings
+
+
+class Item:
+    """Represents a single test item."""
+
+    def __init__(self, item: Function) -> None:
+        self.item: Function = item
+        self.nr_rel_items: int = 0
+        self.order: Optional[int] = None
+        self._node_id: Optional[str] = None
+
+    def inc_rel_marks(self) -> None:
+        if self.order is None:
+            self.nr_rel_items += 1
+
+    def dec_rel_marks(self) -> None:
+        if self.order is None:
+            self.nr_rel_items -= 1
+
+    @property
+    def module_path(self) -> str:
+        return self.item.nodeid[:self.node_id.index("::")]
+
+    def parent_path(self, level) -> str:
+        return "/".join(self.module_path.split("/")[:level])
+
+    @property
+    def node_id(self) -> str:
+        if self._node_id is None:
+            # in pytest < 4 the nodeid has an unwanted ::() part
+            self._node_id = self.item.nodeid.replace("::()", "")
+        return self._node_id
+
+    @property
+    def label(self) -> str:
+        return self.node_id.replace(".py::", ".").replace("/", ".")
+
+
+class ItemList:
+    """Handles a group of items with the same scope."""
+
+    def __init__(self, items: List[Item],
+                 settings: Settings, scope: Scope,
+                 rel_marks: List["RelativeMark"],
+                 dep_marks: List["RelativeMark"]) -> None:
+        self.items = items
+        self.settings = settings
+        self.scope = scope
+        self.start_items: List[Tuple[int, List[Item]]] = []
+        self.end_items: List[Tuple[int, List[Item]]] = []
+        self.unordered_items: List[Item] = []
+        self._start_items: Dict[int, List[Item]] = {}
+        self._end_items: Dict[int, List[Item]] = {}
+        self.all_rel_marks = rel_marks
+        self.all_dep_marks = dep_marks
+        self.rel_marks = filter_marks(rel_marks, items)
+        self.dep_marks = filter_marks(dep_marks, items)
+
+    def collect_markers(self, item):
+        if item.order is not None:
+            self.handle_order_mark(item)
+        if item.nr_rel_items or item.order is None:
+            self.unordered_items.append(item)
+
+    def handle_order_mark(self, item):
+        if item.order < 0:
+            self._end_items.setdefault(item.order, []).append(item)
+        else:
+            self._start_items.setdefault(item.order, []).append(item)
+
+    def sort_numbered_items(self) -> List[Item]:
+        self.start_items = sorted(self._start_items.items())
+        self.end_items = sorted(self._end_items.items())
+        sorted_list = []
+        index = 0
+        for entries in self.start_items:
+            if self.settings.sparse_ordering:
+                while entries[0] > index and self.unordered_items:
+                    sorted_list.append(self.unordered_items.pop(0))
+                    index += 1
+            sorted_list += entries[1]
+            index += len(entries[1])
+        mid_index = len(sorted_list)
+        index = -1
+        for entries in reversed(self.end_items):
+            if self.settings.sparse_ordering:
+                while entries[0] < index and self.unordered_items:
+                    sorted_list.insert(mid_index, self.unordered_items.pop())
+                    index -= 1
+            sorted_list[mid_index:mid_index] = entries[1]
+            index -= len(entries[1])
+        sorted_list[mid_index:mid_index] = self.unordered_items
+        return sorted_list
+
+    def print_unhandled_items(self):
+        msg = " ".join([mark.item.label for mark in self.rel_marks] +
+                       [mark.item.label for mark in self.dep_marks])
+        if msg:
+            sys.stdout.write(
+                "\nWARNING: cannot execute test relative to others: ")
+            sys.stdout.write(msg)
+            sys.stdout.write("- ignoring the marker.\n")
+            sys.stdout.flush()
+
+    def number_of_rel_groups(self):
+        return len(self.rel_marks) + len(self.dep_marks)
+
+    def handle_rel_marks(self, sorted_list):
+        self.handle_relative_marks(self.rel_marks, sorted_list,
+                                   self.all_rel_marks)
+
+    def handle_dep_marks(self, sorted_list):
+        self.handle_relative_marks(self.dep_marks, sorted_list,
+                                   self.all_dep_marks)
+
+    @staticmethod
+    def handle_relative_marks(marks, sorted_list, all_marks):
+        for mark in reversed(marks):
+            if move_item(mark, sorted_list):
+                marks.remove(mark)
+                all_marks.remove(mark)
+
+    def group_order(self):
+        if self.start_items:
+            return self.start_items[0][0]
+        if self.end_items:
+            return self.end_items[-1][0]
+
+
+class ItemGroup:
+    """Holds a group of sorted items with the same group order scope.
+    Used for sorting groups similar to Item for sorting items.
+    """
+
+    def __init__(self, items=None, order=None):
+        self.items = items or []
+        self.order = order
+        self.nr_rel_items = 0
+
+    def inc_rel_marks(self) -> None:
+        if self.order is None:
+            self.nr_rel_items += 1
+
+    def dec_rel_marks(self) -> None:
+        if self.order is None:
+            self.nr_rel_items -= 1
+
+    def extend(self, groups: List["ItemGroup"], order: Optional[int]) -> None:
+        for group in groups:
+            self.items.extend(group.items)
+        self.order = order
+
+
+class RelativeMark:
+    """Represents a marker for an item or an item group.
+    Holds two related items or groups and their relationship.
+    """
+
+    def __init__(self, item: Union[Item, ItemGroup],
+                 item_to_move: Union[Item, ItemGroup],
+                 move_after: bool) -> None:
+        self.item: Item = item
+        self.item_to_move: Item = item_to_move
+        self.move_after: bool = move_after
+
+
+def filter_marks(
+        marks: List[RelativeMark],
+        all_items: List[Item]) -> List[RelativeMark]:
+    result = []
+    for mark in marks:
+        if mark.item in all_items and mark.item_to_move in all_items:
+            result.append(mark)
+        else:
+            mark.item_to_move.dec_rel_marks()
+    return result
+
+
+def move_item(mark: RelativeMark,
+              sorted_items: List[Union[Item, ItemGroup]]) -> bool:
+    if (mark.item not in sorted_items or
+            mark.item_to_move not in sorted_items or
+            mark.item.nr_rel_items):
+        return False
+    pos_item = sorted_items.index(mark.item)
+    pos_item_to_move = sorted_items.index(mark.item_to_move)
+    if mark.item_to_move.order is not None and mark.item.order is None:
+        # if the item to be moved has already been ordered numerically,
+        # and the other item is not ordered, we move that one instead
+        mark.move_after = not mark.move_after
+        mark.item, mark.item_to_move = mark.item_to_move, mark.item
+        pos_item, pos_item_to_move = pos_item_to_move, pos_item
+    mark.item_to_move.dec_rel_marks()
+    if mark.move_after:
+        if pos_item_to_move < pos_item + 1:
+            del sorted_items[pos_item_to_move]
+            sorted_items.insert(pos_item, mark.item_to_move)
+    else:
+        if pos_item_to_move > pos_item:
+            del sorted_items[pos_item_to_move]
+            pos_item -= 1
+            sorted_items.insert(pos_item + 1, mark.item_to_move)
+    return True

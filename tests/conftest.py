@@ -1,5 +1,5 @@
 import pytest
-from pytest_order.sorter import SESSION
+from pytest_order.settings import Scope
 
 pytest_plugins = ["pytester"]
 
@@ -35,8 +35,8 @@ def ignore_settings(mocker):
     settings = mocker.patch("pytest_order.sorter.Settings")
     settings.return_value.sparse_ordering = False
     settings.return_value.order_dependencies = False
-    settings.return_value.scope = SESSION
-    settings.return_value.group_scope = SESSION
+    settings.return_value.scope = Scope.SESSION
+    settings.return_value.group_scope = Scope.SESSION
     settings.return_value.scope_level = 0
     yield settings
 
