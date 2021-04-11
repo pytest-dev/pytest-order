@@ -188,7 +188,7 @@ def test_first_mark_class(item_names_for):
 
 
     @pytest.mark.order("first")
-    class TestSuite(object):
+    class TestSuite:
 
         def test_3(self): pass
 
@@ -206,7 +206,7 @@ def test_last_mark_class(item_names_for):
     import pytest
 
     @pytest.mark.order("last")
-    class TestSuite(object):
+    class TestSuite:
 
         def test_1(self): pass
 
@@ -226,7 +226,7 @@ def test_first_last_mark_class(item_names_for):
     import pytest
 
     @pytest.mark.order("last")
-    class TestLast(object):
+    class TestLast:
 
         def test_1(self): pass
 
@@ -237,7 +237,7 @@ def test_first_last_mark_class(item_names_for):
 
 
     @pytest.mark.order("first")
-    class TestFirst(object):
+    class TestFirst:
 
         def test_1(self): pass
 
@@ -255,7 +255,7 @@ def test_order_mark_class(item_names_for):
     import pytest
 
     @pytest.mark.order(-1)
-    class TestLast(object):
+    class TestLast:
         def test_1(self): pass
         def test_2(self): pass
 
@@ -263,7 +263,7 @@ def test_order_mark_class(item_names_for):
     def test_0(): pass
 
     @pytest.mark.order(-2)
-    class TestFirst(object):
+    class TestFirst:
         def test_1(self): pass
         def test_2(self): pass
     """

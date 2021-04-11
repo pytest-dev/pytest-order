@@ -38,9 +38,8 @@ ordering, all configuration options) that are not available in
 
 Supported Python and pytest versions
 ------------------------------------
-``pytest-order`` supports python 2.7, 3.5 - 3.10, and pypy/pypy3, and is
-compatible with pytest 3.7.0 or newer. Note that support for Python 2 will
-be removed in one of the next versions.
+``pytest-order`` supports python 3.6 - 3.10 and pypy3, and is
+compatible with pytest 3.7.0 or newer.
 
 All supported combinations of Python and pytest versions are tested in
 the CI builds. The plugin shall work under Linux, MacOs and Windows.

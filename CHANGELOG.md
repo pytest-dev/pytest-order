@@ -3,11 +3,12 @@
 ## Unreleased
 
 _Breaking changes in next major version_:
-Support for Python 2.7 and Python 3.5 will be removed with the release of
-version 1.0.0, which is planned for the near future.
 With that version the notation of relative markers in other modules is also 
 planned to change - instead of using the dot notation, the standard pytest
 nodeid will be used. 
+
+### Breaking changes
+- removed support for Python 2.7 and 3.5
 
 ## [Version 0.11.0](https://pypi.org/project/pytest-order/0.11.0/) (2021-04-11)
 Adds support for multiple relative markers for the same test.
