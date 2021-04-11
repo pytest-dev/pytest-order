@@ -456,7 +456,7 @@ regardless of the ordinal markers.</p>
 <h3>Several relationships for the same marker<a class="headerlink" href="#several-relationships-for-the-same-marker" title="Permalink to this headline">¶</a></h3>
 <p>If you need to order a certain test relative to more than one other test, you
 can add more than one test name to the <code class="docutils literal notranslate"><span class="pre">before</span></code> or <code class="docutils literal notranslate"><span class="pre">after</span></code> marker
-attributes by using a list of test names:</p>
+attributes by using a list or tuple of test names:</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
 <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;test_second&quot;</span><span class="p">,</span> <span class="s2">&quot;other_module.test_other&quot;</span><span class="p">])</span>
