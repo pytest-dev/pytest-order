@@ -241,14 +241,18 @@ class Sorter:
 
     def handle_relative_marks(self, item, mark):
         has_relative_marks = False
-        before_marks = mark.kwargs.get("before", "").split()
+        before_marks = mark.kwargs.get("before", [])
+        if before_marks and not isinstance(before_marks, list):
+            before_marks = [before_marks]
         for before_mark in before_marks:
             if self.handle_before_or_after_mark(
                     item, mark, before_mark, is_after=False):
                 has_relative_marks = True
             else:
                 self.warn_about_unknown_test(before_mark)
-        after_marks = mark.kwargs.get("after", "").split()
+        after_marks = mark.kwargs.get("after", [])
+        if after_marks and not isinstance(after_marks, list):
+            after_marks = [after_marks]
         for after_mark in after_marks:
             if self.handle_before_or_after_mark(
                     item, mark, after_mark, is_after=True):

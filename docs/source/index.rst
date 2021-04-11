@@ -392,8 +392,8 @@ modules, this could be expressed like:
  def test_b():
      assert True
 
-If an unknown test is referenced, a warning is issued and the test in
-question is ordered behind all other tests.
+If an unknown test is referenced, a warning is issued and the execution
+order of the test in is not changed.
 
 Markers on class level
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -461,13 +461,13 @@ Several relationships for the same marker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you need to order a certain test relative to more than one other test, you
 can add more than one test name to the ``before`` or ``after`` marker
-attributes, separated by spaces:
+attributes by using a list of test names:
 
 .. code:: python
 
  import pytest
 
- @pytest.mark.order(after="test_second other_module.test_other")
+ @pytest.mark.order(after=["test_second", "other_module.test_other"])
  def test_first():
      assert True
 
@@ -584,9 +584,9 @@ Consider the following directory structure:
       test_a.py
       test_b.py
     feature2
-       __init__.py
-       test_a.py
-       test_b.py
+      __init__.py
+      test_a.py
+      test_b.py
 
 with the test contents:
 
@@ -677,7 +677,7 @@ the first two directory levels:
     order_scope_level/feature2/test_a.py::test_four PASSED
 
 Note that using a level of 0 or 1 would cause the same result as session
-scope, and any level greater than 2 would emulate module scope.
+scope in this example, and any level greater than 2 would emulate module scope.
 
 ``--order-group-scope``
 -----------------------
