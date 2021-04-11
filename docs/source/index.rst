@@ -461,7 +461,7 @@ Several relationships for the same marker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you need to order a certain test relative to more than one other test, you
 can add more than one test name to the ``before`` or ``after`` marker
-attributes by using a list of test names:
+attributes by using a list or tuple of test names:
 
 .. code:: python
 
