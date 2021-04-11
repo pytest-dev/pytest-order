@@ -330,7 +330,7 @@ def test_multiple_markers_in_same_test(item_names_for):
     test_content = """
     import pytest
 
-    @pytest.mark.order(after="test_3 test_4 test_5")
+    @pytest.mark.order(after=["test_3", "test_4", "test_5"])
     def test_1():
         pass
 
@@ -340,7 +340,7 @@ def test_multiple_markers_in_same_test(item_names_for):
     def test_3():
         pass
 
-    @pytest.mark.order(before="test_3   test_2")
+    @pytest.mark.order(before=["test_3", "test_2"])
     def test_4():
         pass
 

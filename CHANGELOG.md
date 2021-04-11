@@ -9,13 +9,16 @@ version 1.0.0, which is planned for the near future.
 ### New features
 - added support for more than one relative marker for the same test
 
+### Infrastructure
+- added Python 3.10 to CI tests
+
 ## [Version 0.10.0](https://pypi.org/project/pytest-order/0.10.0/) (2021-03-18)
 Adds support for class-level relative markers and directory level scope.
 
 ### New features
 - added support for class level relative markers,
   see [#7](https://github.com/pytest-dev/pytest-order/issues/7)
-- added option `--order-scope-level` which allows to groups tests on the
+- added option `--order-scope-level` which allows grouping tests on the
   same directory level, 
   see [#8](https://github.com/pytest-dev/pytest-order/issues/8)
 
@@ -53,7 +56,8 @@ Patch release to make packaging easier.
 ### Infrastructure
 - use codecov instead of coveralls, that is failing
 - added pytest 6.2 to CI tests
-- added tests, examples and documentation to source package
+- added tests, examples and documentation to source package,
+  see [#5](https://github.com/pytest-dev/pytest-order/issues/5)
 
 ## [Version 0.9.3](https://pypi.org/project/pytest-order/0.9.3/) (2021-01-14)
 Bugfix release.
