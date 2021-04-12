@@ -22,7 +22,7 @@ def fixture_path(test_path):
         def test_one(self):
             assert True
 
-        @pytest.mark.order(after='test_rel3.test_two')
+        @pytest.mark.order(after='test_rel3.py::test_two')
         def test_two(self):
             assert True
     """,
@@ -39,7 +39,7 @@ def fixture_path(test_path):
     def test_one():
         assert True
 
-    @pytest.mark.order(before='test_rel2.test_one')
+    @pytest.mark.order(before='test_rel2.py::test_one')
     def test_two():
         assert True
     """,
