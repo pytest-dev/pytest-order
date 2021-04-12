@@ -4,11 +4,11 @@ See https://pytest-dev.github.io/pytest-order/dev/#referencing-of-tests-in-other
 import pytest
 
 
-@pytest.mark.order(after="test_module_a.TestA::test_a")
+@pytest.mark.order(after="test_module_a.py::TestA::test_a")
 def test_a():
     assert True
 
 
-@pytest.mark.order(before="test_module_c.test_submodule.test_2")
+@pytest.mark.order(before="test_module_c.py::test_submodule.test_2")
 def test_b():
     assert True

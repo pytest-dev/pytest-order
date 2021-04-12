@@ -141,7 +141,6 @@ class Sorter:
             self, label: str,
             item: Item,
             is_cls_mark: bool) -> Optional[Item]:
-        label = self.node_id_from_label(label)
         item_id = item.node_id
         label_len = len(label)
         last_comp = label.split("/")[-1].split("::")[-1]
@@ -159,7 +158,6 @@ class Sorter:
 
     def items_from_class_label(self, label: str, item: Item) -> List[Item]:
         items = []
-        label = self.node_id_from_label(label)
         item_id = item.node_id
         label_len = len(label)
         for node_id in self.node_ids:
@@ -170,13 +168,6 @@ class Sorter:
                     if item_id.startswith(id_start):
                         items.append(self.node_ids[node_id])
         return items
-
-    @staticmethod
-    def node_id_from_label(label: str) -> str:
-        if "." in label:
-            label_comp = label.split(".")
-            label = ".py::".join(["/".join(label_comp[:-1]), label_comp[-1]])
-        return label
 
     def handle_before_or_after_mark(
             self,

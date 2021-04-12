@@ -37,10 +37,6 @@ class Item:
             self._node_id = self.item.nodeid.replace("::()", "")
         return self._node_id
 
-    @property
-    def label(self) -> str:
-        return self.node_id.replace(".py::", ".").replace("/", ".")
-
 
 class ItemList:
     """Handles a group of items with the same scope."""
@@ -99,8 +95,8 @@ class ItemList:
         return sorted_list
 
     def print_unhandled_items(self):
-        msg = " ".join([mark.item.label for mark in self.rel_marks] +
-                       [mark.item.label for mark in self.dep_marks])
+        msg = " ".join([mark.item.node_id for mark in self.rel_marks] +
+                       [mark.item.node_id for mark in self.dep_marks])
         if msg:
             sys.stdout.write(
                 "\nWARNING: cannot execute test relative to others: ")

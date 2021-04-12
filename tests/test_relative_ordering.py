@@ -138,11 +138,11 @@ def fixture_path(test_path):
     import pytest
 
     class TestA:
-        @pytest.mark.order(after="mod2_test.TestB::test_b")
+        @pytest.mark.order(after="mod2_test.py::TestB::test_b")
         def test_a(self):
             pass
 
-        @pytest.mark.order(after="sub.mod3_test.test_b")
+        @pytest.mark.order(after="sub/mod3_test.py::test_b")
         def test_b(self):
             pass
 
@@ -153,7 +153,7 @@ def fixture_path(test_path):
     import pytest
 
     class TestB:
-        @pytest.mark.order(before="mod1_test.TestA::test_c")
+        @pytest.mark.order(before="mod1_test.py::TestA::test_c")
         def test_a(self):
             pass
 
@@ -168,7 +168,7 @@ def fixture_path(test_path):
     path.write("""
 import pytest
 
-@pytest.mark.order(before="mod2_test.TestB::test_c")
+@pytest.mark.order(before="mod2_test.py::TestB::test_c")
 def test_a():
     pass
 
@@ -356,7 +356,7 @@ def test_dependency_after_unknown_test(item_names_for, capsys):
     test_content = """
     import pytest
 
-    @pytest.mark.order(after="some_module.test_2")
+    @pytest.mark.order(after="some_module.py::test_2")
     def test_1():
         pass
 
@@ -366,7 +366,7 @@ def test_dependency_after_unknown_test(item_names_for, capsys):
     assert item_names_for(test_content) == ["test_1", "test_2"]
     out, err = capsys.readouterr()
     warning = ("cannot execute test relative to others: "
-               "some_module.test_2 - ignoring the marker")
+               "some_module.py::test_2 - ignoring the marker")
     assert warning in out
 
 
@@ -434,5 +434,5 @@ def test_dependency_loop(item_names_for, capsys):
     assert item_names_for(test_content) == ["test_2", "test_1", "test_3"]
     out, err = capsys.readouterr()
     warning = ("cannot execute test relative to others: "
-               "test_dependency_loop.test_3")
+               "test_dependency_loop.py::test_3")
     assert warning in out
