@@ -356,9 +356,11 @@ with a ``::`` suffix has to be prepended to the test name:
      def test_c(self):
          assert True
 
-If the referenced test lives in another module, the test name has to be
-prepended by the module path to be uniquely identifiable. Let's say we have
-the following module and test layout:
+If the referenced test lives in another module, you have to use the nodeid
+of the test, or a part of the nodeid that is sufficient to make it uniquely
+identifiable (the nodeid is the test ID that pytest prints if you run it with
+the ``-v`` option).
+Let's say we have the following module and test layout:
 
 ::
 
@@ -383,11 +385,11 @@ modules, this could be expressed like:
 
  import pytest
 
- @pytest.mark.order(after="test_module_a.TestA::test_a")
+ @pytest.mark.order(after="test_module_a.py::TestA::test_a")
  def test_a():
      assert True
 
- @pytest.mark.order(before="test_module_c.test_submodule.test_2")
+ @pytest.mark.order(before="test_module_c/test_submodule.py::test_2")
  def test_b():
      assert True
 
@@ -466,7 +468,7 @@ attributes by using a list or tuple of test names:
 
  import pytest
 
- @pytest.mark.order(after=["test_second", "other_module.test_other"])
+ @pytest.mark.order(after=["test_second", "other_module.py::test_other"])
  def test_first():
      assert True
 
@@ -474,7 +476,7 @@ attributes by using a list or tuple of test names:
      assert True
 
 This will ensure that ``test_first`` is executed both after ``test_second``
-and after ``test_other`` which resides in the module ``other_module``.
+and after ``test_other`` which resides in the module ``other_module.py``.
 
 Configuration
 =============
@@ -784,7 +786,7 @@ Here is a similar example using relative markers:
 
   import pytest
 
-  @pytest.mark.order(after="test_module2.test1")
+  @pytest.mark.order(after="test_module2.py::test1")
   def test1():
       pass
 

@@ -361,9 +361,11 @@ with a <code class="docutils literal notranslate"><span class="pre">::</span></c
         <span class="k">assert</span> <span class="kc">True</span>
 </pre></div>
 </div>
-<p>If the referenced test lives in another module, the test name has to be
-prepended by the module path to be uniquely identifiable. Let’s say we have
-the following module and test layout:</p>
+<p>If the referenced test lives in another module, you have to use the nodeid
+of the test, or a part of the nodeid that is sufficient to make it uniquely
+identifiable (the nodeid is the test ID that pytest prints if you run it with
+the <code class="docutils literal notranslate"><span class="pre">-v</span></code> option).
+Let’s say we have the following module and test layout:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">test_module_a</span><span class="o">.</span><span class="n">py</span>
     <span class="n">TestA</span>
         <span class="n">test_a</span>
@@ -382,11 +384,11 @@ modules, this could be expressed like:</p>
 <p><strong>test_module_b.py</strong></p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s2">&quot;test_module_a.TestA::test_a&quot;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s2">&quot;test_module_a.py::TestA::test_a&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_a</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">before</span><span class="o">=</span><span class="s2">&quot;test_module_c.test_submodule.test_2&quot;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">before</span><span class="o">=</span><span class="s2">&quot;test_module_c/test_submodule.py::test_2&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test_b</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 </pre></div>
@@ -458,7 +460,7 @@ can add more than one test name to the <code class="docutils literal notranslate
 attributes by using a list or tuple of test names:</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;test_second&quot;</span><span class="p">,</span> <span class="s2">&quot;other_module.test_other&quot;</span><span class="p">])</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;test_second&quot;</span><span class="p">,</span> <span class="s2">&quot;other_module.py::test_other&quot;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">test_first</span><span class="p">():</span>
     <span class="k">assert</span> <span class="kc">True</span>
 
@@ -467,7 +469,7 @@ attributes by using a list or tuple of test names:</p>
 </pre></div>
 </div>
 <p>This will ensure that <code class="docutils literal notranslate"><span class="pre">test_first</span></code> is executed both after <code class="docutils literal notranslate"><span class="pre">test_second</span></code>
-and after <code class="docutils literal notranslate"><span class="pre">test_other</span></code> which resides in the module <code class="docutils literal notranslate"><span class="pre">other_module</span></code>.</p>
+and after <code class="docutils literal notranslate"><span class="pre">test_other</span></code> which resides in the module <code class="docutils literal notranslate"><span class="pre">other_module.py</span></code>.</p>
 </div>
 </div>
 </div>
@@ -730,7 +732,7 @@ relatively to each other</li>
 <p><strong>tests/test_module1.py</strong>:</p>
 <div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
 
-<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s2">&quot;test_module2.test1&quot;</span><span class="p">)</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s2">&quot;test_module2.py::test1&quot;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">test1</span><span class="p">():</span>
     <span class="k">pass</span>
 
