@@ -1,4 +1,5 @@
 from unittest import mock
+from textwrap import dedent
 
 import pytest
 from perf_tests.util import TimedSorter
@@ -10,21 +11,24 @@ pytest_plugins = ["pytester"]
 def fixture_path_relative_dense(testdir):
     for i_mod in range(10):
         test_name = testdir.tmpdir.join(
-            "test_relative_dense_perf{}.py".format(i_mod))
-        test_contents = """
-import pytest
-"""
+            "test_relative_dense_perf{}.py".format(i_mod)
+        )
+        test_contents = "import pytest\n"
         for i in range(90):
-            test_contents += """
-@pytest.mark.order(after="test_{}")
-def test_{}():
-    assert True
-""".format(i + 10, i)
+            test_contents += dedent(
+                """
+                @pytest.mark.order(after="test_{}")
+                def test_{}():
+                    assert True
+                """
+            ).format(i + 10, i)
         for i in range(10):
-            test_contents += """
-def test_{}():
-    assert True
-""".format(i + 90)
+            test_contents += dedent(
+                """
+                def test_{}():
+                    assert True
+                """
+            ).format(i + 90)
         test_name.write(test_contents)
     yield testdir
 
