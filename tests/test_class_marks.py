@@ -59,7 +59,7 @@ def test_invalid_class_mark(item_names_for, capsys):
         "Test1::test_1", "Test1::test_2", "Test2::test_1", "Test2::test_2"
     ]
     out, err = capsys.readouterr()
-    assert ("WARNING: cannot execute test relative to others: Test3 "
+    assert ("WARNING: cannot execute 'test_2' relative to others: 'Test3' "
             "- ignoring the marker" in out)
 
 

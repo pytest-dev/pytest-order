@@ -60,7 +60,7 @@ def test_session_scope(fixture_path):
     result = fixture_path.runpytest("-v")
     result.assert_outcomes(passed=10, failed=0)
     result.stdout.fnmatch_lines([
-        "*invalid - ignoring the marker.*",
+        "*'invalid' - ignoring the marker.*",
         "test_rel1.py::Test1::test_two PASSED",
         "test_rel1.py::Test2::test_one PASSED",
         "test_rel3.py::test_two PASSED",
