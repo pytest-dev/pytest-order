@@ -8,6 +8,9 @@
   the dot notation, the standard pytest nodeid is used,
   see [#24](https://github.com/pytest-dev/pytest-order/issues/24)
 
+### New features
+- added support for the ``pytest-dependency`` option ``automark_dependency``
+
 ## [Version 0.11.0](https://pypi.org/project/pytest-order/0.11.0/) (2021-04-11)
 Adds support for multiple relative markers for the same test.
 

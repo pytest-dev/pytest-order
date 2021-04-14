@@ -90,7 +90,7 @@ class Sorter:
         keys = item.item.keywords.keys()
         has_dependency = "dependency" in keys
         has_order = "order" in keys
-        if has_dependency:
+        if has_dependency or self.settings.auto_mark_dep:
             self.handle_dependency_mark(item, has_order, dep_marks, aliases)
         if has_order:
             item.order = self.handle_order_mark(item)
@@ -102,7 +102,8 @@ class Sorter:
         # always order dependencies if an order mark is present
         # otherwise only if order-dependencies is set
         mark = item.item.get_closest_marker("dependency")
-        if self.settings.order_dependencies or has_order:
+        name_mark = None
+        if mark and (self.settings.order_dependencies or has_order):
             dependent_mark = mark.kwargs.get("depends")
             if dependent_mark:
                 scope = scope_from_name(mark.kwargs.get("scope", "module"))
@@ -111,9 +112,9 @@ class Sorter:
                     dep_marks.setdefault(
                         (name, scope, prefix), []).append(item)
                     item.inc_rel_marks()
-        # we always collect the names of the dependent items, because
-        # we need them in both cases
-        name_mark = mark.kwargs.get("name")
+            # we always collect the names of the dependent items, because
+            # we need them in both cases
+            name_mark = mark.kwargs.get("name")
         # the default name in pytest-dependency is the nodeid or a part
         # of the nodeid, depending on the scope
         if not name_mark:

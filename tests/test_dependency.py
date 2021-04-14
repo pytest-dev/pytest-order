@@ -118,6 +118,62 @@ def test_order_multiple_dependencies_ordered(multiple_dependencies_test,
     ]
 
 
+@pytest.fixture
+def no_dep_marks(test_path):
+    test_path.makepyfile(
+        test_auto="""
+    import pytest
+
+    @pytest.mark.dependency(depends=["test_b", "test_c"])
+    def test_a():
+        pass
+
+    def test_b():
+        pass
+
+    def test_c():
+        pass
+    """
+    )
+    yield test_path
+
+
+def test_order_dependencies_no_auto_mark(no_dep_marks):
+    no_dep_marks.makefile(
+        ".ini",
+        pytest="""
+        [pytest]
+        automark_dependency = 0
+        console_output_style = classic
+        """
+    )
+    result = no_dep_marks.runpytest("-v", "--order-dependencies")
+    result.assert_outcomes(passed=2, skipped=1)
+    result.stdout.fnmatch_lines([
+        "test_auto.py::test_a SKIPPED*",
+        "test_auto.py::test_b PASSED",
+        "test_auto.py::test_c PASSED"
+    ])
+
+
+def test_order_dependencies_auto_mark(no_dep_marks):
+    no_dep_marks.makefile(
+        ".ini",
+        pytest="""
+        [pytest]
+        automark_dependency = 1
+        console_output_style = classic
+        """
+    )
+    result = no_dep_marks.runpytest("-v", "--order-dependencies")
+    result.assert_outcomes(passed=3, failed=0)
+    result.stdout.fnmatch_lines([
+        "test_auto.py::test_b PASSED",
+        "test_auto.py::test_c PASSED",
+        "test_auto.py::test_a PASSED"
+    ])
+
+
 @pytest.fixture(scope="module")
 def named_dependency_test():
     yield """
