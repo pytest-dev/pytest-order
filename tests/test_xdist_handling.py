@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from textwrap import dedent
 
 import pytest
 import pytest_order
@@ -7,53 +8,53 @@ import pytest_order
 def test_xdist_ordering(tmpdir):
     testname = str(tmpdir.join("first_test.py"))
     with open(testname, "w") as fi:
-        fi.write(
+        fi.write(dedent(
             """
-import pytest
+            import pytest
 
-val = 1
+            val = 1
 
-@pytest.mark.order("second")
-def test_second_integer():
-    global val
-    assert val == 2
-    val += 1
+            @pytest.mark.order("second")
+            def test_second_integer():
+                global val
+                assert val == 2
+                val += 1
 
-def test_last_integer():
-    assert val == 3
+            def test_last_integer():
+                assert val == 3
 
-@pytest.mark.order("first")
-def test_first_integer():
-    global val
-    assert val == 1
-    val += 1
-"""
-        )
+            @pytest.mark.order("first")
+            def test_first_integer():
+                global val
+                assert val == 1
+                val += 1
+            """
+        ))
 
     testname = str(tmpdir.join("second_test.py"))
     with open(testname, "w") as fi:
-        fi.write(
+        fi.write(dedent(
             """
-import pytest
+            import pytest
 
-val = "frog"
+            val = "frog"
 
-@pytest.mark.order("second")
-def test_second_string():
-    global val
-    assert val == "goat"
-    val = "fish"
+            @pytest.mark.order("second")
+            def test_second_string():
+                global val
+                assert val == "goat"
+                val = "fish"
 
-def test_last_string():
-    assert val == "fish"
+            def test_last_string():
+                assert val == "fish"
 
-@pytest.mark.order("first")
-def test_first_string():
-    global val
-    assert val == "frog"
-    val = "goat"
-"""
-        )
+            @pytest.mark.order("first")
+            def test_first_string():
+                global val
+                assert val == "frog"
+                val = "goat"
+            """
+        ))
     # With `loadfile`, the tests should pass
     args = ["-n3", "--dist=loadfile", str(tmpdir)]
     ret = pytest.main(args, [pytest_order])
