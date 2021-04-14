@@ -58,13 +58,13 @@ class ItemList:
         self.rel_marks = filter_marks(rel_marks, items)
         self.dep_marks = filter_marks(dep_marks, items)
 
-    def collect_markers(self, item):
+    def collect_markers(self, item: Item) -> None:
         if item.order is not None:
             self.handle_order_mark(item)
         if item.nr_rel_items or item.order is None:
             self.unordered_items.append(item)
 
-    def handle_order_mark(self, item):
+    def handle_order_mark(self, item: Item) -> None:
         if item.order < 0:
             self._end_items.setdefault(item.order, []).append(item)
         else:
@@ -75,26 +75,26 @@ class ItemList:
         self.end_items = sorted(self._end_items.items())
         sorted_list = []
         index = 0
-        for entries in self.start_items:
+        for (order, items) in self.start_items:
             if self.settings.sparse_ordering:
-                while entries[0] > index and self.unordered_items:
+                while order > index and self.unordered_items:
                     sorted_list.append(self.unordered_items.pop(0))
                     index += 1
-            sorted_list += entries[1]
-            index += len(entries[1])
+            sorted_list += items
+            index += len(items)
         mid_index = len(sorted_list)
         index = -1
-        for entries in reversed(self.end_items):
+        for (order, items) in reversed(self.end_items):
             if self.settings.sparse_ordering:
-                while entries[0] < index and self.unordered_items:
+                while order < index and self.unordered_items:
                     sorted_list.insert(mid_index, self.unordered_items.pop())
                     index -= 1
-            sorted_list[mid_index:mid_index] = entries[1]
-            index -= len(entries[1])
+            sorted_list[mid_index:mid_index] = items
+            index -= len(items)
         sorted_list[mid_index:mid_index] = self.unordered_items
         return sorted_list
 
-    def print_unhandled_items(self):
+    def print_unhandled_items(self) -> None:
         msg = " ".join([mark.item.node_id for mark in self.rel_marks] +
                        [mark.item.node_id for mark in self.dep_marks])
         if msg:
@@ -104,25 +104,27 @@ class ItemList:
             sys.stdout.write("- ignoring the marker.\n")
             sys.stdout.flush()
 
-    def number_of_rel_groups(self):
+    def number_of_rel_groups(self) -> int:
         return len(self.rel_marks) + len(self.dep_marks)
 
-    def handle_rel_marks(self, sorted_list):
+    def handle_rel_marks(self, sorted_list: List[Item]) -> None:
         self.handle_relative_marks(self.rel_marks, sorted_list,
                                    self.all_rel_marks)
 
-    def handle_dep_marks(self, sorted_list):
+    def handle_dep_marks(self, sorted_list: List[Item]) -> None:
         self.handle_relative_marks(self.dep_marks, sorted_list,
                                    self.all_dep_marks)
 
     @staticmethod
-    def handle_relative_marks(marks, sorted_list, all_marks):
+    def handle_relative_marks(marks: List["RelativeMark"],
+                              sorted_list: List[Item],
+                              all_marks: List["RelativeMark"]):
         for mark in reversed(marks):
             if move_item(mark, sorted_list):
                 marks.remove(mark)
                 all_marks.remove(mark)
 
-    def group_order(self):
+    def group_order(self) -> Optional[int]:
         if self.start_items:
             return self.start_items[0][0]
         if self.end_items:
@@ -134,7 +136,8 @@ class ItemGroup:
     Used for sorting groups similar to Item for sorting items.
     """
 
-    def __init__(self, items=None, order=None):
+    def __init__(self, items: Optional[List[Item]] = None,
+                 order: Optional[int] = None) -> None:
         self.items = items or []
         self.order = order
         self.nr_rel_items = 0

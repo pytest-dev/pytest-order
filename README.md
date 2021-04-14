@@ -5,12 +5,12 @@ _pytest-order_ - a pytest plugin to order test execution
 
 `pytest-order` is a pytest plugin that allows you to customize the order in which
 your tests are run. It uses the marker `order` that defines when a specific
-test shall be run relative to the other tests. 
+test shall run, either by using an ordinal number, or by specifying the  
+relationship to other tests. 
 
 `pytest-order` is a fork of
 [pytest-ordering](https://github.com/ftobia/pytest-ordering) that provides
-some additional features - see [below](#comparison-with-pytest_ordering) for
-details.
+additional features like ordering relative to other tests.
 
 `pytest-order` works with Python 3.6 - 3.10, with pytest 
 versions >= 3.7.0, and runs on Linux, macOS and Windows.
@@ -103,20 +103,18 @@ History
 -------
 This is a fork of [pytest-ordering](https://github.com/ftobia/pytest-ordering).
 That project is not maintained anymore, and there are several helpful PRs
-that are now integrated into `pytest-order`. The idea and most of the code
-has been created by Frank Tobia, the author of that plugin, and
+that are now integrated into `pytest-order`. The idea and most of the 
+initial code has been created by Frank Tobia, the author of that plugin, and
 [contributors](https://github.com/pytest-dev/pytest-order/blob/main/AUTHORS).
 
-Comparison with pytest_ordering
--------------------------------
 While derived from `pytest_ordering`, `pytest-order` is **not** compatible
 with `pytest-ordering` due to the changed marker name (`order` instead of
-`run`). Additional markers are integrated into the `order` marker (for a 
-rationale see also
+`run`). Additional markers defined `pytest_ordering` are all integrated 
+into the `order` marker (for a rationale see also
 [this issue](https://github.com/ftobia/pytest-ordering/issues/38)).
 
 Ordering relative to other tests and all the configuration options are not
 available in the released version of `pytest-ordering`.
-However, most of these features are derived from 
+However, most of these features are derived from or inspired by  
 [issues](https://github.com/pytest-dev/pytest-order/blob/main/old_issues.md)
-and pull requests already existing in `pytest-ordering`. 
+and pull requests already existing in `pytest-ordering`.
