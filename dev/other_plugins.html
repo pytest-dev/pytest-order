@@ -1,0 +1,179 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Using pytest-order with other pytest plugins &#8212; pytest-order 1.0.dev0 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Configuration" href="configuration.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="configuration.html" title="Configuration"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pytest-order 1.0.dev0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="using-pytest-order-with-other-pytest-plugins">
+<h1>Using pytest-order with other pytest plugins<a class="headerlink" href="#using-pytest-order-with-other-pytest-plugins" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="relationship-with-pytest-dependency">
+<h2>Relationship with pytest-dependency<a class="headerlink" href="#relationship-with-pytest-dependency" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference external" href="https://pypi.org/project/pytest-dependency/">pytest-dependency</a>
+plugin also manages dependencies between tests (skips tests that depend
+on skipped or failed tests), but doesn’t do any ordering. If you
+want to execute the tests in a specific order to each other, you can use
+<code class="docutils literal notranslate"><span class="pre">pytest-order</span></code>. If you want to skip or xfail tests dependent on other
+tests you can use <code class="docutils literal notranslate"><span class="pre">pytest-dependency</span></code>. If you want to have both behaviors
+combined, you can use both plugins together with the
+option <a class="reference internal" href="configuration.html#order-dependencies"><span class="std std-ref">--order-dependencies</span></a>, described above. As mentioned before, only
+static <code class="docutils literal notranslate"><span class="pre">dependency</span></code> markers are considered for ordering.</p>
+</div>
+<div class="section" id="usage-with-other-ordering-plugins">
+<h2>Usage with other ordering plugins<a class="headerlink" href="#usage-with-other-ordering-plugins" title="Permalink to this headline">¶</a></h2>
+<p>There is a number of other pytest plugins that change the order in which tests
+are executed, the most widely known probably being
+<a class="reference external" href="https://pypi.org/project/pytest-randomly/">pytest-randomly</a>, which
+executes tests in a random order to avoid unknown test dependencies.
+<code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> should still work with these as long as it is executed
+<em>after</em> the other plugins (which it should by default, except if you use
+the option <a class="reference internal" href="configuration.html#indulgent-ordering"><span class="std std-ref">--indulgent-ordering</span></a>).
+The marked tests still shall be ordered correctly, but the order of the
+unordered tests will change, depending on the order the tests have been
+after these other plugins have reordered them.
+For example, if you have installed <code class="docutils literal notranslate"><span class="pre">pytest-randomly</span></code>, and run the
+following tests:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_second</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="k">def</span> <span class="nf">test_third</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="k">def</span> <span class="nf">test_fourth</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_first</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>the output could either be:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">test_randomly</span><span class="o">.</span><span class="n">py</span><span class="p">::</span><span class="n">test_first</span> <span class="n">PASSED</span>
+<span class="n">test_randomly</span><span class="o">.</span><span class="n">py</span><span class="p">::</span><span class="n">test_second</span> <span class="n">PASSED</span>
+<span class="n">test_randomly</span><span class="o">.</span><span class="n">py</span><span class="p">::</span><span class="n">test_third</span> <span class="n">PASSED</span>
+<span class="n">test_randomly</span><span class="o">.</span><span class="n">py</span><span class="p">::</span><span class="n">test_fourth</span> <span class="n">PASSED</span>
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">test_randomly</span><span class="o">.</span><span class="n">py</span><span class="p">::</span><span class="n">test_first</span> <span class="n">PASSED</span>
+<span class="n">test_randomly</span><span class="o">.</span><span class="n">py</span><span class="p">::</span><span class="n">test_second</span> <span class="n">PASSED</span>
+<span class="n">test_randomly</span><span class="o">.</span><span class="n">py</span><span class="p">::</span><span class="n">test_fourth</span> <span class="n">PASSED</span>
+<span class="n">test_randomly</span><span class="o">.</span><span class="n">py</span><span class="p">::</span><span class="n">test_third</span> <span class="n">PASSED</span>
+</pre></div>
+</div>
+<p>The same is true for relative ordering. The tests will be correctly ordered
+before and after the tests as configured, but all other tests will be in an
+arbitrary order.</p>
+<p>Note that it does not make much sense to use ordering plugins together that
+have a similar goal as <code class="docutils literal notranslate"><span class="pre">pytest-order</span></code>, as for example <code class="docutils literal notranslate"><span class="pre">pytest-ordering</span></code>.
+As mentioned, both plugins can co-exist without problems due to the
+different marker names, but using markers of both plugins in the same test
+run is not recommended. One plugin may partially revert the effects of the
+other plugin in unpredictable ways. The same is true for other plugins that
+define the test order.</p>
+</div>
+<div class="section" id="usage-with-pytest-xdist">
+<h2>Usage with pytest-xdist<a class="headerlink" href="#usage-with-pytest-xdist" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference external" href="https://pypi.org/project/pytest-xdist/">pytest-xdist</a> plugin
+schedules tests unordered, and the order configured by <code class="docutils literal notranslate"><span class="pre">pytest-order</span></code>
+will normally not be preserved. But if we use the <code class="docutils literal notranslate"><span class="pre">--dist=loadfile</span></code>
+option, provided by <code class="docutils literal notranslate"><span class="pre">xdist</span></code>, all tests from one file will be run in the
+same thread. So, to make the two plugins work together, we have to put
+each group of dependent tests in one file, and call pytest with
+<code class="docutils literal notranslate"><span class="pre">--dist=loadfile</span></code> (this is taken from
+<a class="reference external" href="https://github.com/ftobia/pytest-ordering/issues/36">this issue</a>).</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Using pytest-order with other pytest plugins</a><ul>
+<li><a class="reference internal" href="#relationship-with-pytest-dependency">Relationship with pytest-dependency</a></li>
+<li><a class="reference internal" href="#usage-with-other-ordering-plugins">Usage with other ordering plugins</a></li>
+<li><a class="reference internal" href="#usage-with-pytest-xdist">Usage with pytest-xdist</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="configuration.html"
+                        title="previous chapter">Configuration</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/other_plugins.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="configuration.html" title="Configuration"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pytest-order 1.0.dev0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>
