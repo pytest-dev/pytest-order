@@ -125,7 +125,9 @@ class Sorter:
                 scope = scope_from_name(mark.kwargs.get("scope", "module"))
                 prefix = scoped_node_id(item.node_id, scope)
                 for name in dependent_mark:
-                    dep_marks.setdefault((name, scope, prefix), []).append(item)
+                    dep_marks.setdefault((name, scope, prefix), []).append(
+                        item
+                    )
                     item.inc_rel_marks()
             # we always collect the names of the dependent items, because
             # we need them in both cases
@@ -400,7 +402,9 @@ class ScopeSorter:
             module_groups.append(module_group)
         return module_groups
 
-    def sort_items_in_scope(self, items: List[Item], scope: Scope) -> ItemGroup:
+    def sort_items_in_scope(
+        self, items: List[Item], scope: Scope
+    ) -> ItemGroup:
         item_list = ItemList(
             items, self.settings, scope, self.rel_marks, self.dep_marks
         )

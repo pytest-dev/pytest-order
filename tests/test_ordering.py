@@ -340,7 +340,9 @@ def test_sparse_numbers(item_names_for):
             assert True
         """
     )
-    assert item_names_for(test_content) == ["test_one", "test_two", "test_three"]
+    assert item_names_for(test_content) == [
+        "test_one", "test_two", "test_three"
+    ]
 
 
 def test_quickstart(item_names_for):
