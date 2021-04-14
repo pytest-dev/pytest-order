@@ -177,8 +177,8 @@ class Sorter:
             is_after: bool) -> bool:
         def is_class_mark() -> bool:
             return (
-                    item.item.cls and
-                    item.item.parent.get_closest_marker("order") == mark
+                item.item.cls and
+                item.item.parent.get_closest_marker("order") == mark
             )
 
         def is_mark_for_class() -> bool:
@@ -219,7 +219,7 @@ class Sorter:
                     item, mark, before_mark, is_after=False):
                 has_relative_marks = True
             else:
-                self.warn_about_unknown_test(before_mark)
+                self.warn_about_unknown_test(item, before_mark)
         after_marks = mark.kwargs.get("after", ())
         if after_marks and not isinstance(after_marks, (list, tuple)):
             after_marks = (after_marks,)
@@ -228,13 +228,15 @@ class Sorter:
                     item, mark, after_mark, is_after=True):
                 has_relative_marks = True
             else:
-                self.warn_about_unknown_test(after_mark)
+                self.warn_about_unknown_test(item, after_mark)
         return has_relative_marks
 
     @staticmethod
-    def warn_about_unknown_test(rel_mark: str) -> None:
-        sys.stdout.write("\nWARNING: cannot execute test relative to others:"
-                         " {} - ignoring the marker.".format(rel_mark))
+    def warn_about_unknown_test(item: Item, rel_mark: str) -> None:
+        sys.stdout.write(
+            "\nWARNING: cannot execute '{}' relative to others: "
+            "'{}' - ignoring the marker.".format(item.item.name, rel_mark)
+        )
 
     def collect_markers(self) -> None:
         aliases = {}

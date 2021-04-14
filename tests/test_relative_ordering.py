@@ -365,8 +365,8 @@ def test_dependency_after_unknown_test(item_names_for, capsys):
     """
     assert item_names_for(test_content) == ["test_1", "test_2"]
     out, err = capsys.readouterr()
-    warning = ("cannot execute test relative to others: "
-               "some_module.py::test_2 - ignoring the marker")
+    warning = ("cannot execute 'test_1' relative to others: "
+               "'some_module.py::test_2' - ignoring the marker")
     assert warning in out
 
 
@@ -386,8 +386,8 @@ def test_dependency_before_unknown_test(item_names_for, capsys):
     """
     assert item_names_for(test_content) == ["test_1", "test_2", "test_3"]
     out, err = capsys.readouterr()
-    warning = ("cannot execute test relative to others: "
-               "test_4 - ignoring the marker")
+    warning = ("cannot execute 'test_2' relative to others: "
+               "'test_4' - ignoring the marker")
     assert warning in out
 
 
@@ -410,8 +410,8 @@ def test_dependency_in_class_before_unknown_test(item_names_for, capsys):
         "Test::test_1", "Test::test_2", "Test::test_3"
     ]
     out, err = capsys.readouterr()
-    warning = ("cannot execute test relative to others: "
-               "test_4 - ignoring the marker")
+    warning = ("cannot execute 'test_2' relative to others: "
+               "'test_4' - ignoring the marker")
     assert warning in out
 
 
