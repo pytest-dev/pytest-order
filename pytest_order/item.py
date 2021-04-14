@@ -3,7 +3,7 @@ from typing import List, Optional, Union, Dict, Tuple
 
 from _pytest.python import Function
 
-from pytest_order.settings import Scope, Settings
+from .settings import Scope, Settings
 
 
 class Item:
@@ -41,10 +41,14 @@ class Item:
 class ItemList:
     """Handles a group of items with the same scope."""
 
-    def __init__(self, items: List[Item],
-                 settings: Settings, scope: Scope,
-                 rel_marks: List["RelativeMark"],
-                 dep_marks: List["RelativeMark"]) -> None:
+    def __init__(
+        self,
+        items: List[Item],
+        settings: Settings,
+        scope: Scope,
+        rel_marks: List["RelativeMark"],
+        dep_marks: List["RelativeMark"],
+    ) -> None:
         self.items = items
         self.settings = settings
         self.scope = scope
@@ -95,30 +99,37 @@ class ItemList:
         return sorted_list
 
     def print_unhandled_items(self) -> None:
-        msg = " ".join([mark.item.node_id for mark in self.rel_marks] +
-                       [mark.item.node_id for mark in self.dep_marks])
+        msg = " ".join(
+            [mark.item.node_id for mark in self.rel_marks]
+            + [mark.item.node_id for mark in self.dep_marks]
+        )
         if msg:
             sys.stdout.write(
-                "\nWARNING: cannot execute test relative to others: ")
+                "\nWARNING: cannot execute test relative to others: "
+            )
             sys.stdout.write(msg)
-            sys.stdout.write("- ignoring the marker.\n")
+            sys.stdout.write(" - ignoring the marker.\n")
             sys.stdout.flush()
 
     def number_of_rel_groups(self) -> int:
         return len(self.rel_marks) + len(self.dep_marks)
 
     def handle_rel_marks(self, sorted_list: List[Item]) -> None:
-        self.handle_relative_marks(self.rel_marks, sorted_list,
-                                   self.all_rel_marks)
+        self.handle_relative_marks(
+            self.rel_marks, sorted_list, self.all_rel_marks
+        )
 
     def handle_dep_marks(self, sorted_list: List[Item]) -> None:
-        self.handle_relative_marks(self.dep_marks, sorted_list,
-                                   self.all_dep_marks)
+        self.handle_relative_marks(
+            self.dep_marks, sorted_list, self.all_dep_marks
+        )
 
     @staticmethod
-    def handle_relative_marks(marks: List["RelativeMark"],
-                              sorted_list: List[Item],
-                              all_marks: List["RelativeMark"]):
+    def handle_relative_marks(
+        marks: List["RelativeMark"],
+        sorted_list: List[Item],
+        all_marks: List["RelativeMark"],
+    ):
         for mark in reversed(marks):
             if move_item(mark, sorted_list):
                 marks.remove(mark)
@@ -136,8 +147,9 @@ class ItemGroup:
     Used for sorting groups similar to Item for sorting items.
     """
 
-    def __init__(self, items: Optional[List[Item]] = None,
-                 order: Optional[int] = None) -> None:
+    def __init__(
+        self, items: Optional[List[Item]] = None, order: Optional[int] = None
+    ) -> None:
         self.items = items or []
         self.order = order
         self.nr_rel_items = 0
@@ -161,17 +173,20 @@ class RelativeMark:
     Holds two related items or groups and their relationship.
     """
 
-    def __init__(self, item: Union[Item, ItemGroup],
-                 item_to_move: Union[Item, ItemGroup],
-                 move_after: bool) -> None:
+    def __init__(
+        self,
+        item: Union[Item, ItemGroup],
+        item_to_move: Union[Item, ItemGroup],
+        move_after: bool,
+    ) -> None:
         self.item: Item = item
         self.item_to_move: Item = item_to_move
         self.move_after: bool = move_after
 
 
 def filter_marks(
-        marks: List[RelativeMark],
-        all_items: List[Item]) -> List[RelativeMark]:
+    marks: List[RelativeMark], all_items: List[Item]
+) -> List[RelativeMark]:
     result = []
     for mark in marks:
         if mark.item in all_items and mark.item_to_move in all_items:
@@ -181,11 +196,14 @@ def filter_marks(
     return result
 
 
-def move_item(mark: RelativeMark,
-              sorted_items: List[Union[Item, ItemGroup]]) -> bool:
-    if (mark.item not in sorted_items or
-            mark.item_to_move not in sorted_items or
-            mark.item.nr_rel_items):
+def move_item(
+    mark: RelativeMark, sorted_items: List[Union[Item, ItemGroup]]
+) -> bool:
+    if (
+        mark.item not in sorted_items
+        or mark.item_to_move not in sorted_items
+        or mark.item.nr_rel_items
+    ):
         return False
     pos_item = sorted_items.index(mark.item)
     pos_item_to_move = sorted_items.index(mark.item_to_move)

@@ -1,4 +1,5 @@
 from unittest import mock
+from textwrap import dedent
 
 import pytest
 from perf_tests.util import TimedSorter
@@ -10,21 +11,23 @@ pytest_plugins = ["pytester"]
 def fixture_path_relative(testdir):
     for i_mod in range(10):
         test_name = testdir.tmpdir.join("test_dep_perf{}.py".format(i_mod))
-        test_contents = """
-import pytest
-"""
+        test_contents = "import pytest\n"
         for i in range(40):
-            test_contents += """
-@pytest.mark.dependency(depends=["test_{}"])
-def test_{}():
-    assert True
-""".format(i + 50, i)
+            test_contents += dedent(
+                """
+                @pytest.mark.dependency(depends=["test_{}"])
+                def test_{}():
+                    assert True
+                """
+            ).format(i + 50, i)
         for i in range(60):
-            test_contents += """
-@pytest.mark.dependency
-def test_{}():
-    assert True
-""".format(i + 40)
+            test_contents += dedent(
+                """
+                @pytest.mark.dependency
+                def test_{}():
+                    assert True
+                """
+            ).format(i + 40)
         test_name.write(test_contents)
     yield testdir
 

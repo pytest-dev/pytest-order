@@ -18,9 +18,7 @@
 import os
 import sys
 
-sys.path.insert(
-    0, os.path.split(os.path.split(os.path.dirname(os.path.abspath(
-        __file__)))[0])[0])
+sys.path.insert(0, os.path.abspath("../.."))
 
 from pytest_order import __version__  # noqa: E402
 
@@ -53,7 +51,7 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"pytest-order"
+project = "pytest-order"
 
 # The version info for the project you"re documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -205,8 +203,13 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    ("index", "pytest-order.tex", u"pytest-order Documentation",
-     u"Frank Tobia", "manual"),
+    (
+        "index",
+        "pytest-order.tex",
+        "pytest-order Documentation",
+        "Frank Tobia",
+        "manual",
+    ),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -235,8 +238,13 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ("index", "pytest-order", u"pytest-order Documentation",
-     [u"Frank Tobia"], 1)
+    (
+        "index",
+        "pytest-order",
+        "pytest-order Documentation",
+        ["Frank Tobia"],
+        1,
+    )
 ]
 
 # If true, show URL addresses after external links.
@@ -249,9 +257,15 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ("index", "pytest-order", u"pytest-order Documentation",
-     u"Frank Tobia", "pytest-order", "One line description of project.",
-     "Miscellaneous"),
+    (
+        "index",
+        "pytest-order",
+        "pytest-order Documentation",
+        "Frank Tobia",
+        "pytest-order",
+        "One line description of project.",
+        "Miscellaneous",
+    ),
 ]
 
 # Documents to append as an appendix to all manuals.

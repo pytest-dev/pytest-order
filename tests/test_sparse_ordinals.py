@@ -11,14 +11,16 @@ def sparse_ordering(ignore_settings):
 
 @pytest.fixture(scope="module")
 def first_test():
-    yield """
-import pytest
+    yield (
+        """
+        import pytest
 
-def test_1(): pass
+        def test_1(): pass
 
-@pytest.mark.order("first")
-def test_2(): pass
-    """
+        @pytest.mark.order("first")
+        def test_2(): pass
+        """
+    )
 
 
 def test_first_default(first_test, item_names_for):
@@ -31,17 +33,19 @@ def test_first_sparse(first_test, item_names_for, sparse_ordering):
 
 @pytest.fixture(scope="module")
 def second_test():
-    yield """
-import pytest
+    yield (
+        """
+        import pytest
 
-def test_1(): pass
-def test_2(): pass
-def test_3(): pass
-def test_4(): pass
+        def test_1(): pass
+        def test_2(): pass
+        def test_3(): pass
+        def test_4(): pass
 
-@pytest.mark.order("second")
-def test_5(): pass
-    """
+        @pytest.mark.order("second")
+        def test_5(): pass
+        """
+    )
 
 
 def test_second_default(second_test, item_names_for):
@@ -58,18 +62,20 @@ def test_second_sparse(second_test, item_names_for, sparse_ordering):
 
 @pytest.fixture(scope="module")
 def third_test():
-    yield """
-import pytest
+    yield (
+        """
+        import pytest
 
-def test_1(): pass
-def test_2(): pass
-def test_3(): pass
+        def test_1(): pass
+        def test_2(): pass
+        def test_3(): pass
 
-@pytest.mark.order("third")
-def test_4(): pass
+        @pytest.mark.order("third")
+        def test_4(): pass
 
-def test_5(): pass
-    """
+        def test_5(): pass
+        """
+    )
 
 
 def test_third_default(third_test, item_names_for):
@@ -86,18 +92,20 @@ def test_third_sparse(third_test, item_names_for, sparse_ordering):
 
 @pytest.fixture(scope="module")
 def second_to_last_test():
-    yield """
-import pytest
+    yield (
+        """
+        import pytest
 
-def test_1(): pass
+        def test_1(): pass
 
-@pytest.mark.order("second_to_last")
-def test_2(): pass
+        @pytest.mark.order("second_to_last")
+        def test_2(): pass
 
-def test_3(): pass
-def test_4(): pass
-def test_5(): pass
-    """
+        def test_3(): pass
+        def test_4(): pass
+        def test_5(): pass
+        """
+    )
 
 
 def test_second_to_last_default(second_to_last_test, item_names_for):
@@ -115,14 +123,16 @@ def test_second_to_last_sparse(second_to_last_test, item_names_for,
 
 @pytest.fixture(scope="module")
 def last_test():
-    yield """
-import pytest
+    yield (
+        """
+        import pytest
 
-@pytest.mark.order("last")
-def test_1(): pass
+        @pytest.mark.order("last")
+        def test_1(): pass
 
-def test_2(): pass
-    """
+        def test_2(): pass
+        """
+    )
 
 
 def test_last_default(last_test, item_names_for):
@@ -135,17 +145,19 @@ def test_last_sparse(last_test, item_names_for, sparse_ordering):
 
 @pytest.fixture(scope="module")
 def first_last_test():
-    yield """
-import pytest
+    yield (
+        """
+        import pytest
 
-@pytest.mark.order("last")
-def test_1(): pass
+        @pytest.mark.order("last")
+        def test_1(): pass
 
-@pytest.mark.order("first")
-def test_2(): pass
+        @pytest.mark.order("first")
+        def test_2(): pass
 
-def test_3(): pass
-    """
+        def test_3(): pass
+        """
+    )
 
 
 def test_first_last_default(first_last_test, item_names_for):
@@ -158,22 +170,24 @@ def test_first_last_sparse(first_last_test, item_names_for, sparse_ordering):
 
 @pytest.fixture(scope="module")
 def duplicate_numbers_test():
-    yield """
-import pytest
+    yield (
+        """
+        import pytest
 
-@pytest.mark.order(1)
-def test_1(): pass
+        @pytest.mark.order(1)
+        def test_1(): pass
 
-@pytest.mark.order(1)
-def test_2(): pass
+        @pytest.mark.order(1)
+        def test_2(): pass
 
-def test_3(): pass
+        def test_3(): pass
 
-def test_4(): pass
+        def test_4(): pass
 
-@pytest.mark.order(4)
-def test_5(): pass
-    """
+        @pytest.mark.order(4)
+        def test_5(): pass
+        """
+    )
 
 
 def test_duplicate_numbers_default(duplicate_numbers_test, item_names_for):
@@ -182,8 +196,9 @@ def test_duplicate_numbers_default(duplicate_numbers_test, item_names_for):
     ]
 
 
-def test_duplicate_numbers_sparse(duplicate_numbers_test, item_names_for,
-                                  sparse_ordering):
+def test_duplicate_numbers_sparse(
+    duplicate_numbers_test, item_names_for, sparse_ordering
+):
     assert item_names_for(duplicate_numbers_test) == [
         "test_3", "test_1", "test_2", "test_4", "test_5"
     ]
@@ -191,21 +206,23 @@ def test_duplicate_numbers_sparse(duplicate_numbers_test, item_names_for,
 
 @pytest.fixture(scope="module")
 def end_items_test():
-    yield """
-import pytest
+    yield (
+        """
+        import pytest
 
-@pytest.mark.order(-2)
-def test_1(): pass
+        @pytest.mark.order(-2)
+        def test_1(): pass
 
-@pytest.mark.order(-4)
-def test_2(): pass
+        @pytest.mark.order(-4)
+        def test_2(): pass
 
-def test_3(): pass
+        def test_3(): pass
 
-def test_4(): pass
+        def test_4(): pass
 
-def test_5(): pass
-    """
+        def test_5(): pass
+        """
+    )
 
 
 def test_end_items_default(end_items_test, item_names_for):

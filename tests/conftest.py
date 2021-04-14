@@ -14,8 +14,9 @@ def item_names_for(testdir):
 
         items = testdir.getitems(tests_content)
         hook = items[0].config.hook
-        hook.pytest_collection_modifyitems(session=items[0].session,
-                                           config=items[0].config, items=items)
+        hook.pytest_collection_modifyitems(
+            session=items[0].session, config=items[0].config, items=items
+        )
 
         return [name(item) for item in items]
 
@@ -25,7 +26,7 @@ def item_names_for(testdir):
 @pytest.fixture
 def test_path(testdir):
     testdir.tmpdir.join("pytest.ini").write(
-        "[pytest]\n" "console_output_style = classic"
+        "[pytest]\nconsole_output_style = classic"
     )
     yield testdir
 
