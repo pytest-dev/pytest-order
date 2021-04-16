@@ -36,12 +36,16 @@ def pytest_configure(config: Config) -> None:
         # to keep the function as a function and then add it to the class as a
         # pseudo method.  Since the class is purely for structuring and `self`
         # is never referenced, this seems reasonable.
-        OrderingPlugin.pytest_collection_modifyitems = pytest.hookimpl(
-            function=modify_items, tryfirst=True
+        setattr(
+            OrderingPlugin, "pytest_collection_modifyitems", pytest.hookimpl(
+                function=modify_items, tryfirst=True
+            )
         )
     else:
-        OrderingPlugin.pytest_collection_modifyitems = pytest.hookimpl(
-            function=modify_items, trylast=True
+        setattr(
+            OrderingPlugin, "pytest_collection_modifyitems", pytest.hookimpl(
+                function=modify_items, trylast=True
+            )
         )
     config.pluginmanager.register(OrderingPlugin(), "orderingplugin")
 

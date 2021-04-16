@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-#
+from typing import List, Dict
+
 # pytest-order documentation build configuration file, created by
 # sphinx-quickstart on Mon Mar 17 18:20:44 2014.
 #
@@ -75,7 +76,7 @@ release = __version__
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = []
+exclude_patterns: List[str] = []
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
@@ -135,7 +136,7 @@ html_theme = "nature"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = []
+html_static_path: List[str] = []
 
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
@@ -188,7 +189,7 @@ htmlhelp_basename = "pytest-orderdoc"
 
 # -- Options for LaTeX output ---------------------------------------------
 
-latex_elements = {
+latex_elements: Dict[str, str] = {
     # The paper size ("letterpaper" or "a4paper").
     # "papersize": "letterpaper",
 

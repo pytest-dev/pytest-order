@@ -1,9 +1,12 @@
 import sys
-from typing import List, Optional, Union, Dict, Tuple
+from typing import Optional, List, Dict, Tuple, Generic, TypeVar
 
 from _pytest.python import Function
 
 from .settings import Scope, Settings
+
+
+_ItemType = TypeVar("_ItemType", "Item", "ItemGroup")
 
 
 class Item:
@@ -46,8 +49,8 @@ class ItemList:
         items: List[Item],
         settings: Settings,
         scope: Scope,
-        rel_marks: List["RelativeMark"],
-        dep_marks: List["RelativeMark"],
+        rel_marks: List["RelativeMark[Item]"],
+        dep_marks: List["RelativeMark[Item]"],
     ) -> None:
         self.items = items
         self.settings = settings
@@ -63,16 +66,16 @@ class ItemList:
         self.dep_marks = filter_marks(dep_marks, items)
 
     def collect_markers(self, item: Item) -> None:
-        if item.order is not None:
-            self.handle_order_mark(item)
+        self.handle_order_mark(item)
         if item.nr_rel_items or item.order is None:
             self.unordered_items.append(item)
 
     def handle_order_mark(self, item: Item) -> None:
-        if item.order < 0:
-            self._end_items.setdefault(item.order, []).append(item)
-        else:
-            self._start_items.setdefault(item.order, []).append(item)
+        if item.order is not None:
+            if item.order < 0:
+                self._end_items.setdefault(item.order, []).append(item)
+            else:
+                self._start_items.setdefault(item.order, []).append(item)
 
     def sort_numbered_items(self) -> List[Item]:
         self.start_items = sorted(self._start_items.items())
@@ -114,22 +117,26 @@ class ItemList:
     def number_of_rel_groups(self) -> int:
         return len(self.rel_marks) + len(self.dep_marks)
 
-    def handle_rel_marks(self, sorted_list: List[Item]) -> None:
+    def handle_rel_marks(
+        self, sorted_list: List[Item]
+    ) -> None:
         self.handle_relative_marks(
             self.rel_marks, sorted_list, self.all_rel_marks
         )
 
-    def handle_dep_marks(self, sorted_list: List[Item]) -> None:
+    def handle_dep_marks(
+        self, sorted_list: List[Item]
+    ) -> None:
         self.handle_relative_marks(
             self.dep_marks, sorted_list, self.all_dep_marks
         )
 
     @staticmethod
     def handle_relative_marks(
-        marks: List["RelativeMark"],
+        marks: List["RelativeMark[Item]"],
         sorted_list: List[Item],
-        all_marks: List["RelativeMark"],
-    ):
+        all_marks: List["RelativeMark[Item]"],
+    ) -> None:
         for mark in reversed(marks):
             if move_item(mark, sorted_list):
                 marks.remove(mark)
@@ -138,19 +145,21 @@ class ItemList:
     def group_order(self) -> Optional[int]:
         if self.start_items:
             return self.start_items[0][0]
-        if self.end_items:
+        elif self.end_items:
             return self.end_items[-1][0]
+        return None
 
 
 class ItemGroup:
-    """Holds a group of sorted items with the same group order scope.
+    """
+    Holds a group of sorted items with the same group order scope.
     Used for sorting groups similar to Item for sorting items.
     """
 
     def __init__(
         self, items: Optional[List[Item]] = None, order: Optional[int] = None
     ) -> None:
-        self.items = items or []
+        self.items: List[Item] = items or []
         self.order = order
         self.nr_rel_items = 0
 
@@ -168,25 +177,26 @@ class ItemGroup:
         self.order = order
 
 
-class RelativeMark:
-    """Represents a marker for an item or an item group.
+class RelativeMark(Generic[_ItemType]):
+    """
+    Represents a marker for an item or an item group.
     Holds two related items or groups and their relationship.
     """
 
     def __init__(
         self,
-        item: Union[Item, ItemGroup],
-        item_to_move: Union[Item, ItemGroup],
+        item: _ItemType,
+        item_to_move: _ItemType,
         move_after: bool,
     ) -> None:
-        self.item: Item = item
-        self.item_to_move: Item = item_to_move
+        self.item: _ItemType = item
+        self.item_to_move: _ItemType = item_to_move
         self.move_after: bool = move_after
 
 
 def filter_marks(
-    marks: List[RelativeMark], all_items: List[Item]
-) -> List[RelativeMark]:
+    marks: List[RelativeMark[_ItemType]], all_items: List[Item]
+) -> List[RelativeMark[_ItemType]]:
     result = []
     for mark in marks:
         if mark.item in all_items and mark.item_to_move in all_items:
@@ -197,7 +207,7 @@ def filter_marks(
 
 
 def move_item(
-    mark: RelativeMark, sorted_items: List[Union[Item, ItemGroup]]
+    mark: RelativeMark[_ItemType], sorted_items: List[_ItemType]
 ) -> bool:
     if (
         mark.item not in sorted_items
