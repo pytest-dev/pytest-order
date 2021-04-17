@@ -2,7 +2,7 @@
 import sys
 from warnings import warn
 from contextlib import suppress
-from typing import Optional, List, Dict, Tuple, OrderedDict, cast
+from typing import Optional, List, Dict, Tuple, cast
 
 from _pytest.config import Config
 from _pytest.mark import Mark
@@ -12,6 +12,20 @@ from .item import (
     Item, ItemList, ItemGroup, filter_marks, move_item, RelativeMark
 )
 from .settings import Settings, Scope
+
+try:
+    from typing import OrderedDict
+except ImportError:
+    # In Python <3.7.2, we need to stub it
+    from collections import OrderedDict as OrderedDict_cls
+    from typing import MutableMapping, TypeVar
+
+    KT = TypeVar("KT")
+    VT = TypeVar("VT")
+
+    class OrderedDict(OrderedDict_cls, MutableMapping[KT, VT]):  # type: ignore
+        pass
+
 
 orders_map = {
     "first": 0,
