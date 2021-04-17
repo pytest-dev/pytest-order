@@ -26,27 +26,17 @@ def pytest_configure(config: Config) -> None:
         "in relation to one another. " + provided_by_pytest_order
     )
     config.addinivalue_line("markers", config_line)
-
+    # We need to dynamically add this `tryfirst` decorator to the plugin:
+    # only when the CLI option is present should the decorator be added.
+    # Thus, we manually run the decorator on the class function and
+    # manually replace it.
     if config.getoption("indulgent_ordering"):
-        # We need to dynamically add this `tryfirst` decorator to the plugin:
-        # only when the CLI option is present should the decorator be added.
-        # Thus, we manually run the decorator on the class function and
-        # manually replace it.
-        # Python 2.7 didn't allow arbitrary attributes on methods, so we have
-        # to keep the function as a function and then add it to the class as a
-        # pseudo method.  Since the class is purely for structuring and `self`
-        # is never referenced, this seems reasonable.
-        setattr(
-            OrderingPlugin, "pytest_collection_modifyitems", pytest.hookimpl(
-                function=modify_items, tryfirst=True
-            )
-        )
+        wrapper = pytest.hookimpl(tryfirst=True)
     else:
-        setattr(
-            OrderingPlugin, "pytest_collection_modifyitems", pytest.hookimpl(
-                function=modify_items, trylast=True
-            )
-        )
+        wrapper = pytest.hookimpl(trylast=True)
+    setattr(
+        OrderingPlugin, "pytest_collection_modifyitems", wrapper(modify_items)
+    )
     config.pluginmanager.register(OrderingPlugin(), "orderingplugin")
 
 
@@ -116,7 +106,7 @@ def pytest_addoption(parser: Parser) -> None:
 
 class OrderingPlugin:
     """
-    Plugin implementation
+    Plugin implementation.
 
     By putting this in a class, we are able to dynamically register it after
     the CLI is parsed.
