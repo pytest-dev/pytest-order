@@ -145,10 +145,7 @@ class Sorter:
         aliases[name_mark] = item
 
     def handle_order_mark(self, item: Item) -> None:
-        mark = item.item.get_closest_marker("order")
-        if mark is None:
-            # failsafe
-            return
+        mark = cast(Mark, item.item.get_closest_marker("order"))
         order = mark.args[0] if mark.args else mark.kwargs.get("index")
         if order is not None:
             if isinstance(order, int):
