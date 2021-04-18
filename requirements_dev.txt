@@ -1,0 +1,5 @@
+-r requirements.txt
+-e .
+pytest-mock>=1.11.0
+pytest-xdist>=1.29.0
+pytest-dependency>=0.5.1

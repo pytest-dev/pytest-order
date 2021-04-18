@@ -4,6 +4,8 @@
 
 ### Breaking changes
 - removed support for Python 2.7 and 3.5
+- removed official support for pytest < 5.0.0 (older versions may still 
+  work, but they are not tested)
 - changed notation of relative markers in other modules - instead of using
   the dot notation, the standard pytest nodeid is used,
   see [#24](https://github.com/pytest-dev/pytest-order/issues/24)

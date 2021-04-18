@@ -13,7 +13,7 @@ relationship to other tests.
 additional features like ordering relative to other tests.
 
 `pytest-order` works with Python 3.6 - 3.10, with pytest 
-versions >= 3.7.0, and runs on Linux, macOS and Windows.
+versions >= 5.0.0, and runs on Linux, macOS and Windows.
 
 Documentation
 -------------
