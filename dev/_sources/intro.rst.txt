@@ -38,7 +38,7 @@ ordering, all configuration options) that are not available in
 
 Supported Python and pytest versions
 ------------------------------------
-``pytest-order`` supports python 3.6 - 3.10 and pypy3, and is
+``pytest-order`` supports python 3.6 - 3.9 and pypy3, and is
 compatible with pytest 5.0.0 or newer (older versions may also work, but are
 not tested).
 
