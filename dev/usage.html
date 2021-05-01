@@ -368,6 +368,25 @@ attributes by using a list or tuple of test names:</p>
 <p>This will ensure that <code class="docutils literal notranslate"><span class="pre">test_first</span></code> is executed both after <code class="docutils literal notranslate"><span class="pre">test_second</span></code>
 and after <code class="docutils literal notranslate"><span class="pre">test_other</span></code> which resides in the module <code class="docutils literal notranslate"><span class="pre">other_module.py</span></code>.</p>
 </div>
+<div class="section" id="relationships-with-parameterized-tests">
+<h3>Relationships with parameterized tests<a class="headerlink" href="#relationships-with-parameterized-tests" title="Permalink to this headline">¶</a></h3>
+<p>If you want to reference parametrized tests, you can just use the test name
+without the parameter part, for example:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;test_second&quot;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">test_first</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">test_second</span><span class="p">(</span><span class="n">param</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>Note that using the fully qualified test name, which would include the
+parameter (in this case <code class="docutils literal notranslate"><span class="pre">test_second[1]</span></code>, <code class="docutils literal notranslate"><span class="pre">test_second[2]</span></code> etc) is not
+supported.</p>
+</div>
 </div>
 </div>
 
@@ -392,6 +411,7 @@ and after <code class="docutils literal notranslate"><span class="pre">test_othe
 <li><a class="reference internal" href="#id1">Markers on class level</a></li>
 <li><a class="reference internal" href="#combination-of-absolute-and-relative-ordering">Combination of absolute and relative ordering</a></li>
 <li><a class="reference internal" href="#several-relationships-for-the-same-marker">Several relationships for the same marker</a></li>
+<li><a class="reference internal" href="#relationships-with-parameterized-tests">Relationships with parameterized tests</a></li>
 </ul>
 </li>
 </ul>
