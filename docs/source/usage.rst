@@ -350,3 +350,24 @@ attributes by using a list or tuple of test names:
 
 This will ensure that ``test_first`` is executed both after ``test_second``
 and after ``test_other`` which resides in the module ``other_module.py``.
+
+Relationships with parameterized tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If you want to reference parametrized tests, you can just use the test name
+without the parameter part, for example:
+
+.. code:: python
+
+ import pytest
+
+ @pytest.mark.order(after=["test_second"])
+ def test_first():
+     assert True
+
+ @pytest.parametrize(param, [1, 2, 3])
+ def test_second(param):
+     assert True
+
+Note that using the fully qualified test name, which would include the
+parameter (in this case ``test_second[1]``, ``test_second[2]`` etc) is not
+supported.

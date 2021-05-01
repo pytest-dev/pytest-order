@@ -9,10 +9,15 @@
 - changed notation of relative markers in other modules - instead of using
   the dot notation, the standard pytest nodeid is used,
   see [#24](https://github.com/pytest-dev/pytest-order/issues/24)
+- using parametrized test names that include the parameter is no longer 
+  supported, just use the name without the parameter instead 
 
 ### New features
 - added support for the ``pytest-dependency`` option ``automark_dependency``
-
+- added support for relative ordering of parametrized tests using the test 
+  name without the parameter value,
+  see [#38](https://github.com/pytest-dev/pytest-order/issues/38)
+  
 ## [Version 0.11.0](https://pypi.org/project/pytest-order/0.11.0/) (2021-04-11)
 Adds support for multiple relative markers for the same test.
 
