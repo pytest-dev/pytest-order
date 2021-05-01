@@ -59,7 +59,9 @@ class Sorter:
         self.node_id_last: Dict[str, List[str]] = {}
         for item in self.items:
             self.node_ids[item.node_id] = item
-            _, _, last_part = item.node_id.rpartition("::")
+            last_part = item.node_id.rpartition("::")[2]
+            if "[" in last_part:
+                last_part = last_part.rpartition("[")[0]
             # save last nodeid component to avoid to iterate over all
             # items for each label
             self.node_id_last.setdefault(last_part, []).append(
@@ -174,22 +176,30 @@ class Sorter:
         if order is not None:
             item.nr_rel_items = 0
 
-    def item_from_label(
+    def items_from_label(
         self, label: str, item: Item, is_cls_mark: bool
-    ) -> Optional[Item]:
+    ) -> List[Item]:
+        """
+        Return the list of matching items from the given label.
+        The list contains one item for a single matching test, several items
+        in the case of a matching parametrized test, or no item in case of
+        an invalid label.
+        """
         item_id = item.node_id
         label_len = len(label)
         last_comp = label.split("/")[-1].split("::")[-1]
+        items = []
         with suppress(KeyError):
             node_ids = self.node_id_last[last_comp]
             for node_id in node_ids:
-                if node_id.endswith(label):
+                if (node_id.endswith(label) or node_id.endswith("]") and
+                        node_id.rpartition("[")[0].endswith(label)):
                     id_start = node_id[:-label_len]
                     if is_cls_mark and id_start.count("::") == 2:
                         continue
                     if item_id.startswith(id_start):
-                        return self.node_ids[node_id]
-        return None
+                        items.append(self.node_ids[node_id])
+        return items
 
     def items_from_class_label(self, label: str, item: Item) -> List[Item]:
         items = []
@@ -216,14 +226,16 @@ class Sorter:
             return "::" not in marker_name and is_class_mark()
 
         is_cls_mark = is_class_mark()
-        item_for_label = self.item_from_label(marker_name, item, is_cls_mark)
-        if item_for_label:
-            rel_mark = RelativeMark(item_for_label, item, move_after=is_after)
-            if is_after or not is_cls_mark:
-                self.rel_marks.append(rel_mark)
-            else:
-                self.rel_marks.insert(0, rel_mark)
-            item.inc_rel_marks()
+        items_for_label = self.items_from_label(marker_name, item, is_cls_mark)
+        if items_for_label:
+            for item_for_label in items_for_label:
+                rel_mark = RelativeMark(
+                    item_for_label, item, move_after=is_after)
+                if is_after or not is_cls_mark:
+                    self.rel_marks.append(rel_mark)
+                else:
+                    self.rel_marks.insert(0, rel_mark)
+                item.inc_rel_marks()
             return True
         else:
             if is_mark_for_class():

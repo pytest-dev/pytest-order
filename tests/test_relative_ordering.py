@@ -490,3 +490,26 @@ def test_dependency_loop(item_names_for, capsys):
         "test_dependency_loop.py::test_3"
     )
     assert warning in out
+
+
+def test_dependency_on_parametrized_test(item_names_for):
+    test_content = (
+        """
+        import pytest
+
+        @pytest.mark.order(after="test_2")
+        def test_1():
+            pass
+
+        @pytest.mark.parametrize("arg", [1, 2, 3, 4])
+        def test_2(arg):
+            pass
+
+        @pytest.mark.order(before="test_2")
+        def test_3():
+            pass
+        """
+    )
+    assert item_names_for(test_content) == [
+        "test_3", "test_2[1]", "test_2[2]", "test_2[3]", "test_2[4]", "test_1"
+    ]
