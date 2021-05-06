@@ -18,6 +18,9 @@
   name without the parameter value,
   see [#38](https://github.com/pytest-dev/pytest-order/issues/38)
   
+### Infrastructure
+- re-added Python 3.10 to CI tests (for pytest >= 6.2.4)
+  
 ## [Version 0.11.0](https://pypi.org/project/pytest-order/0.11.0/) (2021-04-11)
 Adds support for multiple relative markers for the same test.
 
