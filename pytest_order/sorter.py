@@ -192,13 +192,18 @@ class Sorter:
         with suppress(KeyError):
             node_ids = self.node_id_last[last_comp]
             for node_id in node_ids:
-                if (node_id.endswith(label) or node_id.endswith("]") and
-                        node_id.rpartition("[")[0].endswith(label)):
+                if node_id.endswith(label):
                     id_start = node_id[:-label_len]
-                    if is_cls_mark and id_start.count("::") == 2:
-                        continue
-                    if item_id.startswith(id_start):
-                        items.append(self.node_ids[node_id])
+                elif (node_id.endswith("]") and
+                      node_id.rpartition("[")[0].endswith(label)):
+                    id_start = node_id.rpartition("[")[0][:-label_len]
+                else:
+                    continue
+                if is_cls_mark and id_start.count("::") == 2:
+                    continue
+                if item_id.startswith(id_start):
+                    items.append(self.node_ids[node_id])
+
         return items
 
     def items_from_class_label(self, label: str, item: Item) -> List[Item]:

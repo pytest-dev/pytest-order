@@ -501,7 +501,7 @@ def test_dependency_on_parametrized_test(item_names_for):
         def test_1():
             pass
 
-        @pytest.mark.parametrize("arg", [1, 2, 3, 4])
+        @pytest.mark.parametrize("arg", ["aaaaa", "bbbbb", "ccccc", "ddddd"])
         def test_2(arg):
             pass
 
@@ -511,5 +511,6 @@ def test_dependency_on_parametrized_test(item_names_for):
         """
     )
     assert item_names_for(test_content) == [
-        "test_3", "test_2[1]", "test_2[2]", "test_2[3]", "test_2[4]", "test_1"
+        "test_3", "test_2[aaaaa]", "test_2[bbbbb]",
+        "test_2[ccccc]", "test_2[ddddd]", "test_1"
     ]
