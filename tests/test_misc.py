@@ -24,3 +24,25 @@ def test_markers_registered(capsys):
     assert "@pytest.mark.order" in out
     # only order is supported as marker
     assert out.count("Provided by pytest-order.") == 1
+
+
+def tests_working_without_dependency(test_path):
+    """Make sure no other plugins are needed in settings."""
+    test_path.makepyfile(
+        test_a=(
+            """
+            import pytest
+
+            def test_a(): pass
+
+            @pytest.mark.order(0)
+            def test_b(): pass
+            """
+        )
+    )
+    result = test_path.runpytest("-v", "-p", "no:xdist",
+                                 "-p", "no:dependency", "-p", "no:mock")
+    result.stdout.fnmatch_lines([
+        "test_a.py::test_b PASSED",
+        "test_a.py::test_a PASSED",
+    ])
