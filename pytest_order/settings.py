@@ -54,7 +54,10 @@ class Settings:
         if self.group_scope.value > self.scope.value:
             warn("Group scope is larger than order scope, ignoring it.")
             self.group_scope = self.scope
-        auto_mark_dep = config.getini("automark_dependency")
+        try:
+            auto_mark_dep = config.getini("automark_dependency")
+        except ValueError:
+            auto_mark_dep = False
         self.auto_mark_dep = (
             auto_mark_dep
             and auto_mark_dep.lower() in ("1", "yes", "y", "true", "t", "on")
