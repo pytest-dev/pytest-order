@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Introduction &#8212; pytest-order 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Usage" href="usage.html" />
+    <link rel="prev" title="pytest-order - a plugin to order test execution" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="usage.html" title="Usage"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="pytest-order - a plugin to order test execution"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pytest-order 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Introduction</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> is a pytest plugin which allows you to customize the order
+in which your tests are run. It provides the marker <code class="docutils literal notranslate"><span class="pre">order</span></code>, that has
+attributes that define when your tests should run in relation to each other.
+These attributes can be absolute (i.e. first, or second-to-last) or relative
+(i.e. run this test before this other test).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is generally considered bad practice to write tests that depend on each
+other. However, in reality this may still be needed due to performance
+issues, legacy code or other constraints. Still, before using this plugin,
+you should check if you can refactor your tests to remove the dependencies
+between tests.</p>
+</div>
+<section id="relationship-with-pytest-ordering">
+<h2>Relationship with pytest-ordering<a class="headerlink" href="#relationship-with-pytest-ordering" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> is a fork of
+<a class="reference external" href="https://github.com/ftobia/pytest-ordering">pytest-ordering</a>, which is
+not maintained anymore. The idea and most of the code has been created by
+Frank Tobia, the author of that plugin, and contributors to the project.</p>
+<p>However, <code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> is not compatible with <code class="docutils literal notranslate"><span class="pre">pytest-ordering</span></code> due to the
+changed marker name (<code class="docutils literal notranslate"><span class="pre">order</span></code> instead of <code class="docutils literal notranslate"><span class="pre">run</span></code>) and the removal of all
+other special markers for consistence (as has been discussed in
+<a class="reference external" href="https://github.com/ftobia/pytest-ordering/issues/38">this issue</a>). This
+also avoids clashes between the plugins if they are both installed.</p>
+<p>Here are examples for which markers correspond to markers in
+<code class="docutils literal notranslate"><span class="pre">pytest-ordering</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pytest.mark.order1</span></code>, <code class="docutils literal notranslate"><span class="pre">pytest.mark.run(order=1)</span></code> =&gt; <code class="docutils literal notranslate"><span class="pre">pytest.mark.order(1)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pytest.mark.first</span></code> =&gt; <code class="docutils literal notranslate"><span class="pre">pytest.mark.order(&quot;first&quot;)</span></code></p></li>
+</ul>
+<p>Additionally, <code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> provides a number of features (relative
+ordering, all configuration options) that are not available in
+<code class="docutils literal notranslate"><span class="pre">pytest-ordering</span></code>.</p>
+</section>
+<section id="supported-python-and-pytest-versions">
+<h2>Supported Python and pytest versions<a class="headerlink" href="#supported-python-and-pytest-versions" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">pytest-order</span></code> supports python 3.6 - 3.10 and pypy3, and is
+compatible with pytest 5.0.0 or newer (older versions may also work, but are
+not tested) for Python versions up to 3.9, and with pytest &gt;= 6.2.4 for
+Python 3.10.</p>
+<p>All supported combinations of Python and pytest versions are tested in
+the CI builds. The plugin shall work under Linux, MacOs and Windows.</p>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>The latest released version can be installed from
+<a class="reference external" href="https://pypi.python.org/pypi/pytest-order/">PyPi</a>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install pytest-order
+</pre></div>
+</div>
+<p>The latest main branch can be installed from the GitHub sources:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install git+https://github.com/pytest-dev/pytest-order
+</pre></div>
+</div>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>Most examples shown in this documentation can be also found in the repository
+under <a class="reference external" href="https://github.com/pytest-dev/pytest-order/tree/main/example/">example</a>
+as working test files.</p>
+</section>
+<section id="quickstart">
+<h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h2>
+<p>Ordinarily pytest will run tests in the order that they appear in a module.
+For example, for the following tests:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_foo</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="k">def</span> <span class="nf">test_bar</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>the output is something like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pytest test_foo.py -vv
+============================= test session starts ==============================
+platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
+collected 2 items
+
+test_foo.py:2: test_foo PASSED
+test_foo.py:6: test_bar PASSED
+
+=========================== 2 passed in 0.01 seconds ===========================
+</pre></div>
+</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">pytest-order</span></code>, you can change the default ordering as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_foo</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_bar</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>This will generate the output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pytest test_foo.py -vv
+============================= test session starts ==============================
+platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
+plugins: order
+collected 2 items
+
+test_foo.py:7: test_bar PASSED
+test_foo.py:3: test_foo PASSED
+
+=========================== 2 passed in 0.01 seconds ===========================
+</pre></div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#relationship-with-pytest-ordering">Relationship with pytest-ordering</a></li>
+<li><a class="reference internal" href="#supported-python-and-pytest-versions">Supported Python and pytest versions</a></li>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#examples">Examples</a></li>
+<li><a class="reference internal" href="#quickstart">Quickstart</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">pytest-order - a plugin to order test execution</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="usage.html"
+                        title="next chapter">Usage</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/intro.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="usage.html" title="Usage"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="pytest-order - a plugin to order test execution"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pytest-order 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Introduction</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>

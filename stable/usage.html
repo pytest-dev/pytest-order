@@ -1,0 +1,468 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Usage &#8212; pytest-order 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/nature.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Configuration" href="configuration.html" />
+    <link rel="prev" title="Introduction" href="intro.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="configuration.html" title="Configuration"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pytest-order 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Usage</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<p>The above is a trivial example, but ordering is respected across test files.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The scope of the ordering is global per default, e.g. tests with lower
+ordinal numbers are always executed before tests with higher numbers in
+the same test session, regardless of the module and class they reside in.
+This can be changed by using the <a class="reference internal" href="configuration.html#order-scope"><span class="std std-ref">--order-scope</span></a> option.</p>
+</div>
+<p>Ordering is done either absolutely, by using ordinal numbers that define the
+order, or relative to other tests, using the <code class="docutils literal notranslate"><span class="pre">before</span></code> and <code class="docutils literal notranslate"><span class="pre">after</span></code>
+attributes of the marker.</p>
+<section id="ordering-by-numbers">
+<h2>Ordering by numbers<a class="headerlink" href="#ordering-by-numbers" title="Permalink to this headline">¶</a></h2>
+<p>The order can be defined by ordinal numbers, or by ordinal strings.</p>
+<section id="order-by-index">
+<h3>Order by index<a class="headerlink" href="#order-by-index" title="Permalink to this headline">¶</a></h3>
+<p>As already shown above, the order can be defined using ordinal numbers.
+There is a long form that uses the keyword <code class="docutils literal notranslate"><span class="pre">index</span></code>, and a short form, that
+uses just the ordinal number–both are shown in the example below. The long
+form may be better readable if you want to combine it with a dependency marker
+(<code class="docutils literal notranslate"><span class="pre">before</span></code> or <code class="docutils literal notranslate"><span class="pre">after</span></code>, see below).
+Negative numbers are also allowed–they are used the same way as indices
+are used in Python lists, e.g. to count from the end:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_three</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">index</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_four</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_two</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_one</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pytest test_foo.py -vv
+============================= test session starts ==============================
+platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
+plugins: order
+collected 4 items
+
+test_foo.py:17: test_one PASSED
+test_foo.py:12: test_two PASSED
+test_foo.py:3: test_three PASSED
+test_foo.py:7: test_four PASSED
+
+=========================== 4 passed in 0.02 seconds ===========================
+</pre></div>
+</div>
+<p>There is no limit for the numbers that can be used in this way.</p>
+</section>
+<section id="order-using-ordinals">
+<h3>Order using ordinals<a class="headerlink" href="#order-using-ordinals" title="Permalink to this headline">¶</a></h3>
+<p>Instead of the numbers, you can use ordinal names such as “first”, “second”,
+“last”, and “second_to_last”. These are convenience notations, and have the
+same effect as the numbers 0, 1, -1 and -2, respectively, that have been shown
+above:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s2">&quot;second_to_last&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_three</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s2">&quot;last&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_four</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s2">&quot;second&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_two</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="s2">&quot;first&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_one</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pytest test_foo.py -vv
+============================= test session starts ==============================
+platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
+plugins: order
+collected 4 items
+
+test_foo.py:17: test_one PASSED
+test_foo.py:12: test_two PASSED
+test_foo.py:3: test_three PASSED
+test_foo.py:7: test_four PASSED
+
+=========================== 4 passed in 0.02 seconds ===========================
+</pre></div>
+</div>
+<p>Convenience names are only defined for the first and the last 8 numbers.
+Here is the complete list with the corresponding numbers:</p>
+<ul class="simple">
+<li><p>“first”: 0</p></li>
+<li><p>“second”: 1</p></li>
+<li><p>“third”: 2</p></li>
+<li><p>“fourth”: 3</p></li>
+<li><p>“fifth”: 4</p></li>
+<li><p>“sixth”: 5</p></li>
+<li><p>“seventh”: 6</p></li>
+<li><p>“eighth”: 7</p></li>
+<li><p>“last”: -1</p></li>
+<li><p>“second_to_last”: -2</p></li>
+<li><p>“third_to_last”: -3</p></li>
+<li><p>“fourth_to_last”: -4</p></li>
+<li><p>“fifth_to_last”: -5</p></li>
+<li><p>“sixth_to_last”: -6</p></li>
+<li><p>“seventh_to_last”: -7</p></li>
+<li><p>“eighth_to_last”: -8</p></li>
+</ul>
+</section>
+<section id="markers-on-class-level">
+<h3>Markers on class level<a class="headerlink" href="#markers-on-class-level" title="Permalink to this headline">¶</a></h3>
+<p>If setting an <code class="docutils literal notranslate"><span class="pre">order</span></code> mark on class level, all tests in this class will be
+handled as having the same ordinal marker, e.g. the class as a whole will be
+reordered without changing the test order inside the test class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Test1</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">test_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">test_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Test2</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">test_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">test_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pytest -vv test_ordinal_class_mark.py
+============================= test session starts ==============================
+...
+collected 4 items
+
+test_ordinal_class_mark.py::Test2::test_1 PASSED
+test_ordinal_class_mark.py::Test2::test_2 PASSED
+test_ordinal_class_mark.py::Test1::test_1 PASSED
+test_ordinal_class_mark.py::Test1::test_2 PASSED
+</pre></div>
+</div>
+</section>
+<section id="handling-of-unordered-tests">
+<h3>Handling of unordered tests<a class="headerlink" href="#handling-of-unordered-tests" title="Permalink to this headline">¶</a></h3>
+<p>By default, tests with no <code class="docutils literal notranslate"><span class="pre">order</span></code> mark are executed after all tests with
+positive ordinal numbers (or the respective names), and before tests with
+negative ordinal numbers. The order of these tests in relationship to each
+other is not changed. This behavior will slightly change if the option
+<a class="reference internal" href="configuration.html#sparse-ordering"><span class="std std-ref">--sparse-ordering</span></a> is used and the ordinals are not contiguous.</p>
+</section>
+</section>
+<section id="order-relative-to-other-tests">
+<h2>Order relative to other tests<a class="headerlink" href="#order-relative-to-other-tests" title="Permalink to this headline">¶</a></h2>
+<p>The test order can be defined relative to other tests, which are referenced
+by their name. The marker attributes <code class="docutils literal notranslate"><span class="pre">before</span></code> and <code class="docutils literal notranslate"><span class="pre">after</span></code> can be used to
+define the order relative to these tests:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s2">&quot;test_second&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_third</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="k">def</span> <span class="nf">test_second</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">before</span><span class="o">=</span><span class="s2">&quot;test_second&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_first</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pytest test_foo.py -vv
+============================= test session starts ==============================
+platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
+plugins: order
+collected 3 items
+
+test_foo.py:11: test_first PASSED
+test_foo.py:7: test_second PASSED
+test_foo.py:4: test_third PASSED
+
+=========================== 4 passed in 0.02 seconds ===========================
+</pre></div>
+</div>
+<section id="referencing-of-tests-in-other-classes-or-modules">
+<h3>Referencing of tests in other classes or modules<a class="headerlink" href="#referencing-of-tests-in-other-classes-or-modules" title="Permalink to this headline">¶</a></h3>
+<p>If a test is referenced using the unqualified test name as shown in the
+example above, the test is assumed to be in the current module and the current
+class, if any. For tests in other classes in the same module the class name
+with a <code class="docutils literal notranslate"><span class="pre">::</span></code> suffix has to be prepended to the test name:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="k">class</span> <span class="nc">TestA</span><span class="p">:</span>
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s2">&quot;TestB::test_c&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test_a</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">test_b</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="k">class</span> <span class="nc">TestB</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">test_c</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>If the referenced test lives in another module, you have to use the nodeid
+of the test, or a part of the nodeid that is sufficient to make it uniquely
+identifiable (the nodeid is the test ID that pytest prints if you run it with
+the <code class="docutils literal notranslate"><span class="pre">-v</span></code> option).
+Let’s say we have the following module and test layout:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">test_module_a</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">TestA</span>
+        <span class="n">test_a</span>
+        <span class="n">test_b</span>
+<span class="n">test_module_b</span><span class="o">.</span><span class="n">py</span>
+    <span class="n">test_a</span>
+    <span class="n">test_b</span>
+<span class="n">test_module_c</span>
+    <span class="n">test_submodule</span><span class="o">.</span><span class="n">py</span>
+        <span class="n">test_1</span>
+        <span class="n">test_2</span>
+</pre></div>
+</div>
+<p>Suppose the tests in <code class="docutils literal notranslate"><span class="pre">test_module_b</span></code> shall depend on tests in the other
+modules, this could be expressed like:</p>
+<p><strong>test_module_b.py</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s2">&quot;test_module_a.py::TestA::test_a&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_a</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">before</span><span class="o">=</span><span class="s2">&quot;test_module_c/test_submodule.py::test_2&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_b</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>If an unknown test is referenced, a warning is issued and the execution
+order of the test in is not changed.</p>
+</section>
+<section id="id1">
+<h3>Markers on class level<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>As for ordinal markers, markers on class level are handled as if they are set
+to each individual test in the class. Additionally to referencing single
+tests, you can also reference test classes if using the <code class="docutils literal notranslate"><span class="pre">before</span></code> or
+<code class="docutils literal notranslate"><span class="pre">after</span></code> marker attributes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="s2">&quot;Test2&quot;</span><span class="p">)</span>
+<span class="k">class</span> <span class="nc">Test1</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">test_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">test_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="k">class</span> <span class="nc">Test2</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">test_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">test_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>In this case, the tests in the marked class will be ordered behind all tests
+in the referenced class:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pytest -vv test_relative_class_mark.py
+============================= test session starts ==============================
+...
+collected 4 items
+
+test_relative_class_marker.py::Test2::test_1 PASSED
+test_relative_class_marker.py::Test2::test_2 PASSED
+test_relative_class_marker.py::Test1::test_1 PASSED
+test_relative_class_marker.py::Test1::test_2 PASSED
+</pre></div>
+</div>
+</section>
+<section id="combination-of-absolute-and-relative-ordering">
+<h3>Combination of absolute and relative ordering<a class="headerlink" href="#combination-of-absolute-and-relative-ordering" title="Permalink to this headline">¶</a></h3>
+<p>If you combine absolute and relative order markers, the ordering is first done
+for the absolute markers (e.g. the ordinals), and afterwards for the relative
+ones. This means that relative ordering always takes preference:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">after</span><span class="o">=</span><span class="s2">&quot;test_second&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_first</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">test_second</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>In this case, <code class="docutils literal notranslate"><span class="pre">test_second</span></code> will be executed before <code class="docutils literal notranslate"><span class="pre">test_first</span></code>,
+regardless of the ordinal markers.</p>
+</section>
+<section id="several-relationships-for-the-same-marker">
+<h3>Several relationships for the same marker<a class="headerlink" href="#several-relationships-for-the-same-marker" title="Permalink to this headline">¶</a></h3>
+<p>If you need to order a certain test relative to more than one other test, you
+can add more than one test name to the <code class="docutils literal notranslate"><span class="pre">before</span></code> or <code class="docutils literal notranslate"><span class="pre">after</span></code> marker
+attributes by using a list or tuple of test names:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;test_second&quot;</span><span class="p">,</span> <span class="s2">&quot;other_module.py::test_other&quot;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">test_first</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="k">def</span> <span class="nf">test_second</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>This will ensure that <code class="docutils literal notranslate"><span class="pre">test_first</span></code> is executed both after <code class="docutils literal notranslate"><span class="pre">test_second</span></code>
+and after <code class="docutils literal notranslate"><span class="pre">test_other</span></code> which resides in the module <code class="docutils literal notranslate"><span class="pre">other_module.py</span></code>.</p>
+</section>
+<section id="relationships-with-parameterized-tests">
+<h3>Relationships with parameterized tests<a class="headerlink" href="#relationships-with-parameterized-tests" title="Permalink to this headline">¶</a></h3>
+<p>If you want to reference parametrized tests, you can just use the test name
+without the parameter part, for example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pytest</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="n">after</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;test_second&quot;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">test_first</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">test_second</span><span class="p">(</span><span class="n">param</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="kc">True</span>
+</pre></div>
+</div>
+<p>Note that using the fully qualified test name, which would include the
+parameter (in this case <code class="docutils literal notranslate"><span class="pre">test_second[1]</span></code>, <code class="docutils literal notranslate"><span class="pre">test_second[2]</span></code> etc) is not
+supported.</p>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Usage</a><ul>
+<li><a class="reference internal" href="#ordering-by-numbers">Ordering by numbers</a><ul>
+<li><a class="reference internal" href="#order-by-index">Order by index</a></li>
+<li><a class="reference internal" href="#order-using-ordinals">Order using ordinals</a></li>
+<li><a class="reference internal" href="#markers-on-class-level">Markers on class level</a></li>
+<li><a class="reference internal" href="#handling-of-unordered-tests">Handling of unordered tests</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#order-relative-to-other-tests">Order relative to other tests</a><ul>
+<li><a class="reference internal" href="#referencing-of-tests-in-other-classes-or-modules">Referencing of tests in other classes or modules</a></li>
+<li><a class="reference internal" href="#id1">Markers on class level</a></li>
+<li><a class="reference internal" href="#combination-of-absolute-and-relative-ordering">Combination of absolute and relative ordering</a></li>
+<li><a class="reference internal" href="#several-relationships-for-the-same-marker">Several relationships for the same marker</a></li>
+<li><a class="reference internal" href="#relationships-with-parameterized-tests">Relationships with parameterized tests</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="previous chapter">Introduction</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="configuration.html"
+                        title="next chapter">Configuration</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/usage.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="configuration.html" title="Configuration"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="Introduction"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pytest-order 1.0.0 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Usage</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    </div>
+  </body>
+</html>
