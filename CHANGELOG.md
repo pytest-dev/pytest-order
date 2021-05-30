@@ -1,6 +1,7 @@
 # pytest-order Release Notes
 
-## Unreleased
+## [Version 1.0.0](https://pypi.org/project/pytest-order/1.0.0/) (2021-05-30)
+First Python 3 only version.
 
 ### Breaking changes
 - removed support for Python 2.7 and 3.5
@@ -20,6 +21,7 @@
   
 ### Infrastructure
 - re-added Python 3.10 to CI tests (for pytest >= 6.2.4)
+- added type hints
   
 ## [Version 0.11.0](https://pypi.org/project/pytest-order/0.11.0/) (2021-04-11)
 Adds support for multiple relative markers for the same test.
