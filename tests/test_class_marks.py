@@ -179,3 +179,30 @@ def test_before_class_marks_for_single_test(item_names_for):
         "Test1::test_1",
         "Test1::test_2",
     ]
+
+
+def test_rel_class_mark_with_order_mark(item_names_for):
+    tests_content = (
+        """
+        import pytest
+
+        class Test1:
+            def test_1(self): pass
+
+            def test_2(self): pass
+
+        @pytest.mark.order(before="Test1")
+        class Test2:
+            @pytest.mark.order(2)
+            def test_1(self): pass
+
+            @pytest.mark.order(1)
+            def test_2(self): pass
+        """
+    )
+    assert item_names_for(tests_content) == [
+        "Test2::test_2",
+        "Test2::test_1",
+        "Test1::test_1",
+        "Test1::test_2",
+    ]

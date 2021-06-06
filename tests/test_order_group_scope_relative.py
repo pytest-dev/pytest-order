@@ -133,3 +133,34 @@ def test_class_group_scope_module_scope(fixture_path):
         "test_rel4.py::test_one PASSED",
         "test_rel4.py::test_two PASSED",
     ])
+
+
+def test_rel_class_mark_with_order_mark(test_path):
+    test_path.makepyfile(
+        test_class_rel="""
+        import pytest
+
+        class Test1:
+            def test_1(self): pass
+
+            @pytest.mark.order(1)
+            def test_2(self): pass
+
+        @pytest.mark.order(before="Test1")
+        class Test2:
+            def test_1(self): pass
+
+            @pytest.mark.order(1)
+            def test_2(self): pass
+        """
+    )
+    result = test_path.runpytest(
+        "-v", "--order-group-scope=class"
+    )
+    result.assert_outcomes(passed=4, failed=0)
+    result.stdout.fnmatch_lines([
+        "test_class_rel.py::Test2::test_2 PASSED",
+        "test_class_rel.py::Test2::test_1 PASSED",
+        "test_class_rel.py::Test1::test_2 PASSED",
+        "test_class_rel.py::Test1::test_1 PASSED",
+    ])
