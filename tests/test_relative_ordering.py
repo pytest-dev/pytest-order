@@ -322,6 +322,28 @@ def test_combined_markers2(item_names_for):
     assert item_names_for(test_content) == ["test_3", "test_2", "test_1"]
 
 
+def test_multiple_markers(item_names_for):
+    test_content = (
+        """
+        import pytest
+
+        def test_1():
+            pass
+
+        @pytest.mark.order(before="test_1")
+        @pytest.mark.order(2)
+        def test_2():
+            pass
+
+        @pytest.mark.order(1)
+        @pytest.mark.order(before="test_1")
+        def test_3():
+            pass
+        """
+    )
+    assert item_names_for(test_content) == ["test_3", "test_2", "test_1"]
+
+
 def test_combined_markers3(item_names_for):
     test_content = (
         """

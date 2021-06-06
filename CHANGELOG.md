@@ -1,5 +1,11 @@
 # pytest-order Release Notes
 
+## Unreleased
+
+### Fixes
+- correctly handle combined class and test order markers,
+  see [#45](https://github.com/pytest-dev/pytest-order/issues/45)
+
 ## [Version 1.0.0](https://pypi.org/project/pytest-order/1.0.0/) (2021-05-30)
 First Python 3 only version.
 

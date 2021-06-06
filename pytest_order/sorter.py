@@ -128,7 +128,7 @@ class Sorter:
         if has_dependency or self.settings.auto_mark_dep:
             self.handle_dependency_mark(item, has_order, dep_marks, aliases)
         if has_order:
-            self.handle_order_mark(item)
+            self.handle_order_marks(item)
 
     def handle_dependency_mark(
         self,
@@ -160,8 +160,12 @@ class Sorter:
             name_mark = item.node_id
         aliases[name_mark] = item
 
-    def handle_order_mark(self, item: Item) -> None:
-        mark = cast(Mark, item.item.get_closest_marker("order"))
+    def handle_order_marks(self, item: Item) -> None:
+        marks = item.item.iter_markers("order")
+        for mark in marks:
+            self.handle_order_mark(item, mark)
+
+    def handle_order_mark(self, item: Item, mark: Mark) -> None:
         order = mark.args[0] if mark.args else mark.kwargs.get("index")
         if order is not None:
             if isinstance(order, int):
@@ -171,7 +175,8 @@ class Sorter:
             else:
                 warn("Unknown order attribute:'{}'".format(order))
                 order = None
-        item.order = order
+        if item.order is None:
+            item.order = order
         self.handle_relative_marks(item, mark)
         if order is not None:
             item.nr_rel_items = 0
