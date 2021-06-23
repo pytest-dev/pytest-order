@@ -27,7 +27,11 @@ setup(
             "pytest_order = pytest_order.plugin",
         ]
     },
-    install_requires=["pytest>=5.0"],
+    python_requires=">=3.6",
+    install_requires=[
+        "pytest>=5.0; python_version < '3.10'",
+        "pytest>=6.2.4; python_version >= '3.10'"
+    ],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
