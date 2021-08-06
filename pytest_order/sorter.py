@@ -224,6 +224,21 @@ class Sorter:
                         items.append(self.node_ids[node_id])
         return items
 
+    def items_from_path_label(self, label: str, item: Item) -> List[Item]:
+        items = []
+        item_id = item.node_id
+        label_len = len(label)
+        for node_id in self.node_ids:
+            if node_id.count("::") == 2:
+                path_index = node_id.index("::")
+                if label.endswith('/') and label in node_id:  # directory ordering
+                    items.append(self.node_ids[node_id])
+                elif node_id[:path_index].endswith(label):    # end-of-filename ordering
+                    id_start = node_id[:path_index - label_len]
+                    if item_id.startswith(id_start):
+                        items.append(self.node_ids[node_id])
+        return items
+
     def handle_before_or_after_mark(
         self, item: Item, mark: Mark, marker_name: str, is_after: bool
     ) -> bool:
@@ -247,9 +262,19 @@ class Sorter:
                     self.rel_marks.insert(0, rel_mark)
                 item.inc_rel_marks()
             return True
-        else:
-            if is_mark_for_class():
-                items = self.items_from_class_label(marker_name, item)
+        elif is_mark_for_class():
+            items = self.items_from_class_label(marker_name, item)
+            for item_for_label in items:
+                rel_mark = RelativeMark(
+                    item_for_label, item, move_after=is_after
+                )
+                if is_after:
+                    self.rel_marks.append(rel_mark)
+                else:
+                    self.rel_marks.insert(0, rel_mark)
+                item.inc_rel_marks()
+            if not items:
+                items = self.items_from_path_label(marker_name, item)
                 for item_for_label in items:
                     rel_mark = RelativeMark(
                         item_for_label, item, move_after=is_after
@@ -258,8 +283,8 @@ class Sorter:
                         self.rel_marks.append(rel_mark)
                     else:
                         self.rel_marks.insert(0, rel_mark)
-                    item.inc_rel_marks()
-                return len(items) > 0
+                        item.inc_rel_marks()
+            return len(items) > 0
         return False
 
     def handle_relative_marks(self, item: Item, mark: Mark) -> bool:
