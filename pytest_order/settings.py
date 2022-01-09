@@ -56,9 +56,10 @@ class Settings:
             self.group_scope = self.scope
         try:
             auto_mark_dep = config.getini("automark_dependency")
+            if isinstance(auto_mark_dep, str):
+                auto_mark_dep = auto_mark_dep.lower() in (
+                    "1", "yes", "y", "true", "t", "on"
+                )
         except ValueError:
             auto_mark_dep = False
-        self.auto_mark_dep = (
-            auto_mark_dep
-            and auto_mark_dep.lower() in ("1", "yes", "y", "true", "t", "on")
-        )
+        self.auto_mark_dep = auto_mark_dep
