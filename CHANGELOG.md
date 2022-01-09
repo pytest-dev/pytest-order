@@ -1,6 +1,7 @@
 # pytest-order Release Notes
 
-## Unreleased
+## [Version 1.0.1](https://pypi.org/project/pytest-order/1.0.1/) (2022-01-09)
+Bugfix release.
 
 ### Fixes
 - correctly handle combined class and test order markers,
