@@ -5,6 +5,9 @@
 ### Fixes
 - correctly handle combined class and test order markers,
   see [#45](https://github.com/pytest-dev/pytest-order/issues/45)
+- adapt code to changed type of `automark_dependency` in development branch
+  of `pytest-dependency`,
+  see [#58](https://github.com/pytest-dev/pytest-order/issues/58)
 
 ## [Version 1.0.0](https://pypi.org/project/pytest-order/1.0.0/) (2021-05-30)
 First Python 3 only version.

@@ -21,12 +21,33 @@ Documentation
 Apart from this overview, the following information is available:
 - usage documentation for the [latest release](https://pytest-dev.github.io/pytest-order/stable/)
 - usage documentation for the [current main branch](https://pytest-dev.github.io/pytest-order/dev/)
-- all examples shown in the documentation can also be found in the 
+- most examples shown in the documentation can also be found in the 
   [repository](https://github.com/pytest-dev/pytest-order/tree/main/example)
 - the [Release Notes](https://github.com/pytest-dev/pytest-order/blob/main/CHANGELOG.md)
   with a list of changes in the latest versions
 - a [list of open issues](https://github.com/pytest-dev/pytest-order/blob/main/old_issues.md)
   in the original project and their handling in `pytest-order`
+
+Features
+--------
+`pytest-order` provides the following features:
+- ordering of tests [by index](https://pytest-dev.github.io/pytest-order/stable/usage.html#ordering-by-numbers)
+- ordering of tests both from the start and from the end (via negative
+  index)
+- ordering of tests [relative to each other](https://pytest-dev.github.io/pytest-order/stable/usage.html#order-relative-to-other-tests)
+  (via the `before` and `after` marker attributes)
+- session-, module- and class-scope ordering via the
+  [order-scope](https://pytest-dev.github.io/pytest-order/stable/configuration.html#order-scope) option
+- directory scope ordering via the
+  [order-scope-level](https://pytest-dev.github.io/pytest-order/stable/configuration.html#order-scope-level) option
+- hierarchical module and class-level ordering via the 
+  [order-group-scope](https://pytest-dev.github.io/pytest-order/stable/configuration.html#order-group-scope) option
+- ordering tests with `pytest-dependency` markers if using the
+  [order-dependencies](https://pytest-dev.github.io/pytest-order/stable/configuration.html#order-dependencies) option, 
+  more information about `pytest-dependency` compatibility
+  [here](https://pytest-dev.github.io/pytest-order/stable/other_plugins.html#relationship-with-pytest-dependency) 
+- sparse ordering of tests via the 
+  [sparse-ordering](https://pytest-dev.github.io/pytest-order/stable/configuration.html#sparse-ordering) option
 
 Overview
 --------
@@ -69,25 +90,6 @@ yields the output:
     test_foo.py:3: test_foo PASSED
 
     =========================== 2 passed in 0.01 seconds ===========================
-
-Features
---------
-`pytest-order` provides the following features:
-- ordering of tests by index, as shown above
-- ordering of tests both from the start and from the end (via negative
-  index)
-- ordering of tests relative to each other (via the `before` and `after`
-  marker attributes) 
-- session-, module- and class-scope ordering via the ``order-scope`` option
-- directory scope ordering via the ``order-scope-level`` option
-- hierarchical module and class-level ordering via the ``group-order-scope``
-  option
-- ordering tests with `pytest-dependency` markers if using the
-  ``order-dependencies`` option
-- sparse ordering of tests via the ``sparse-ordering`` option
-  
-A usage guide for each feature can be
-found in the [documentation](https://pytest-dev.github.io/pytest-order/dev/).
 
 Contributing
 ------------
