@@ -1,6 +1,6 @@
 """Test showing that sorting is not done if it would break an existing
 dependency.
-See https://pytest-dev.github.io/pytest-order/dev/#order-dependencies
+See https://pytest-order.readthedocs.io/en/stable/#order-dependencies
 """
 import pytest
 

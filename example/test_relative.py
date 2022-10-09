@@ -1,5 +1,5 @@
 """Shows how to sort tests relatively to each other, see
-https://pytest-dev.github.io/pytest-order/dev/#order-relative-to-other-tests
+https://pytest-order.readthedocs.io/en/stable/#order-relative-to-other-tests
 """
 import pytest
 

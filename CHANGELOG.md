@@ -2,6 +2,7 @@
 
 ### Infrastructure
 - added pytest 7.0 to CI tests
+- moved documentation to [Read the Docs](https://pytest-order.readthedocs.io)
 
 ## [Version 1.0.1](https://pypi.org/project/pytest-order/1.0.1/) (2022-01-09)
 Bugfix release.

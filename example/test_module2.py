@@ -1,5 +1,5 @@
 """One of the test files showing the use of the --order-scope option.
-See https://pytest-dev.github.io/pytest-order/dev/#order-scope
+See https://pytest-order.readthedocs.io/en/stable/#order-scope
 """
 import pytest
 
