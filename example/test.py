@@ -1,5 +1,5 @@
 """Reference test without ordering from the quick start chapter.
-See https://pytest-dev.github.io/pytest-order/dev/#quickstart
+See https://pytest-order.readthedocs.io/en/stable/#quickstart
 """
 
 

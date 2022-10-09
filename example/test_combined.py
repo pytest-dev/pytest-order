@@ -1,5 +1,5 @@
 """Shows how combined ordinal and relative sorting is handled.
-See https://pytest-dev.github.io/pytest-order/dev/#combination-of-absolute-and-relative-ordering  # noqa: E501
+See https://pytest-order.readthedocs.io/en/stable/#combination-of-absolute-and-relative-ordering  # noqa: E501
 """
 import pytest
 

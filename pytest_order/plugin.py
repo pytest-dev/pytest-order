@@ -18,7 +18,7 @@ def pytest_configure(config: Config) -> None:
 
     provided_by_pytest_order = (
         "Provided by pytest-order. "
-        "See also: https://pytest-dev.github.io/pytest-order/"
+        "See also: https://pytest-order.readthedocs.io/"
     )
 
     config_line = (

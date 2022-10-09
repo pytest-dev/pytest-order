@@ -1,7 +1,7 @@
 _pytest-order_ - a pytest plugin to order test execution
 ========================================================
 
-[![PyPI version](https://badge.fury.io/py/pytest-order.svg)](https://pypi.org/project/pytest-order) [![Testsuite](https://github.com/pytest-dev/pytest-order/workflows/Testsuite/badge.svg)](https://github.com/pytest-dev/pytest-order/actions?query=workflow%3ATestsuite) [![DocBuild](https://github.com/pytest-dev/pytest-order/workflows/DocBuild/badge.svg)](https://github.com/pytest-dev/pytest-order/actions?query=workflow%3ADocBuild) [![codecov](https://codecov.io/gh/pytest-dev/pytest-order/branch/main/graph/badge.svg?token=M9PHWZSHUU)](https://codecov.io/gh/pytest-dev/pytest-order) [![Python version](https://img.shields.io/pypi/pyversions/pytest-order.svg)](https://pypi.org/project/pytest-order)
+[![PyPI version](https://badge.fury.io/py/pytest-order.svg)](https://pypi.org/project/pytest-order) [![Testsuite](https://github.com/pytest-dev/pytest-order/workflows/Testsuite/badge.svg)](https://github.com/pytest-dev/pytest-order/actions?query=workflow%3ATestsuite) [![DocBuild](https://readthedocs.org/projects/pytest-pyfakefs/badge/?version=latest)](https://pytest-pyfakefs.readthedocs.io/en/latest/?badge=latest) [![codecov](https://codecov.io/gh/pytest-dev/pytest-order/branch/main/graph/badge.svg?token=M9PHWZSHUU)](https://codecov.io/gh/pytest-dev/pytest-order) [![Python version](https://img.shields.io/pypi/pyversions/pytest-order.svg)](https://pypi.org/project/pytest-order)
 
 `pytest-order` is a pytest plugin that allows you to customize the order in which
 your tests are run. It uses the marker `order` that defines when a specific
@@ -19,8 +19,8 @@ versions >= 5.0.0 for all versions except Python 3.10, and for pytest >=
 Documentation
 -------------
 Apart from this overview, the following information is available:
-- usage documentation for the [latest release](https://pytest-dev.github.io/pytest-order/stable/)
-- usage documentation for the [current main branch](https://pytest-dev.github.io/pytest-order/dev/)
+- usage documentation for the [latest release](https://pytest-order.readthedocs.io/en/stable/)
+- usage documentation for the [current main branch](https://pytest-order.readthedocs.io/en/latest/)
 - most examples shown in the documentation can also be found in the 
   [repository](https://github.com/pytest-dev/pytest-order/tree/main/example)
 - the [Release Notes](https://github.com/pytest-dev/pytest-order/blob/main/CHANGELOG.md)
@@ -31,23 +31,23 @@ Apart from this overview, the following information is available:
 Features
 --------
 `pytest-order` provides the following features:
-- ordering of tests [by index](https://pytest-dev.github.io/pytest-order/stable/usage.html#ordering-by-numbers)
+- ordering of tests [by index](https://pytest-order.readthedocs.io/en/stable/usage.html#ordering-by-numbers)
 - ordering of tests both from the start and from the end (via negative
   index)
-- ordering of tests [relative to each other](https://pytest-dev.github.io/pytest-order/stable/usage.html#order-relative-to-other-tests)
+- ordering of tests [relative to each other](https://pytest-order.readthedocs.io/en/stable/usage.html#order-relative-to-other-tests)
   (via the `before` and `after` marker attributes)
 - session-, module- and class-scope ordering via the
-  [order-scope](https://pytest-dev.github.io/pytest-order/stable/configuration.html#order-scope) option
+  [order-scope](https://pytest-order.readthedocs.io/en/stable/configuration.html#order-scope) option
 - directory scope ordering via the
-  [order-scope-level](https://pytest-dev.github.io/pytest-order/stable/configuration.html#order-scope-level) option
+  [order-scope-level](https://pytest-order.readthedocs.io/en/stable/configuration.html#order-scope-level) option
 - hierarchical module and class-level ordering via the 
-  [order-group-scope](https://pytest-dev.github.io/pytest-order/stable/configuration.html#order-group-scope) option
+  [order-group-scope](https://pytest-order.readthedocs.io/en/stable/configuration.html#order-group-scope) option
 - ordering tests with `pytest-dependency` markers if using the
-  [order-dependencies](https://pytest-dev.github.io/pytest-order/stable/configuration.html#order-dependencies) option, 
+  [order-dependencies](hhttps://pytest-order.readthedocs.io/en/stable/configuration.html#order-dependencies) option, 
   more information about `pytest-dependency` compatibility
-  [here](https://pytest-dev.github.io/pytest-order/stable/other_plugins.html#relationship-with-pytest-dependency) 
+  [here](https://pytest-order.readthedocs.io/en/stable/other_plugins.html#relationship-with-pytest-dependency) 
 - sparse ordering of tests via the 
-  [sparse-ordering](https://pytest-dev.github.io/pytest-order/stable/configuration.html#sparse-ordering) option
+  [sparse-ordering](https://pytest-order.readthedocs.io/en/stable/configuration.html#sparse-ordering) option
 
 Overview
 --------
