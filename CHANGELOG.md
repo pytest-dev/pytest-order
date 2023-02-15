@@ -1,7 +1,11 @@
 # pytest-order Release Notes
 
+### Changes
+- removed official support for Python 3.6 
+
 ### Infrastructure
-- added pytest 7.0 to CI tests
+- added pytest 7.x to CI tests
+- added Python 3.11 to and removed Python 3.6 from CI tests
 - moved documentation to [Read the Docs](https://pytest-order.readthedocs.io)
 
 ## [Version 1.0.1](https://pypi.org/project/pytest-order/1.0.1/) (2022-01-09)

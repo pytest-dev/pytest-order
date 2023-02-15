@@ -15,9 +15,9 @@ jobs:
         os: [ubuntu-latest]
         python-version:  [3.8]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Get pip cache dir
@@ -25,7 +25,7 @@ jobs:
       run: |
         echo "::set-output name=dir::$(pip cache dir)"
     - name: pip cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{ steps.pip-cache.outputs.dir }}
         key: py${{ matrix.python-version }}-${{ matrix.os }}-pip
@@ -40,16 +40,16 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: [3.6, 3.7, 3.8, 3.9, "3.10", pypy3]
+        python-version: [3.7, 3.8, 3.9, "3.10", "3.11", "pypy-3.7"]
         exclude:
           - os: windows-latest
-            python-version: pypy3
+            python-version: "pypy-3.7"
     env:
       OS: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Get pip cache dir
@@ -58,7 +58,7 @@ jobs:
         python -m pip install -U pip # to ensure version > 20 to have cache dir
         echo "::set-output name=dir::$(pip cache dir)"
     - name: pip cache
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{ steps.pip-cache.outputs.dir }}
         key: py${{ matrix.python-version }}-${{ matrix.os }}-pip
@@ -68,7 +68,7 @@ jobs:
         python -m pip install pytest pytest-cov tox
     - name: Run tests
       run: |
-        TOX_PYTHON_VERSION=$(if [ ${{ matrix.python-version }} = pypy3 ]; then echo "pypy3"; else echo py${{ matrix.python-version }} | tr -d .-; fi)
+        TOX_PYTHON_VERSION=$(if [ ${{ matrix.python-version }} = pypy-3.7 ]; then echo "pypy3"; else echo py${{ matrix.python-version }} | tr -d .-; fi)
         COV_CMD=$(if [ ${{ matrix.python-version }} = 3.8 ]; then echo "--cov=./pytest_order/ --cov-report=xml"; else echo ; fi) tox -e $(tox -l | grep $TOX_PYTHON_VERSION | paste -sd "," -)
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
