@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
-from textwrap import dedent
-
-import pytest
-
 
 def test_multiple_markers(item_names_for):
     test_content = (
         """
         import pytest
-        
+
         @pytest.mark.order(2)
         def test_1():
             pass
