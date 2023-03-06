@@ -375,8 +375,8 @@ supported.
 
 Multiple test order markers
 -------------------
-More than one order marker can be set for a test.
-In this scenario test will be executed several times in defined order.
+More than one order marker can be set for the test.
+In this scenario test will be executed several times in the defined order.
 
 Combination of absolute and relative ordering
 ~~~~~~~~~~~~~~
@@ -402,7 +402,8 @@ Combination of absolute and relative ordering
  def test_three_and_five():
      pass
 
-Each order marker is converted to a parameter set:
+When a test has multiple order markers, each marker turns into a pytest ``ParameterSet``,
+so it will be run multiple times.
 
 ::
 
@@ -420,7 +421,7 @@ Each order marker is converted to a parameter set:
 
 Parametrized tests
 ~~~~~~~~~~~~~~
-Although multiple test order markers creates its own parametrization, it can be used with parametrized tests.
+Although multiple test order markers create their own parametrization, it can be used with parametrized tests.
 
 .. code:: python
 
