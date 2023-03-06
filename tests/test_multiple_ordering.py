@@ -102,13 +102,13 @@ def test_multiple_markers_in_class(item_names_for):
     test_content = (
         """
         import pytest
-        
+
         class TestA:
             @pytest.mark.order(1)
             @pytest.mark.order(3)
             def test_1_and_3():
                 pass
-            @pytest.mark.order(-1)    
+            @pytest.mark.order(-1)
             def test_4():
                 pass
 
