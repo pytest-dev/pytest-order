@@ -96,3 +96,30 @@ def test_multiple_markers_with_parametrization(item_names_for):
         'test_2[index=-1-ccccc]',
         'test_2[index=-1-ddddd]'
     ]
+
+
+def test_multiple_markers_in_class(item_names_for):
+    test_content = (
+        """
+        import pytest
+        
+        class TestA:
+            @pytest.mark.order(1)
+            @pytest.mark.order(3)
+            def test_1_and_3():
+                pass
+            @pytest.mark.order(-1)    
+            def test_4():
+                pass
+
+        @pytest.mark.order(2)
+        def test_2():
+            pass
+        """
+    )
+    assert item_names_for(test_content) == [
+        "TestA::test_1_and_3[index=1]",
+        "test_2",
+        "TestA::test_1_and_3[index=3]",
+        "TestA::test_4",
+    ]
