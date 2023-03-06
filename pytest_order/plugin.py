@@ -5,6 +5,7 @@ import pytest
 from _pytest.config import Config
 from _pytest.config.argparsing import Parser
 from _pytest.main import Session
+from _pytest.mark import Mark
 from _pytest.python import Function
 
 from .sorter import Sorter
@@ -102,6 +103,42 @@ def pytest_addoption(parser: Parser) -> None:
             "if needed."
         ),
     )
+
+
+def _get_mark_description(mark: Mark):
+    if mark.kwargs:
+        return ", ".join([f"{k}={v}" for k, v in mark.kwargs.items()])
+    elif mark.args:
+        return f"index={mark.args[0]}"
+    return mark
+
+
+def pytest_generate_tests(metafunc):
+    """
+    Handle multiple pytest.mark.order decorators.
+
+    Make parametrized tests with corresponding order marks.
+    """
+    if getattr(metafunc, "function", False):
+        if getattr(metafunc.function, "pytestmark", False):
+            # Get list of order marks
+            marks = metafunc.function.pytestmark
+            order_marks = [
+                mark for mark in marks if mark.name == "order"
+            ]
+            if len(order_marks) > 1:
+                # Remove all order marks
+                metafunc.function.pytestmark = [
+                    mark for mark in marks if mark.name != "order"
+                ]
+                # Prepare arguments for parametrization with order marks
+                args = [
+                    pytest.param(_get_mark_description(mark), marks=[mark])
+                    for mark in order_marks
+                ]
+                if "order" not in metafunc.fixturenames:
+                    metafunc.fixturenames.append("order")
+                metafunc.parametrize('order', args)
 
 
 class OrderingPlugin:
