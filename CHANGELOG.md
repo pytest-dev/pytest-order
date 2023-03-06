@@ -1,5 +1,8 @@
 # pytest-order Release Notes
 
+### New features
+- added support for multiple test order markers
+
 ### Changes
 - removed official support for Python 3.6 
 
