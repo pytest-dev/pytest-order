@@ -371,3 +371,82 @@ without the parameter part, for example:
 Note that using the fully qualified test name, which would include the
 parameter (in this case ``test_second[1]``, ``test_second[2]`` etc) is not
 supported.
+
+
+Multiple test order markers
+-------------------
+More than one order marker can be set for a test.
+In this scenario test will be executed several times in defined order.
+
+Combination of absolute and relative ordering
+~~~~~~~~~~~~~~
+.. code:: python
+
+ import pytest
+
+ @pytest.mark.order(1)
+ @pytest.mark.order(-1)
+ def test_one_and_seven():
+     pass
+
+ @pytest.mark.order(2)
+ @pytest.mark.order(-2)
+ def test_two_and_six():
+     pass
+
+ def test_four():
+     pass
+
+ @pytest.mark.order(before="test_four")
+ @pytest.mark.order(after="test_four")
+ def test_three_and_five():
+     pass
+
+Each order marker is converted to a parameter set:
+
+::
+
+    ============================= test session starts =============================
+    collecting ... collected 7 items
+    test_multiple_markers.py::test_one_and_seven[index=1]
+    test_multiple_markers.py::test_two_and_six[index=2]
+    test_multiple_markers.py::test_three_and_five[before=test_four]
+    test_multiple_markers.py::test_four
+    test_multiple_markers.py::test_three_and_five[after=test_four]
+    test_multiple_markers.py::test_two_and_six[index=-2]
+    test_multiple_markers.py::test_one_and_seven[index=-1]
+    ============================== 7 passed in 0.02s ==============================
+
+
+Parametrized tests
+~~~~~~~~~~~~~~
+Although multiple test order markers creates its own parametrization, it can be used with parametrized tests.
+
+.. code:: python
+
+ import pytest
+
+ @pytest.mark.order(1)
+ @pytest.mark.order(3)
+ @pytest.mark.parametrize("foo", ["aaa", "bbb"])
+ def test_one_and_three(foo):
+     pass
+
+ @pytest.mark.order(4)
+ @pytest.mark.parametrize("bar", ["bbb", "ccc"])
+ @pytest.mark.order(2)
+ def test_two_and_four(bar):
+     pass
+
+::
+
+    collecting ... collected 8 items
+    test_multiple_markers.py::test_one_and_three[index=1-aaa] PASSED         [ 12%]
+    test_multiple_markers.py::test_one_and_three[index=1-bbb] PASSED         [ 25%]
+    test_multiple_markers.py::test_two_and_four[index=2-bbb] PASSED          [ 37%]
+    test_multiple_markers.py::test_two_and_four[index=2-ccc] PASSED          [ 50%]
+    test_multiple_markers.py::test_one_and_three[index=3-aaa] PASSED         [ 62%]
+    test_multiple_markers.py::test_one_and_three[index=3-bbb] PASSED         [ 75%]
+    test_multiple_markers.py::test_two_and_four[index=4-bbb] PASSED          [ 87%]
+    test_multiple_markers.py::test_two_and_four[index=4-ccc] PASSED          [100%]
+    ============================== 8 passed in 0.02s ==============================
