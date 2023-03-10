@@ -1,10 +1,13 @@
 # pytest-order Release Notes
 
+## [Version 1.1.0](https://pypi.org/project/pytest-order/1.1.0/) (2023-03-10)
+Adds support for executing tests more than once using order marks.
+
 ### New features
 - added support for multiple test order markers
 
 ### Changes
-- removed official support for Python 3.6 
+- removed official support for Python 3.6
 
 ### Infrastructure
 - added pytest 7.x to CI tests
