@@ -30,7 +30,7 @@ setup(
     python_requires=">=3.6",
     install_requires=[
         "pytest>=5.0; python_version < '3.10'",
-        "pytest>=6.2.4; python_version >= '3.10'"
+        "pytest>=6.2.4; python_version >= '3.10'",
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -49,7 +49,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
-        'Programming Language :: Python :: 3 :: Only',
+        "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python :: Implementation :: PyPy",
     ],

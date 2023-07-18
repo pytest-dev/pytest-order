@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import pytest
 
 
@@ -79,18 +77,20 @@ def fixture_path(test_path):
 def test_session_scope(fixture_path):
     result = fixture_path.runpytest("-v", "--order-dependencies")
     result.assert_outcomes(passed=10, failed=0)
-    result.stdout.fnmatch_lines([
-        "test_named_dep1.py::Test1::test_two PASSED",
-        "test_named_dep1.py::Test2::test_one PASSED",
-        "test_named_dep2.py::test_two PASSED",
-        "test_named_dep3.py::test_one PASSED",
-        "test_named_dep3.py::test_two PASSED",
-        "test_named_dep1.py::Test2::test_two PASSED",
-        "test_named_dep1.py::Test1::test_one PASSED",
-        "test_named_dep2.py::test_one PASSED",
-        "test_named_dep4.py::test_one PASSED",
-        "test_named_dep4.py::test_two PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_named_dep1.py::Test1::test_two PASSED",
+            "test_named_dep1.py::Test2::test_one PASSED",
+            "test_named_dep2.py::test_two PASSED",
+            "test_named_dep3.py::test_one PASSED",
+            "test_named_dep3.py::test_two PASSED",
+            "test_named_dep1.py::Test2::test_two PASSED",
+            "test_named_dep1.py::Test1::test_one PASSED",
+            "test_named_dep2.py::test_one PASSED",
+            "test_named_dep4.py::test_one PASSED",
+            "test_named_dep4.py::test_two PASSED",
+        ]
+    )
 
 
 @pytest.mark.skipif(
@@ -102,18 +102,20 @@ def test_module_group_scope(fixture_path):
         "-v", "--order-dependencies", "--order-group-scope=module"
     )
     result.assert_outcomes(passed=10, failed=0)
-    result.stdout.fnmatch_lines([
-        "test_named_dep3.py::test_one PASSED",
-        "test_named_dep3.py::test_two PASSED",
-        "test_named_dep1.py::Test1::test_two PASSED",
-        "test_named_dep1.py::Test2::test_one PASSED",
-        "test_named_dep1.py::Test2::test_two PASSED",
-        "test_named_dep1.py::Test1::test_one PASSED",
-        "test_named_dep2.py::test_one PASSED",
-        "test_named_dep2.py::test_two PASSED",
-        "test_named_dep4.py::test_one PASSED",
-        "test_named_dep4.py::test_two PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_named_dep3.py::test_one PASSED",
+            "test_named_dep3.py::test_two PASSED",
+            "test_named_dep1.py::Test1::test_two PASSED",
+            "test_named_dep1.py::Test2::test_one PASSED",
+            "test_named_dep1.py::Test2::test_two PASSED",
+            "test_named_dep1.py::Test1::test_one PASSED",
+            "test_named_dep2.py::test_one PASSED",
+            "test_named_dep2.py::test_two PASSED",
+            "test_named_dep4.py::test_one PASSED",
+            "test_named_dep4.py::test_two PASSED",
+        ]
+    )
 
 
 @pytest.mark.skipif(
@@ -125,18 +127,20 @@ def test_class_group_scope(fixture_path):
         "-v", "--order-dependencies", "--order-group-scope=class"
     )
     result.assert_outcomes(passed=10, failed=0)
-    result.stdout.fnmatch_lines([
-        "test_named_dep3.py::test_one PASSED",
-        "test_named_dep3.py::test_two PASSED",
-        "test_named_dep1.py::Test2::test_one PASSED",
-        "test_named_dep1.py::Test2::test_two PASSED",
-        "test_named_dep1.py::Test1::test_one PASSED",
-        "test_named_dep1.py::Test1::test_two PASSED",
-        "test_named_dep2.py::test_one PASSED",
-        "test_named_dep2.py::test_two PASSED",
-        "test_named_dep4.py::test_one PASSED",
-        "test_named_dep4.py::test_two PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_named_dep3.py::test_one PASSED",
+            "test_named_dep3.py::test_two PASSED",
+            "test_named_dep1.py::Test2::test_one PASSED",
+            "test_named_dep1.py::Test2::test_two PASSED",
+            "test_named_dep1.py::Test1::test_one PASSED",
+            "test_named_dep1.py::Test1::test_two PASSED",
+            "test_named_dep2.py::test_one PASSED",
+            "test_named_dep2.py::test_two PASSED",
+            "test_named_dep4.py::test_one PASSED",
+            "test_named_dep4.py::test_two PASSED",
+        ]
+    )
 
 
 @pytest.mark.skipif(
@@ -151,15 +155,17 @@ def test_class_group_scope_module_scope(fixture_path):
         "--order-scope=module",
     )
     result.assert_outcomes(passed=7, skipped=3)
-    result.stdout.fnmatch_lines([
-        "test_named_dep1.py::Test2::test_one PASSED",
-        "test_named_dep1.py::Test2::test_two SKIPPED*",
-        "test_named_dep1.py::Test1::test_one SKIPPED*",
-        "test_named_dep1.py::Test1::test_two PASSED",
-        "test_named_dep2.py::test_one SKIPPED*",
-        "test_named_dep2.py::test_two PASSED",
-        "test_named_dep3.py::test_one PASSED",
-        "test_named_dep3.py::test_two PASSED",
-        "test_named_dep4.py::test_one PASSED",
-        "test_named_dep4.py::test_two PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_named_dep1.py::Test2::test_one PASSED",
+            "test_named_dep1.py::Test2::test_two SKIPPED*",
+            "test_named_dep1.py::Test1::test_one SKIPPED*",
+            "test_named_dep1.py::Test1::test_two PASSED",
+            "test_named_dep2.py::test_one SKIPPED*",
+            "test_named_dep2.py::test_two PASSED",
+            "test_named_dep3.py::test_one PASSED",
+            "test_named_dep3.py::test_two PASSED",
+            "test_named_dep4.py::test_one PASSED",
+            "test_named_dep4.py::test_two PASSED",
+        ]
+    )

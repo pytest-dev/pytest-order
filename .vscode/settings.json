@@ -2,7 +2,7 @@
     "restructuredtext.confPath": "${workspaceFolder}\\docs\\source",
     "python.formatting.blackArgs": [
         "--line-length",
-        "79",
+        "88",
         "--skip-string-normalization"
     ],
     "python.formatting.provider": "black",

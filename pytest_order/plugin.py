@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from typing import List
 
 import pytest
@@ -18,8 +17,7 @@ def pytest_configure(config: Config) -> None:
     """
 
     provided_by_pytest_order = (
-        "Provided by pytest-order. "
-        "See also: https://pytest-order.readthedocs.io/"
+        "Provided by pytest-order. " "See also: https://pytest-order.readthedocs.io/"
     )
 
     config_line = (
@@ -35,8 +33,8 @@ def pytest_configure(config: Config) -> None:
         wrapper = pytest.hookimpl(tryfirst=True)
     else:
         wrapper = pytest.hookimpl(trylast=True)
-    setattr(
-        OrderingPlugin, "pytest_collection_modifyitems", wrapper(modify_items)
+    OrderingPlugin.pytest_collection_modifyitems = wrapper(  # type:ignore[attr-defined]
+        modify_items
     )
     config.pluginmanager.register(OrderingPlugin(), "orderingplugin")
 
@@ -123,9 +121,7 @@ def pytest_generate_tests(metafunc):
         if getattr(metafunc.function, "pytestmark", False):
             # Get list of order marks
             marks = metafunc.function.pytestmark
-            order_marks = [
-                mark for mark in marks if mark.name == "order"
-            ]
+            order_marks = [mark for mark in marks if mark.name == "order"]
             if len(order_marks) > 1:
                 # Remove all order marks
                 metafunc.function.pytestmark = [
@@ -138,7 +134,7 @@ def pytest_generate_tests(metafunc):
                 ]
                 if "order" not in metafunc.fixturenames:
                     metafunc.fixturenames.append("order")
-                metafunc.parametrize('order', args)
+                metafunc.parametrize("order", args)
 
 
 class OrderingPlugin:
@@ -150,8 +146,6 @@ class OrderingPlugin:
     """
 
 
-def modify_items(
-    session: Session, config: Config, items: List[Function]
-) -> None:
+def modify_items(session: Session, config: Config, items: List[Function]) -> None:
     sorter = Sorter(config, items)
     items[:] = sorter.sort_items()

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from textwrap import dedent
 
 import pytest
@@ -8,8 +7,9 @@ import pytest_order
 def test_xdist_ordering(tmpdir):
     testname = str(tmpdir.join("first_test.py"))
     with open(testname, "w") as fi:
-        fi.write(dedent(
-            """
+        fi.write(
+            dedent(
+                """
             import pytest
 
             val = 1
@@ -29,12 +29,14 @@ def test_xdist_ordering(tmpdir):
                 assert val == 1
                 val += 1
             """
-        ))
+            )
+        )
 
     testname = str(tmpdir.join("second_test.py"))
     with open(testname, "w") as fi:
-        fi.write(dedent(
-            """
+        fi.write(
+            dedent(
+                """
             import pytest
 
             val = "frog"
@@ -54,7 +56,8 @@ def test_xdist_ordering(tmpdir):
                 assert val == "frog"
                 val = "goat"
             """
-        ))
+            )
+        )
     # With `loadfile`, the tests should pass
     args = ["-n3", "--dist=loadfile", str(tmpdir)]
     ret = pytest.main(args, [pytest_order])

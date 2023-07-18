@@ -10,9 +10,7 @@ pytest_plugins = ["pytester"]
 @pytest.fixture
 def fixture_path_relative_dense(testdir):
     for i_mod in range(10):
-        test_name = testdir.tmpdir.join(
-            "test_relative_dense_perf{}.py".format(i_mod)
-        )
+        test_name = testdir.tmpdir.join("test_relative_dense_perf{}.py".format(i_mod))
         test_contents = "import pytest\n"
         for i in range(90):
             test_contents += dedent(

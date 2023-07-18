@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from textwrap import dedent
 
 import pytest
@@ -41,80 +40,88 @@ def fixture_path(test_path):
 def test_session_scope(fixture_path):
     result = fixture_path.runpytest("-v")
     result.assert_outcomes(passed=12, failed=0)
-    result.stdout.fnmatch_lines([
-        "feature0/test_b.py::test_one PASSED",
-        "feature1/test_b.py::test_one PASSED",
-        "feature2/test_b.py::test_one PASSED",
-        "feature0/test_b.py::test_two PASSED",
-        "feature1/test_b.py::test_two PASSED",
-        "feature2/test_b.py::test_two PASSED",
-        "feature0/test_a.py::test_three PASSED",
-        "feature1/test_a.py::test_three PASSED",
-        "feature2/test_a.py::test_three PASSED",
-        "feature0/test_a.py::test_four PASSED",
-        "feature1/test_a.py::test_four PASSED",
-        "feature2/test_a.py::test_four PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "feature0/test_b.py::test_one PASSED",
+            "feature1/test_b.py::test_one PASSED",
+            "feature2/test_b.py::test_one PASSED",
+            "feature0/test_b.py::test_two PASSED",
+            "feature1/test_b.py::test_two PASSED",
+            "feature2/test_b.py::test_two PASSED",
+            "feature0/test_a.py::test_three PASSED",
+            "feature1/test_a.py::test_three PASSED",
+            "feature2/test_a.py::test_three PASSED",
+            "feature0/test_a.py::test_four PASSED",
+            "feature1/test_a.py::test_four PASSED",
+            "feature2/test_a.py::test_four PASSED",
+        ]
+    )
 
 
 def test_dir_level0(fixture_path, capsys):
     """Same as session scope."""
     result = fixture_path.runpytest("-v", "--order-scope-level=0")
     result.assert_outcomes(passed=12, failed=0)
-    result.stdout.fnmatch_lines([
-        "feature0/test_b.py::test_one PASSED",
-        "feature1/test_b.py::test_one PASSED",
-        "feature2/test_b.py::test_one PASSED",
-        "feature0/test_b.py::test_two PASSED",
-        "feature1/test_b.py::test_two PASSED",
-        "feature2/test_b.py::test_two PASSED",
-        "feature0/test_a.py::test_three PASSED",
-        "feature1/test_a.py::test_three PASSED",
-        "feature2/test_a.py::test_three PASSED",
-        "feature0/test_a.py::test_four PASSED",
-        "feature1/test_a.py::test_four PASSED",
-        "feature2/test_a.py::test_four PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "feature0/test_b.py::test_one PASSED",
+            "feature1/test_b.py::test_one PASSED",
+            "feature2/test_b.py::test_one PASSED",
+            "feature0/test_b.py::test_two PASSED",
+            "feature1/test_b.py::test_two PASSED",
+            "feature2/test_b.py::test_two PASSED",
+            "feature0/test_a.py::test_three PASSED",
+            "feature1/test_a.py::test_three PASSED",
+            "feature2/test_a.py::test_three PASSED",
+            "feature0/test_a.py::test_four PASSED",
+            "feature1/test_a.py::test_four PASSED",
+            "feature2/test_a.py::test_four PASSED",
+        ]
+    )
 
 
 def test_dir_level1(fixture_path, capsys):
     """Orders per feature path."""
     result = fixture_path.runpytest("-v", "--order-scope-level=1")
     result.assert_outcomes(passed=12, failed=0)
-    result.stdout.fnmatch_lines([
-        "feature0/test_b.py::test_one PASSED",
-        "feature0/test_b.py::test_two PASSED",
-        "feature0/test_a.py::test_three PASSED",
-        "feature0/test_a.py::test_four PASSED",
-        "feature1/test_b.py::test_one PASSED",
-        "feature1/test_b.py::test_two PASSED",
-        "feature1/test_a.py::test_three PASSED",
-        "feature1/test_a.py::test_four PASSED",
-        "feature2/test_b.py::test_one PASSED",
-        "feature2/test_b.py::test_two PASSED",
-        "feature2/test_a.py::test_three PASSED",
-        "feature2/test_a.py::test_four PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "feature0/test_b.py::test_one PASSED",
+            "feature0/test_b.py::test_two PASSED",
+            "feature0/test_a.py::test_three PASSED",
+            "feature0/test_a.py::test_four PASSED",
+            "feature1/test_b.py::test_one PASSED",
+            "feature1/test_b.py::test_two PASSED",
+            "feature1/test_a.py::test_three PASSED",
+            "feature1/test_a.py::test_four PASSED",
+            "feature2/test_b.py::test_one PASSED",
+            "feature2/test_b.py::test_two PASSED",
+            "feature2/test_a.py::test_three PASSED",
+            "feature2/test_a.py::test_four PASSED",
+        ]
+    )
 
 
 def test_dir_level2(fixture_path, capsys):
     """Same as module scope."""
     result = fixture_path.runpytest("-v", "--order-scope-level=2")
     result.assert_outcomes(passed=12, failed=0)
-    result.stdout.fnmatch_lines([
-        "feature0/test_a.py::test_three PASSED",
-        "feature0/test_a.py::test_four PASSED",
-        "feature0/test_b.py::test_one PASSED",
-        "feature0/test_b.py::test_two PASSED",
-        "feature1/test_a.py::test_three PASSED",
-        "feature1/test_a.py::test_four PASSED",
-        "feature1/test_b.py::test_one PASSED",
-        "feature1/test_b.py::test_two PASSED",
-        "feature2/test_a.py::test_three PASSED",
-        "feature2/test_a.py::test_four PASSED",
-        "feature2/test_b.py::test_one PASSED",
-        "feature2/test_b.py::test_two PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "feature0/test_a.py::test_three PASSED",
+            "feature0/test_a.py::test_four PASSED",
+            "feature0/test_b.py::test_one PASSED",
+            "feature0/test_b.py::test_two PASSED",
+            "feature1/test_a.py::test_three PASSED",
+            "feature1/test_a.py::test_four PASSED",
+            "feature1/test_b.py::test_one PASSED",
+            "feature1/test_b.py::test_two PASSED",
+            "feature2/test_a.py::test_three PASSED",
+            "feature2/test_a.py::test_four PASSED",
+            "feature2/test_b.py::test_one PASSED",
+            "feature2/test_b.py::test_two PASSED",
+        ]
+    )
 
 
 @pytest.mark.skipif(
@@ -126,7 +133,9 @@ def test_invalid_scope(fixture_path):
         "-v", "--order-scope=module", "--order-scope-level=1"
     )
     result.assert_outcomes(passed=12, failed=0)
-    result.stdout.fnmatch_lines([
-        "*UserWarning: order-scope-level cannot be used "
-        "together with --order-scope=module*"
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "*UserWarning: order-scope-level cannot be used "
+            "together with --order-scope=module*"
+        ]
+    )

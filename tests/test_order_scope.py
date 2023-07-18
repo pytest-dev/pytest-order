@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import pytest
 
 
@@ -70,52 +68,58 @@ def fixture_path(test_path):
 def test_session_scope(fixture_path):
     result = fixture_path.runpytest("-v")
     result.assert_outcomes(passed=10, failed=0)
-    result.stdout.fnmatch_lines([
-        "test_classes.py::Test1::test_one PASSED",
-        "test_classes.py::Test2::test_one PASSED",
-        "test_classes.py::test_one PASSED",
-        "test_functions1.py::test1_one PASSED",
-        "test_functions2.py::test2_one PASSED",
-        "test_classes.py::Test1::test_two PASSED",
-        "test_classes.py::Test2::test_two PASSED",
-        "test_classes.py::test_two PASSED",
-        "test_functions1.py::test1_two PASSED",
-        "test_functions2.py::test2_two PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_classes.py::Test1::test_one PASSED",
+            "test_classes.py::Test2::test_one PASSED",
+            "test_classes.py::test_one PASSED",
+            "test_functions1.py::test1_one PASSED",
+            "test_functions2.py::test2_one PASSED",
+            "test_classes.py::Test1::test_two PASSED",
+            "test_classes.py::Test2::test_two PASSED",
+            "test_classes.py::test_two PASSED",
+            "test_functions1.py::test1_two PASSED",
+            "test_functions2.py::test2_two PASSED",
+        ]
+    )
 
 
 def test_module_scope(fixture_path):
     result = fixture_path.runpytest("-v", "--order-scope=module")
     result.assert_outcomes(passed=10, failed=0)
-    result.stdout.fnmatch_lines([
-        "test_classes.py::Test1::test_one PASSED",
-        "test_classes.py::Test2::test_one PASSED",
-        "test_classes.py::test_one PASSED",
-        "test_classes.py::Test1::test_two PASSED",
-        "test_classes.py::Test2::test_two PASSED",
-        "test_classes.py::test_two PASSED",
-        "test_functions1.py::test1_one PASSED",
-        "test_functions1.py::test1_two PASSED",
-        "test_functions2.py::test2_one PASSED",
-        "test_functions2.py::test2_two PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_classes.py::Test1::test_one PASSED",
+            "test_classes.py::Test2::test_one PASSED",
+            "test_classes.py::test_one PASSED",
+            "test_classes.py::Test1::test_two PASSED",
+            "test_classes.py::Test2::test_two PASSED",
+            "test_classes.py::test_two PASSED",
+            "test_functions1.py::test1_one PASSED",
+            "test_functions1.py::test1_two PASSED",
+            "test_functions2.py::test2_one PASSED",
+            "test_functions2.py::test2_two PASSED",
+        ]
+    )
 
 
 def test_class_scope(fixture_path):
     result = fixture_path.runpytest("-v", "--order-scope=class")
     result.assert_outcomes(passed=10, failed=0)
-    result.stdout.fnmatch_lines([
-        "test_classes.py::Test1::test_one PASSED",
-        "test_classes.py::Test1::test_two PASSED",
-        "test_classes.py::Test2::test_one PASSED",
-        "test_classes.py::Test2::test_two PASSED",
-        "test_classes.py::test_one PASSED",
-        "test_classes.py::test_two PASSED",
-        "test_functions1.py::test1_one PASSED",
-        "test_functions1.py::test1_two PASSED",
-        "test_functions2.py::test2_one PASSED",
-        "test_functions2.py::test2_two PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_classes.py::Test1::test_one PASSED",
+            "test_classes.py::Test1::test_two PASSED",
+            "test_classes.py::Test2::test_one PASSED",
+            "test_classes.py::Test2::test_two PASSED",
+            "test_classes.py::test_one PASSED",
+            "test_classes.py::test_two PASSED",
+            "test_functions1.py::test1_one PASSED",
+            "test_functions1.py::test1_two PASSED",
+            "test_functions2.py::test2_one PASSED",
+            "test_functions2.py::test2_two PASSED",
+        ]
+    )
 
 
 @pytest.mark.skipif(
@@ -125,6 +129,6 @@ def test_class_scope(fixture_path):
 def test_invalid_scope(fixture_path):
     result = fixture_path.runpytest("-v", "--order-scope=function")
     result.assert_outcomes(passed=10, failed=0)
-    result.stdout.fnmatch_lines([
-        "*UserWarning: Unknown order scope 'function', ignoring it.*"
-    ])
+    result.stdout.fnmatch_lines(
+        ["*UserWarning: Unknown order scope 'function', ignoring it.*"]
+    )

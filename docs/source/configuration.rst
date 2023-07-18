@@ -362,8 +362,10 @@ dependency, and is ignored if this is the case. Consider the following:
 
  import pytest
 
+
  def test_a():
      assert True
+
 
  @pytest.mark.dependency(depends=["test_a"])
  @pytest.mark.order("first")
@@ -378,9 +380,11 @@ following tests:
 
   import pytest
 
+
   @pytest.mark.dependency(depends=["test_b"])
   def test_a():
       assert True
+
 
   @pytest.mark.dependency
   def test_b():
@@ -446,15 +450,19 @@ the same as if the the ordinals are consecutive. For example, these tests:
 
  import pytest
 
+
  @pytest.mark.order(3)
  def test_two():
      assert True
 
+
  def test_three():
      assert True
 
+
  def test_four():
      assert True
+
 
  @pytest.mark.order(1)
  def test_one():
@@ -466,15 +474,19 @@ are executed in the same order as:
 
  import pytest
 
+
  @pytest.mark.order(1)
  def test_two():
      assert True
 
+
  def test_three():
      assert True
 
+
  def test_four():
      assert True
+
 
  @pytest.mark.order(0)
  def test_one():
