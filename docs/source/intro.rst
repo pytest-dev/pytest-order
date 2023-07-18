@@ -77,6 +77,7 @@ For example, for the following tests:
  def test_foo():
      assert True
 
+
  def test_bar():
      assert True
 
@@ -98,9 +99,11 @@ With ``pytest-order``, you can change the default ordering as follows:
 
  import pytest
 
+
  @pytest.mark.order(2)
  def test_foo():
      assert True
+
 
  @pytest.mark.order(1)
  def test_bar():

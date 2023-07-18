@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import re
 
 import pytest
@@ -40,9 +39,12 @@ def tests_working_without_dependency(test_path):
             """
         )
     )
-    result = test_path.runpytest("-v", "-p", "no:xdist",
-                                 "-p", "no:dependency", "-p", "no:mock")
-    result.stdout.fnmatch_lines([
-        "test_a.py::test_b PASSED",
-        "test_a.py::test_a PASSED",
-    ])
+    result = test_path.runpytest(
+        "-v", "-p", "no:xdist", "-p", "no:dependency", "-p", "no:mock"
+    )
+    result.stdout.fnmatch_lines(
+        [
+            "test_a.py::test_b PASSED",
+            "test_a.py::test_a PASSED",
+        ]
+    )

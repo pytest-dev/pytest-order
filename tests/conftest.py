@@ -25,9 +25,7 @@ def item_names_for(testdir):
 
 @pytest.fixture
 def test_path(testdir):
-    testdir.tmpdir.join("pytest.ini").write(
-        "[pytest]\nconsole_output_style = classic"
-    )
+    testdir.tmpdir.join("pytest.ini").write("[pytest]\nconsole_output_style = classic")
     yield testdir
 
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import sys
 from warnings import warn
 from contextlib import suppress
@@ -8,9 +7,7 @@ from _pytest.config import Config
 from _pytest.mark import Mark
 from _pytest.python import Function
 
-from .item import (
-    Item, ItemList, ItemGroup, filter_marks, move_item, RelativeMark
-)
+from .item import Item, ItemList, ItemGroup, filter_marks, move_item, RelativeMark
 from .settings import Settings, Scope
 
 try:
@@ -64,9 +61,7 @@ class Sorter:
                 last_part = last_part.rpartition("[")[0]
             # save last nodeid component to avoid to iterate over all
             # items for each label
-            self.node_id_last.setdefault(last_part, []).append(
-                item.node_id
-            )
+            self.node_id_last.setdefault(last_part, []).append(item.node_id)
         self.rel_marks: List[RelativeMark[Item]] = []
         self.dep_marks: List[RelativeMark[Item]] = []
 
@@ -147,9 +142,7 @@ class Sorter:
                 scope = scope_from_name(mark.kwargs.get("scope", "module"))
                 prefix = scoped_node_id(item.node_id, scope)
                 for name in dependent_mark:
-                    dep_marks.setdefault((name, scope, prefix), []).append(
-                        item
-                    )
+                    dep_marks.setdefault((name, scope, prefix), []).append(item)
                     item.inc_rel_marks()
             # we always collect the names of the dependent items, because
             # we need them in both cases
@@ -181,9 +174,7 @@ class Sorter:
         if order is not None:
             item.nr_rel_items = 0
 
-    def items_from_label(
-        self, label: str, item: Item, is_cls_mark: bool
-    ) -> List[Item]:
+    def items_from_label(self, label: str, item: Item, is_cls_mark: bool) -> List[Item]:
         """
         Return the list of matching items from the given label.
         The list contains one item for a single matching test, several items
@@ -199,8 +190,9 @@ class Sorter:
             for node_id in node_ids:
                 if node_id.endswith(label):
                     id_start = node_id[:-label_len]
-                elif (node_id.endswith("]") and
-                      node_id.rpartition("[")[0].endswith(label)):
+                elif node_id.endswith("]") and node_id.rpartition("[")[0].endswith(
+                    label
+                ):
                     id_start = node_id.rpartition("[")[0][:-label_len]
                 else:
                     continue
@@ -219,7 +211,7 @@ class Sorter:
             if node_id.count("::") == 2:
                 cls_index = node_id.rindex("::")
                 if node_id[:cls_index].endswith(label):
-                    id_start = node_id[:cls_index - label_len]
+                    id_start = node_id[: cls_index - label_len]
                     if item_id.startswith(id_start):
                         items.append(self.node_ids[node_id])
         return items
@@ -239,8 +231,7 @@ class Sorter:
         items_for_label = self.items_from_label(marker_name, item, is_cls_mark)
         if items_for_label:
             for item_for_label in items_for_label:
-                rel_mark = RelativeMark(
-                    item_for_label, item, move_after=is_after)
+                rel_mark = RelativeMark(item_for_label, item, move_after=is_after)
                 if is_after or not is_cls_mark:
                     self.rel_marks.append(rel_mark)
                 else:
@@ -251,9 +242,7 @@ class Sorter:
             if is_mark_for_class():
                 items = self.items_from_class_label(marker_name, item)
                 for item_for_label in items:
-                    rel_mark = RelativeMark(
-                        item_for_label, item, move_after=is_after
-                    )
+                    rel_mark = RelativeMark(item_for_label, item, move_after=is_after)
                     if is_after:
                         self.rel_marks.append(rel_mark)
                     else:
@@ -278,9 +267,7 @@ class Sorter:
         if after_marks and not isinstance(after_marks, (list, tuple)):
             after_marks = (after_marks,)
         for after_mark in after_marks:
-            if self.handle_before_or_after_mark(
-                item, mark, after_mark, is_after=True
-            ):
+            if self.handle_before_or_after_mark(item, mark, after_mark, is_after=True):
                 has_relative_marks = True
             else:
                 self.warn_about_unknown_test(item, after_mark)
@@ -305,7 +292,7 @@ class Sorter:
         dep_marks: Dict[Tuple[str, Scope, str], List[Item]],
         aliases: Dict[str, Item],
     ) -> None:
-        for (name, scope, prefix), items in dep_marks.items():
+        for (name, _, prefix), items in dep_marks.items():
             if name in aliases:
                 for item in items:
                     self.dep_marks.append(
@@ -335,9 +322,7 @@ def module_item_groups(items: List[Item]) -> Dict[str, List[Item]]:
     return module_items
 
 
-def directory_item_groups(
-    items: List[Item], level: int
-) -> Dict[str, List[Item]]:
+def directory_item_groups(items: List[Item], level: int) -> Dict[str, List[Item]]:
     """
     Split items into groups per directory at the given level.
     The level is relative to the root directory, which is at level 0.
@@ -356,7 +341,7 @@ def class_item_groups(items: List[Item]) -> Dict[str, List[Item]]:
     class_items: OrderedDict[str, List[Item]] = OrderedDict()
     for item in items:
         delimiter_index = item.node_id.index("::")
-        if "::" in item.node_id[delimiter_index + 2:]:
+        if "::" in item.node_id[delimiter_index + 2 :]:
             delimiter_index = item.node_id.index("::", delimiter_index + 2)
         class_path = item.node_id[:delimiter_index]
         class_items.setdefault(class_path, []).append(item)
@@ -367,6 +352,7 @@ class ScopeSorter:
     """
     Sorts the items for the defined scope.
     """
+
     def __init__(
         self,
         settings: Settings,
@@ -392,9 +378,7 @@ class ScopeSorter:
             else:  # module scope / class group scope
                 sorted_list = self.sort_in_module_scope()
         else:
-            sorted_list = self.sort_items_in_scope(
-                self.items, Scope.SESSION
-            ).items
+            sorted_list = self.sort_items_in_scope(self.items, Scope.SESSION).items
 
         return sorted_list
 
@@ -419,19 +403,14 @@ class ScopeSorter:
         sorted_list = []
         class_items = class_item_groups(self.items)
         class_groups = [
-            self.sort_items_in_scope(item, Scope.CLASS)
-            for item in class_items.values()
+            self.sort_items_in_scope(item, Scope.CLASS) for item in class_items.values()
         ]
-        sorter = GroupSorter(
-            Scope.CLASS, class_groups, self.rel_marks, self.dep_marks
-        )
+        sorter = GroupSorter(Scope.CLASS, class_groups, self.rel_marks, self.dep_marks)
         for group in sorter.sorted_groups()[1]:
             sorted_list.extend(group.items)
         return sorted_list
 
-    def sort_class_groups(
-        self, module_items: Dict[str, List[Item]]
-    ) -> List[ItemGroup]:
+    def sort_class_groups(self, module_items: Dict[str, List[Item]]) -> List[ItemGroup]:
         module_groups = []
         for module_item in module_items.values():
             class_items = class_item_groups(module_item)
@@ -448,9 +427,7 @@ class ScopeSorter:
             module_groups.append(module_group)
         return module_groups
 
-    def sort_items_in_scope(
-        self, items: List[Item], scope: Scope
-    ) -> ItemGroup:
+    def sort_items_in_scope(self, items: List[Item], scope: Scope) -> ItemGroup:
         item_list = ItemList(
             items, self.settings, scope, self.rel_marks, self.dep_marks
         )
@@ -481,9 +458,9 @@ def scope_from_name(name: str) -> Scope:
 
 def scoped_node_id(node_id: str, scope: Scope) -> str:
     if scope == Scope.MODULE:
-        return node_id[:node_id.index("::")]
+        return node_id[: node_id.index("::")]
     if scope == Scope.CLASS:
-        return node_id[:node_id.rindex("::")]
+        return node_id[: node_id.rindex("::")]
     return ""
 
 
@@ -491,6 +468,7 @@ class GroupSorter:
     """
     Sorts groups of items.
     """
+
     def __init__(
         self,
         scope: Scope,
@@ -500,11 +478,11 @@ class GroupSorter:
     ) -> None:
         self.scope: Scope = scope
         self.groups: List[ItemGroup] = groups
-        self.rel_marks: List[RelativeMark[ItemGroup]] = (
-            self.collect_group_marks(rel_marks)
+        self.rel_marks: List[RelativeMark[ItemGroup]] = self.collect_group_marks(
+            rel_marks
         )
-        self.dep_marks: List[RelativeMark[ItemGroup]] = (
-            self.collect_group_marks(dep_marks)
+        self.dep_marks: List[RelativeMark[ItemGroup]] = self.collect_group_marks(
+            dep_marks
         )
 
     def collect_group_marks(
@@ -515,9 +493,7 @@ class GroupSorter:
             group = self.group_for_item(mark.item)
             group_to_move = self.group_for_item(mark.item_to_move)
             if group is not None and group_to_move is not None:
-                group_marks.append(
-                    RelativeMark(group, group_to_move, mark.move_after)
-                )
+                group_marks.append(RelativeMark(group, group_to_move, mark.move_after))
                 group_to_move.inc_rel_marks()
         return group_marks
 

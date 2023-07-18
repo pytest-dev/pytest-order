@@ -5,14 +5,14 @@ _pytest-order_ - a pytest plugin to order test execution
 
 `pytest-order` is a pytest plugin that allows you to customize the order in which
 your tests are run. It uses the marker `order` that defines when a specific
-test shall run, either by using an ordinal number, or by specifying the  
-relationship to other tests. 
+test shall run, either by using an ordinal number, or by specifying the
+relationship to other tests.
 
 `pytest-order` is a fork of
 [pytest-ordering](https://github.com/ftobia/pytest-ordering) that provides
 additional features like ordering relative to other tests.
 
-`pytest-order` works with Python 3.7 - 3.11, with pytest 
+`pytest-order` works with Python 3.7 - 3.11, with pytest
 versions >= 5.0.0 for all versions up to Python 3.9, and for pytest >=
 6.2.4 for Python 3.10 and 3.11. `pytest-order` runs on Linux, macOS and Windows.
 
@@ -21,7 +21,7 @@ Documentation
 Apart from this overview, the following information is available:
 - usage documentation for the [latest release](https://pytest-order.readthedocs.io/en/stable/)
 - usage documentation for the [current main branch](https://pytest-order.readthedocs.io/en/latest/)
-- most examples shown in the documentation can also be found in the 
+- most examples shown in the documentation can also be found in the
   [repository](https://github.com/pytest-dev/pytest-order/tree/main/example)
 - the [Release Notes](https://github.com/pytest-dev/pytest-order/blob/main/CHANGELOG.md)
   with a list of changes in the latest versions
@@ -40,13 +40,13 @@ Features
   [order-scope](https://pytest-order.readthedocs.io/en/stable/configuration.html#order-scope) option
 - directory scope ordering via the
   [order-scope-level](https://pytest-order.readthedocs.io/en/stable/configuration.html#order-scope-level) option
-- hierarchical module and class-level ordering via the 
+- hierarchical module and class-level ordering via the
   [order-group-scope](https://pytest-order.readthedocs.io/en/stable/configuration.html#order-group-scope) option
 - ordering tests with `pytest-dependency` markers if using the
-  [order-dependencies](hhttps://pytest-order.readthedocs.io/en/stable/configuration.html#order-dependencies) option, 
+  [order-dependencies](hhttps://pytest-order.readthedocs.io/en/stable/configuration.html#order-dependencies) option,
   more information about `pytest-dependency` compatibility
-  [here](https://pytest-order.readthedocs.io/en/stable/other_plugins.html#relationship-with-pytest-dependency) 
-- sparse ordering of tests via the 
+  [here](https://pytest-order.readthedocs.io/en/stable/other_plugins.html#relationship-with-pytest-dependency)
+- sparse ordering of tests via the
   [sparse-ordering](https://pytest-order.readthedocs.io/en/stable/configuration.html#sparse-ordering) option
 
 Overview
@@ -64,7 +64,7 @@ Install with:
     pip install pytest-order
 
 This defines the ``order`` marker that you can use in your code with
-different attributes. 
+different attributes.
 
 For example, this code:
 
@@ -93,7 +93,7 @@ yields the output:
 
 Contributing
 ------------
-Contributions are very welcome. Tests can be run with 
+Contributions are very welcome. Tests can be run with
 [tox](https://tox.readthedocs.io/en/latest/), please ensure
 the coverage at least stays the same before you submit a pull request.
 
@@ -106,18 +106,18 @@ History
 -------
 This is a fork of [pytest-ordering](https://github.com/ftobia/pytest-ordering).
 That project is not maintained anymore, and there are several helpful PRs
-that are now integrated into `pytest-order`. The idea and most of the 
+that are now integrated into `pytest-order`. The idea and most of the
 initial code has been created by Frank Tobia, the author of that plugin, and
 [contributors](https://github.com/pytest-dev/pytest-order/blob/main/AUTHORS).
 
 While derived from `pytest_ordering`, `pytest-order` is **not** compatible
 with `pytest-ordering` due to the changed marker name (`order` instead of
-`run`). Additional markers defined `pytest_ordering` are all integrated 
+`run`). Additional markers defined `pytest_ordering` are all integrated
 into the `order` marker (for a rationale see also
 [this issue](https://github.com/ftobia/pytest-ordering/issues/38)).
 
 Ordering relative to other tests and all the configuration options are not
 available in the released version of `pytest-ordering`.
-However, most of these features are derived from or inspired by  
+However, most of these features are derived from or inspired by
 [issues](https://github.com/pytest-dev/pytest-order/blob/main/old_issues.md)
 and pull requests already existing in `pytest-ordering`.

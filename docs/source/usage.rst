@@ -30,17 +30,21 @@ are used in Python lists, e.g. to count from the end:
 
  import pytest
 
+
  @pytest.mark.order(-2)
  def test_three():
      assert True
+
 
  @pytest.mark.order(index=-1)
  def test_four():
      assert True
 
+
  @pytest.mark.order(index=2)
  def test_two():
      assert True
+
 
  @pytest.mark.order(1)
  def test_one():
@@ -75,17 +79,21 @@ above:
 
  import pytest
 
+
  @pytest.mark.order("second_to_last")
  def test_three():
      assert True
+
 
  @pytest.mark.order("last")
  def test_four():
      assert True
 
+
  @pytest.mark.order("second")
  def test_two():
      assert True
+
 
  @pytest.mark.order("first")
  def test_one():
@@ -136,6 +144,7 @@ reordered without changing the test order inside the test class:
 
     import pytest
 
+
     @pytest.mark.order(1)
     class Test1:
         def test_1(self):
@@ -143,6 +152,7 @@ reordered without changing the test order inside the test class:
 
         def test_2(self):
             assert True
+
 
     @pytest.mark.order(0)
     class Test2:
@@ -185,12 +195,15 @@ define the order relative to these tests:
 
  import pytest
 
+
  @pytest.mark.order(after="test_second")
  def test_third():
      assert True
 
+
  def test_second():
      assert True
+
 
  @pytest.mark.order(before="test_second")
  def test_first():
@@ -221,6 +234,7 @@ with a ``::`` suffix has to be prepended to the test name:
 
  import pytest
 
+
  class TestA:
      @pytest.mark.order(after="TestB::test_c")
      def test_a(self):
@@ -228,6 +242,7 @@ with a ``::`` suffix has to be prepended to the test name:
 
      def test_b(self):
          assert True
+
 
  class TestB:
      def test_c(self):
@@ -260,9 +275,11 @@ modules, this could be expressed like:
 
  import pytest
 
+
  @pytest.mark.order(after="test_module_a.py::TestA::test_a")
  def test_a():
      assert True
+
 
  @pytest.mark.order(before="test_module_c/test_submodule.py::test_2")
  def test_b():
@@ -282,6 +299,7 @@ tests, you can also reference test classes if using the ``before`` or
 
     import pytest
 
+
     @pytest.mark.order(after="Test2")
     class Test1:
         def test_1(self):
@@ -289,6 +307,7 @@ tests, you can also reference test classes if using the ``before`` or
 
         def test_2(self):
             assert True
+
 
     class Test2:
         def test_1(self):
@@ -320,9 +339,11 @@ ones. This means that relative ordering always takes preference:
 
  import pytest
 
+
  @pytest.mark.order(index=0, after="test_second")
  def test_first():
      assert True
+
 
  @pytest.mark.order(1)
  def test_second():
@@ -341,9 +362,11 @@ attributes by using a list or tuple of test names:
 
  import pytest
 
+
  @pytest.mark.order(after=["test_second", "other_module.py::test_other"])
  def test_first():
      assert True
+
 
  def test_second():
      assert True
@@ -360,9 +383,11 @@ without the parameter part, for example:
 
  import pytest
 
+
  @pytest.mark.order(after=["test_second"])
  def test_first():
      assert True
+
 
  @pytest.parametrize(param, [1, 2, 3])
  def test_second(param):
@@ -384,18 +409,22 @@ Combination of absolute and relative ordering
 
  import pytest
 
+
  @pytest.mark.order(1)
  @pytest.mark.order(-1)
  def test_one_and_seven():
      pass
+
 
  @pytest.mark.order(2)
  @pytest.mark.order(-2)
  def test_two_and_six():
      pass
 
+
  def test_four():
      pass
+
 
  @pytest.mark.order(before="test_four")
  @pytest.mark.order(after="test_four")
@@ -427,11 +456,13 @@ Although multiple test order markers create their own parametrization, it can be
 
  import pytest
 
+
  @pytest.mark.order(1)
  @pytest.mark.order(3)
  @pytest.mark.parametrize("foo", ["aaa", "bbb"])
  def test_one_and_three(foo):
      pass
+
 
  @pytest.mark.order(4)
  @pytest.mark.parametrize("bar", ["bbb", "ccc"])

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import pytest
 
 
@@ -50,13 +48,21 @@ def second_test():
 
 def test_second_default(second_test, item_names_for):
     assert item_names_for(second_test) == [
-        "test_5", "test_1", "test_2", "test_3", "test_4"
+        "test_5",
+        "test_1",
+        "test_2",
+        "test_3",
+        "test_4",
     ]
 
 
 def test_second_sparse(second_test, item_names_for, sparse_ordering):
     assert item_names_for(second_test) == [
-        "test_1", "test_5", "test_2", "test_3", "test_4"
+        "test_1",
+        "test_5",
+        "test_2",
+        "test_3",
+        "test_4",
     ]
 
 
@@ -80,13 +86,21 @@ def third_test():
 
 def test_third_default(third_test, item_names_for):
     assert item_names_for(third_test) == [
-        "test_4", "test_1", "test_2", "test_3", "test_5"
+        "test_4",
+        "test_1",
+        "test_2",
+        "test_3",
+        "test_5",
     ]
 
 
 def test_third_sparse(third_test, item_names_for, sparse_ordering):
     assert item_names_for(third_test) == [
-        "test_1", "test_2", "test_4", "test_3", "test_5"
+        "test_1",
+        "test_2",
+        "test_4",
+        "test_3",
+        "test_5",
     ]
 
 
@@ -110,14 +124,21 @@ def second_to_last_test():
 
 def test_second_to_last_default(second_to_last_test, item_names_for):
     assert item_names_for(second_to_last_test) == [
-        "test_1", "test_3", "test_4", "test_5", "test_2"
+        "test_1",
+        "test_3",
+        "test_4",
+        "test_5",
+        "test_2",
     ]
 
 
-def test_second_to_last_sparse(second_to_last_test, item_names_for,
-                               sparse_ordering):
+def test_second_to_last_sparse(second_to_last_test, item_names_for, sparse_ordering):
     assert item_names_for(second_to_last_test) == [
-        "test_1", "test_3", "test_4", "test_2", "test_5"
+        "test_1",
+        "test_3",
+        "test_4",
+        "test_2",
+        "test_5",
     ]
 
 
@@ -192,7 +213,11 @@ def duplicate_numbers_test():
 
 def test_duplicate_numbers_default(duplicate_numbers_test, item_names_for):
     assert item_names_for(duplicate_numbers_test) == [
-        "test_1", "test_2", "test_5", "test_3", "test_4"
+        "test_1",
+        "test_2",
+        "test_5",
+        "test_3",
+        "test_4",
     ]
 
 
@@ -200,7 +225,11 @@ def test_duplicate_numbers_sparse(
     duplicate_numbers_test, item_names_for, sparse_ordering
 ):
     assert item_names_for(duplicate_numbers_test) == [
-        "test_3", "test_1", "test_2", "test_4", "test_5"
+        "test_3",
+        "test_1",
+        "test_2",
+        "test_4",
+        "test_5",
     ]
 
 
@@ -227,11 +256,19 @@ def end_items_test():
 
 def test_end_items_default(end_items_test, item_names_for):
     assert item_names_for(end_items_test) == [
-        "test_3", "test_4", "test_5", "test_2", "test_1"
+        "test_3",
+        "test_4",
+        "test_5",
+        "test_2",
+        "test_1",
     ]
 
 
 def test_end_items_sparse(end_items_test, item_names_for, sparse_ordering):
     assert item_names_for(end_items_test) == [
-        "test_3", "test_2", "test_4", "test_1", "test_5"
+        "test_3",
+        "test_2",
+        "test_4",
+        "test_1",
+        "test_5",
     ]

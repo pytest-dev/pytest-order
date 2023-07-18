@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import pytest
 
 
@@ -67,53 +65,59 @@ def fixture_path(test_path):
 def test_session_scope(fixture_path):
     result = fixture_path.runpytest("-v")
     result.assert_outcomes(passed=10, failed=0)
-    result.stdout.fnmatch_lines([
-        "*'invalid' - ignoring the marker.*",
-        "test_rel1.py::Test1::test_two PASSED",
-        "test_rel1.py::Test2::test_one PASSED",
-        "test_rel3.py::test_two PASSED",
-        "test_rel1.py::Test2::test_two PASSED",
-        "test_rel1.py::Test1::test_one PASSED",
-        "test_rel2.py::test_one PASSED",
-        "test_rel2.py::test_two PASSED",
-        "test_rel3.py::test_one PASSED",
-        "test_rel4.py::test_one PASSED",
-        "test_rel4.py::test_two PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "*'invalid' - ignoring the marker.*",
+            "test_rel1.py::Test1::test_two PASSED",
+            "test_rel1.py::Test2::test_one PASSED",
+            "test_rel3.py::test_two PASSED",
+            "test_rel1.py::Test2::test_two PASSED",
+            "test_rel1.py::Test1::test_one PASSED",
+            "test_rel2.py::test_one PASSED",
+            "test_rel2.py::test_two PASSED",
+            "test_rel3.py::test_one PASSED",
+            "test_rel4.py::test_one PASSED",
+            "test_rel4.py::test_two PASSED",
+        ]
+    )
 
 
 def test_module_group_scope(fixture_path):
     result = fixture_path.runpytest("-v", "--order-group-scope=module")
     result.assert_outcomes(passed=10, failed=0)
-    result.stdout.fnmatch_lines([
-        "test_rel3.py::test_one PASSED",
-        "test_rel3.py::test_two PASSED",
-        "test_rel1.py::Test1::test_two PASSED",
-        "test_rel1.py::Test2::test_one PASSED",
-        "test_rel1.py::Test2::test_two PASSED",
-        "test_rel1.py::Test1::test_one PASSED",
-        "test_rel2.py::test_one PASSED",
-        "test_rel2.py::test_two PASSED",
-        "test_rel4.py::test_one PASSED",
-        "test_rel4.py::test_two PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_rel3.py::test_one PASSED",
+            "test_rel3.py::test_two PASSED",
+            "test_rel1.py::Test1::test_two PASSED",
+            "test_rel1.py::Test2::test_one PASSED",
+            "test_rel1.py::Test2::test_two PASSED",
+            "test_rel1.py::Test1::test_one PASSED",
+            "test_rel2.py::test_one PASSED",
+            "test_rel2.py::test_two PASSED",
+            "test_rel4.py::test_one PASSED",
+            "test_rel4.py::test_two PASSED",
+        ]
+    )
 
 
 def test_class_group_scope(fixture_path):
     result = fixture_path.runpytest("-v", "--order-group-scope=class")
     result.assert_outcomes(passed=10, failed=0)
-    result.stdout.fnmatch_lines([
-        "test_rel3.py::test_one PASSED",
-        "test_rel3.py::test_two PASSED",
-        "test_rel1.py::Test2::test_one PASSED",
-        "test_rel1.py::Test2::test_two PASSED",
-        "test_rel1.py::Test1::test_one PASSED",
-        "test_rel1.py::Test1::test_two PASSED",
-        "test_rel2.py::test_one PASSED",
-        "test_rel2.py::test_two PASSED",
-        "test_rel4.py::test_one PASSED",
-        "test_rel4.py::test_two PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_rel3.py::test_one PASSED",
+            "test_rel3.py::test_two PASSED",
+            "test_rel1.py::Test2::test_one PASSED",
+            "test_rel1.py::Test2::test_two PASSED",
+            "test_rel1.py::Test1::test_one PASSED",
+            "test_rel1.py::Test1::test_two PASSED",
+            "test_rel2.py::test_one PASSED",
+            "test_rel2.py::test_two PASSED",
+            "test_rel4.py::test_one PASSED",
+            "test_rel4.py::test_two PASSED",
+        ]
+    )
 
 
 def test_class_group_scope_module_scope(fixture_path):
@@ -121,18 +125,20 @@ def test_class_group_scope_module_scope(fixture_path):
         "-v", "--order-group-scope=class", "--order-scope=module"
     )
     result.assert_outcomes(passed=10, failed=0)
-    result.stdout.fnmatch_lines([
-        "test_rel1.py::Test2::test_one PASSED",
-        "test_rel1.py::Test2::test_two PASSED",
-        "test_rel1.py::Test1::test_one PASSED",
-        "test_rel1.py::Test1::test_two PASSED",
-        "test_rel2.py::test_one PASSED",
-        "test_rel2.py::test_two PASSED",
-        "test_rel3.py::test_one PASSED",
-        "test_rel3.py::test_two PASSED",
-        "test_rel4.py::test_one PASSED",
-        "test_rel4.py::test_two PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_rel1.py::Test2::test_one PASSED",
+            "test_rel1.py::Test2::test_two PASSED",
+            "test_rel1.py::Test1::test_one PASSED",
+            "test_rel1.py::Test1::test_two PASSED",
+            "test_rel2.py::test_one PASSED",
+            "test_rel2.py::test_two PASSED",
+            "test_rel3.py::test_one PASSED",
+            "test_rel3.py::test_two PASSED",
+            "test_rel4.py::test_one PASSED",
+            "test_rel4.py::test_two PASSED",
+        ]
+    )
 
 
 def test_rel_class_mark_with_order_mark(test_path):
@@ -154,13 +160,13 @@ def test_rel_class_mark_with_order_mark(test_path):
             def test_2(self): pass
         """
     )
-    result = test_path.runpytest(
-        "-v", "--order-group-scope=class"
-    )
+    result = test_path.runpytest("-v", "--order-group-scope=class")
     result.assert_outcomes(passed=4, failed=0)
-    result.stdout.fnmatch_lines([
-        "test_class_rel.py::Test2::test_2 PASSED",
-        "test_class_rel.py::Test2::test_1 PASSED",
-        "test_class_rel.py::Test1::test_2 PASSED",
-        "test_class_rel.py::Test1::test_1 PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_class_rel.py::Test2::test_2 PASSED",
+            "test_class_rel.py::Test2::test_1 PASSED",
+            "test_class_rel.py::Test1::test_2 PASSED",
+            "test_class_rel.py::Test1::test_1 PASSED",
+        ]
+    )

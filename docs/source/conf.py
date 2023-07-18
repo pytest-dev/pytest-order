@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from typing import List, Dict
 
 # pytest-order documentation build configuration file, created by
@@ -192,10 +191,8 @@ htmlhelp_basename = "pytest-orderdoc"
 latex_elements: Dict[str, str] = {
     # The paper size ("letterpaper" or "a4paper").
     # "papersize": "letterpaper",
-
     # The font size ("10pt", "11pt" or "12pt").
     # "pointsize": "10pt",
-
     # Additional stuff for the LaTeX preamble.
     # "preamble": "",
 }

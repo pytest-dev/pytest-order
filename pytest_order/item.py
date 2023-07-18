@@ -28,7 +28,7 @@ class Item:
 
     @property
     def module_path(self) -> str:
-        return self.item.nodeid[:self.node_id.index("::")]
+        return self.item.nodeid[: self.node_id.index("::")]
 
     def parent_path(self, level) -> str:
         return "/".join(self.module_path.split("/")[:level])
@@ -82,7 +82,7 @@ class ItemList:
         self.end_items = sorted(self._end_items.items())
         sorted_list = []
         index = 0
-        for (order, items) in self.start_items:
+        for order, items in self.start_items:
             if self.settings.sparse_ordering:
                 while order > index and self.unordered_items:
                     sorted_list.append(self.unordered_items.pop(0))
@@ -91,7 +91,7 @@ class ItemList:
             index += len(items)
         mid_index = len(sorted_list)
         index = -1
-        for (order, items) in reversed(self.end_items):
+        for order, items in reversed(self.end_items):
             if self.settings.sparse_ordering:
                 while order < index and self.unordered_items:
                     sorted_list.insert(mid_index, self.unordered_items.pop())
@@ -107,9 +107,7 @@ class ItemList:
             + [mark.item.node_id for mark in self.dep_marks]
         )
         if msg:
-            sys.stdout.write(
-                "\nWARNING: cannot execute test relative to others: "
-            )
+            sys.stdout.write("\nWARNING: cannot execute test relative to others: ")
             sys.stdout.write(msg)
             sys.stdout.write(" - ignoring the marker.\n")
             sys.stdout.flush()
@@ -117,19 +115,11 @@ class ItemList:
     def number_of_rel_groups(self) -> int:
         return len(self.rel_marks) + len(self.dep_marks)
 
-    def handle_rel_marks(
-        self, sorted_list: List[Item]
-    ) -> None:
-        self.handle_relative_marks(
-            self.rel_marks, sorted_list, self.all_rel_marks
-        )
+    def handle_rel_marks(self, sorted_list: List[Item]) -> None:
+        self.handle_relative_marks(self.rel_marks, sorted_list, self.all_rel_marks)
 
-    def handle_dep_marks(
-        self, sorted_list: List[Item]
-    ) -> None:
-        self.handle_relative_marks(
-            self.dep_marks, sorted_list, self.all_dep_marks
-        )
+    def handle_dep_marks(self, sorted_list: List[Item]) -> None:
+        self.handle_relative_marks(self.dep_marks, sorted_list, self.all_dep_marks)
 
     @staticmethod
     def handle_relative_marks(
@@ -206,9 +196,7 @@ def filter_marks(
     return result
 
 
-def move_item(
-    mark: RelativeMark[_ItemType], sorted_items: List[_ItemType]
-) -> bool:
+def move_item(mark: RelativeMark[_ItemType], sorted_items: List[_ItemType]) -> bool:
     if (
         mark.item not in sorted_items
         or mark.item_to_move not in sorted_items

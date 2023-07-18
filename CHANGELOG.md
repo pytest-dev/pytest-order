@@ -1,5 +1,8 @@
 # pytest-order Release Notes
 
+### Infrastructure
+* add pre-commit hook for linters
+
 ## [Version 1.1.0](https://pypi.org/project/pytest-order/1.1.0/) (2023-03-10)
 Adds support for executing tests more than once using order marks.
 
@@ -29,24 +32,24 @@ First Python 3 only version.
 
 ### Breaking changes
 - removed support for Python 2.7 and 3.5
-- removed official support for pytest < 5.0.0 (older versions may still 
+- removed official support for pytest < 5.0.0 (older versions may still
   work, but they are not tested)
 - changed notation of relative markers in other modules - instead of using
   the dot notation, the standard pytest nodeid is used,
   see [#24](https://github.com/pytest-dev/pytest-order/issues/24)
-- using parametrized test names that include the parameter is no longer 
-  supported, just use the name without the parameter instead 
+- using parametrized test names that include the parameter is no longer
+  supported, just use the name without the parameter instead
 
 ### New features
 - added support for the ``pytest-dependency`` option ``automark_dependency``
-- added support for relative ordering of parametrized tests using the test 
+- added support for relative ordering of parametrized tests using the test
   name without the parameter value,
   see [#38](https://github.com/pytest-dev/pytest-order/issues/38)
-  
+
 ### Infrastructure
 - re-added Python 3.10 to CI tests (for pytest >= 6.2.4)
 - added type hints
-  
+
 ## [Version 0.11.0](https://pypi.org/project/pytest-order/0.11.0/) (2021-04-11)
 Adds support for multiple relative markers for the same test.
 
@@ -63,7 +66,7 @@ Adds support for class-level relative markers and directory level scope.
 - added support for class level relative markers,
   see [#7](https://github.com/pytest-dev/pytest-order/issues/7)
 - added option `--order-scope-level` which allows grouping tests on the
-  same directory level, 
+  same directory level,
   see [#8](https://github.com/pytest-dev/pytest-order/issues/8)
 
 ### Fixes
@@ -76,26 +79,26 @@ Adds support for class-level relative markers and directory level scope.
 
 ## [Version 0.9.5](https://pypi.org/project/pytest-order/0.9.5/) (2021-02-16)
 Introduces hierarchical ordering option and fixes ordering of session-scoped
-dependency markers. 
+dependency markers.
 
 ### Changes
 - tests with unresolved relative markers are now handled like tests
-  without order markers instead of being enqueued after all other tests   
+  without order markers instead of being enqueued after all other tests
 
 ### New features
 - added `group-order-scope` option to allow hierarchical ordering on module
-  and class scope, 
+  and class scope,
   see [#6](https://github.com/pytest-dev/pytest-order/issues/6)
-  
+
 ### Fixes
-- the dependency marker scope is now considered for resolving marker names 
+- the dependency marker scope is now considered for resolving marker names
   (module scope had been assumed before)
 - dependency markers in session scope referenced by the nodeid are now
   correctly sorted if using the `order-dependencies` option
- 
+
 
 ## [Version 0.9.4](https://pypi.org/project/pytest-order/0.9.4/) (2021-01-27)
-Patch release to make packaging easier. 
+Patch release to make packaging easier.
 
 ### Infrastructure
 - use codecov instead of coveralls, that is failing
@@ -107,7 +110,7 @@ Patch release to make packaging easier.
 Bugfix release.
 
 ### Fixes
-- fixed handling of more than one attribute in an order marker 
+- fixed handling of more than one attribute in an order marker
 
 ## [Version 0.9.2](https://pypi.org/project/pytest-order/0.9.2/) (2020-11-13)
 Friday the 13th release.
@@ -117,7 +120,7 @@ Friday the 13th release.
   delimiter)
 
 ### Fixes
-- fixed handling of before/after markers in different classes and modules 
+- fixed handling of before/after markers in different classes and modules
 - fixed handling of names in dependencies - did not match the actual
   behavior of `pytest-dependency`
 
@@ -126,7 +129,7 @@ This is a bugfix only release.
 
 ### Fixes
 - fixed handling of relative markers in classes
-- fixed handling of dependencies (could have been added twice) 
+- fixed handling of dependencies (could have been added twice)
 
 ## [Version 0.9.0](https://pypi.org/project/pytest-order/0.9.0/) (2020-11-08)
 This is the last major version that will support Python 2 - Python 2 support
@@ -139,9 +142,9 @@ demand-driven.
 
 ### New features
 - added configuration option for sparse sorting, e.g. the possibility to
-  fill gaps between ordinals with unordered tests (see also 
+  fill gaps between ordinals with unordered tests (see also
   [this issue](https://github.com/ftobia/pytest-ordering/issues/14) in
-  `pytest-ordering`) 
+  `pytest-ordering`)
 - ignore ordering if it would break a dependency defined by the
   `pytest-dependency` plugin
 - experimental: added configuration option for ordering all dependencies
@@ -150,11 +153,11 @@ demand-driven.
 
 ### Fixes
 - correctly handle combined index and dependency attributes
-  
+
 ### Infrastructure
 - added list of open issues in `pytest-ordering` with respective state
-  in `pytest-order` 
- 
+  in `pytest-order`
+
 ## [Version 0.8.1](https://pypi.org/project/pytest-order/0.8.1/) (2020-11-02)
 
 ### New features
@@ -163,16 +166,16 @@ demand-driven.
 
 ## [Version 0.8.0](https://pypi.org/project/pytest-order/0.8.0/) (2020-10-30)
 This release is mostly related to the consolidation of infrastructure
-(documentation build and tests in CI build) and documentation.  
+(documentation build and tests in CI build) and documentation.
 
 ### Fixes
 - fixed the handling of unknown marker attributes (test had been skipped)
 
 ### Infrastructure
-- added automatic documentation build on change 
+- added automatic documentation build on change
 - added Python 3.9, pypy3 and pytest 6.0 and 6.1 to CI builds
 - use GitHub Actions for CI builds to speed them up, added Windows CI builds
-- added regression test for ``pytest-xdist`` 
+- added regression test for ``pytest-xdist``
   (imported from [PR #52](https://github.com/ftobia/pytest-ordering/pull/52))
 
 ## [Version 0.7.1](https://pypi.org/project/pytest-order/0.7.1/) (2020-10-24)
@@ -182,12 +185,12 @@ Update after renaming the repository and the package.
 - renamed repository and package from ``pytest-ordering2`` to ``pytest-order``
 - changed the used marker from ``run`` to ``order``, removed all additional
   markers (see [#38](https://github.com/ftobia/pytest-ordering/issues/38))
-  
+
 ### Documentation
 - use separate documentation pages for release and development versions
 
 ## Version 0.7.0 (2020-10-22)
-Imported version from [pytest-ordering](https://github.com/ftobia/pytest-ordering), 
+Imported version from [pytest-ordering](https://github.com/ftobia/pytest-ordering),
 including some PRs (manually merged).
 Note: this version has been removed from PyPi to avoid confusion with the
 changed name in the next release.

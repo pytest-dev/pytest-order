@@ -12,6 +12,7 @@ class Scope(Enum):
 
 class Settings:
     """Holds all configuration settings."""
+
     valid_scopes = {
         "class": Scope.CLASS,
         "module": Scope.MODULE,
@@ -28,8 +29,7 @@ class Settings:
             if scope is not None:
                 warn(
                     "Unknown order scope '{}', ignoring it. "
-                    "Valid scopes are 'session', 'module' and 'class'."
-                    .format(scope)
+                    "Valid scopes are 'session', 'module' and 'class'.".format(scope)
                 )
             self.scope = Scope.SESSION
         scope_level: int = config.getoption("order_scope_level") or 0
@@ -47,8 +47,9 @@ class Settings:
             if group_scope is not None:
                 warn(
                     "Unknown order group scope '{}', ignoring it. "
-                    "Valid scopes are 'session', 'module' and 'class'."
-                    .format(group_scope)
+                    "Valid scopes are 'session', 'module' and 'class'.".format(
+                        group_scope
+                    )
                 )
             self.group_scope = self.scope
         if self.group_scope.value > self.scope.value:
@@ -58,7 +59,12 @@ class Settings:
             auto_mark_dep = config.getini("automark_dependency")
             if isinstance(auto_mark_dep, str):
                 auto_mark_dep = auto_mark_dep.lower() in (
-                    "1", "yes", "y", "true", "t", "on"
+                    "1",
+                    "yes",
+                    "y",
+                    "true",
+                    "t",
+                    "on",
                 )
         except ValueError:
             auto_mark_dep = False

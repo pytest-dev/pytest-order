@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 def test_run_marker_registered(test_path):
     test_path.makepyfile(
         test_failing=(
@@ -22,16 +19,20 @@ def test_run_marker_registered(test_path):
     )
     result = test_path.runpytest("-v")
     result.assert_outcomes(passed=2, failed=1)
-    result.stdout.fnmatch_lines([
-        "test_failing.py::test_me_first PASSED",
-        "test_failing.py::test_me_second PASSED",
-        "test_failing.py::test_that_fails FAILED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_failing.py::test_me_first PASSED",
+            "test_failing.py::test_me_second PASSED",
+            "test_failing.py::test_that_fails FAILED",
+        ]
+    )
 
     result = test_path.runpytest("-v", "--ff", "--indulgent-ordering")
     result.assert_outcomes(passed=2, failed=1)
-    result.stdout.fnmatch_lines([
-        "test_failing.py::test_that_fails FAILED",
-        "test_failing.py::test_me_first PASSED",
-        "test_failing.py::test_me_second PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_failing.py::test_that_fails FAILED",
+            "test_failing.py::test_me_first PASSED",
+            "test_failing.py::test_me_second PASSED",
+        ]
+    )

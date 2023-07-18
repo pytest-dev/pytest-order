@@ -35,15 +35,19 @@ you run the following tests:
 
  import pytest
 
+
  @pytest.mark.order(1)
  def test_second():
      assert True
 
+
  def test_third():
      assert True
 
+
  def test_fourth():
      assert True
+
 
  @pytest.mark.order(0)
  def test_first():

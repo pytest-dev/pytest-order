@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import pytest
 
 
@@ -88,64 +86,70 @@ def fixture_path(test_path):
 def test_session_scope(fixture_path):
     result = fixture_path.runpytest("-v")
     result.assert_outcomes(passed=14, failed=0)
-    result.stdout.fnmatch_lines([
-        "test_fcts2.py::test2_two PASSED",
-        "test_clss.py::Test2::test_one PASSED",
-        "test_clss.py::Test1::test_two PASSED",
-        "test_fcts1.py::test1_two PASSED",
-        "test_clss.py::Test1::test_one PASSED",
-        "test_clss.py::Test2::test_two PASSED",
-        "test_clss.py::test_one PASSED",
-        "test_fcts1.py::test1_one PASSED",
-        "test_fcts2.py::test2_one PASSED",
-        "test_fcts3.py::test3_one PASSED",
-        "test_fcts4.py::test4_one PASSED",
-        "test_fcts4.py::test4_two PASSED",
-        "test_fcts3.py::test3_two PASSED",
-        "test_clss.py::test_two PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_fcts2.py::test2_two PASSED",
+            "test_clss.py::Test2::test_one PASSED",
+            "test_clss.py::Test1::test_two PASSED",
+            "test_fcts1.py::test1_two PASSED",
+            "test_clss.py::Test1::test_one PASSED",
+            "test_clss.py::Test2::test_two PASSED",
+            "test_clss.py::test_one PASSED",
+            "test_fcts1.py::test1_one PASSED",
+            "test_fcts2.py::test2_one PASSED",
+            "test_fcts3.py::test3_one PASSED",
+            "test_fcts4.py::test4_one PASSED",
+            "test_fcts4.py::test4_two PASSED",
+            "test_fcts3.py::test3_two PASSED",
+            "test_clss.py::test_two PASSED",
+        ]
+    )
 
 
 def test_module_group_scope(fixture_path):
     result = fixture_path.runpytest("-v", "--order-group-scope=module")
     result.assert_outcomes(passed=14, failed=0)
-    result.stdout.fnmatch_lines([
-        "test_fcts2.py::test2_two PASSED",
-        "test_fcts2.py::test2_one PASSED",
-        "test_clss.py::Test2::test_one PASSED",
-        "test_clss.py::Test1::test_two PASSED",
-        "test_clss.py::Test1::test_one PASSED",
-        "test_clss.py::Test2::test_two PASSED",
-        "test_clss.py::test_one PASSED",
-        "test_clss.py::test_two PASSED",
-        "test_fcts1.py::test1_two PASSED",
-        "test_fcts1.py::test1_one PASSED",
-        "test_fcts4.py::test4_one PASSED",
-        "test_fcts4.py::test4_two PASSED",
-        "test_fcts3.py::test3_one PASSED",
-        "test_fcts3.py::test3_two PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_fcts2.py::test2_two PASSED",
+            "test_fcts2.py::test2_one PASSED",
+            "test_clss.py::Test2::test_one PASSED",
+            "test_clss.py::Test1::test_two PASSED",
+            "test_clss.py::Test1::test_one PASSED",
+            "test_clss.py::Test2::test_two PASSED",
+            "test_clss.py::test_one PASSED",
+            "test_clss.py::test_two PASSED",
+            "test_fcts1.py::test1_two PASSED",
+            "test_fcts1.py::test1_one PASSED",
+            "test_fcts4.py::test4_one PASSED",
+            "test_fcts4.py::test4_two PASSED",
+            "test_fcts3.py::test3_one PASSED",
+            "test_fcts3.py::test3_two PASSED",
+        ]
+    )
 
 
 def test_class_group_scope(fixture_path):
     result = fixture_path.runpytest("-v", "--order-group-scope=class")
     result.assert_outcomes(passed=14, failed=0)
-    result.stdout.fnmatch_lines([
-        "test_fcts2.py::test2_two PASSED",
-        "test_fcts2.py::test2_one PASSED",
-        "test_clss.py::Test2::test_one PASSED",
-        "test_clss.py::Test2::test_two PASSED",
-        "test_clss.py::Test1::test_two PASSED",
-        "test_clss.py::Test1::test_one PASSED",
-        "test_clss.py::test_one PASSED",
-        "test_clss.py::test_two PASSED",
-        "test_fcts1.py::test1_two PASSED",
-        "test_fcts1.py::test1_one PASSED",
-        "test_fcts4.py::test4_one PASSED",
-        "test_fcts4.py::test4_two PASSED",
-        "test_fcts3.py::test3_one PASSED",
-        "test_fcts3.py::test3_two PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_fcts2.py::test2_two PASSED",
+            "test_fcts2.py::test2_one PASSED",
+            "test_clss.py::Test2::test_one PASSED",
+            "test_clss.py::Test2::test_two PASSED",
+            "test_clss.py::Test1::test_two PASSED",
+            "test_clss.py::Test1::test_one PASSED",
+            "test_clss.py::test_one PASSED",
+            "test_clss.py::test_two PASSED",
+            "test_fcts1.py::test1_two PASSED",
+            "test_fcts1.py::test1_one PASSED",
+            "test_fcts4.py::test4_one PASSED",
+            "test_fcts4.py::test4_two PASSED",
+            "test_fcts3.py::test3_one PASSED",
+            "test_fcts3.py::test3_two PASSED",
+        ]
+    )
 
 
 def test_class_group_scope_module_scope(fixture_path):
@@ -153,22 +157,24 @@ def test_class_group_scope_module_scope(fixture_path):
         "-v", "--order-group-scope=class", "--order-scope=module"
     )
     result.assert_outcomes(passed=14, failed=0)
-    result.stdout.fnmatch_lines([
-        "test_clss.py::Test2::test_one PASSED",
-        "test_clss.py::Test2::test_two PASSED",
-        "test_clss.py::Test1::test_two PASSED",
-        "test_clss.py::Test1::test_one PASSED",
-        "test_clss.py::test_one PASSED",
-        "test_clss.py::test_two PASSED",
-        "test_fcts1.py::test1_two PASSED",
-        "test_fcts1.py::test1_one PASSED",
-        "test_fcts2.py::test2_two PASSED",
-        "test_fcts2.py::test2_one PASSED",
-        "test_fcts3.py::test3_one PASSED",
-        "test_fcts3.py::test3_two PASSED",
-        "test_fcts4.py::test4_one PASSED",
-        "test_fcts4.py::test4_two PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_clss.py::Test2::test_one PASSED",
+            "test_clss.py::Test2::test_two PASSED",
+            "test_clss.py::Test1::test_two PASSED",
+            "test_clss.py::Test1::test_one PASSED",
+            "test_clss.py::test_one PASSED",
+            "test_clss.py::test_two PASSED",
+            "test_fcts1.py::test1_two PASSED",
+            "test_fcts1.py::test1_one PASSED",
+            "test_fcts2.py::test2_two PASSED",
+            "test_fcts2.py::test2_one PASSED",
+            "test_fcts3.py::test3_one PASSED",
+            "test_fcts3.py::test3_two PASSED",
+            "test_fcts4.py::test4_one PASSED",
+            "test_fcts4.py::test4_two PASSED",
+        ]
+    )
 
 
 @pytest.mark.skipif(
@@ -178,9 +184,9 @@ def test_class_group_scope_module_scope(fixture_path):
 def test_invalid_scope(fixture_path):
     result = fixture_path.runpytest("-v", "--order-group-scope=function")
     result.assert_outcomes(passed=14, failed=0)
-    result.stdout.fnmatch_lines([
-        "*UserWarning: Unknown order group scope 'function', ignoring it.*"
-    ])
+    result.stdout.fnmatch_lines(
+        ["*UserWarning: Unknown order group scope 'function', ignoring it.*"]
+    )
 
 
 @pytest.mark.skipif(
@@ -192,6 +198,6 @@ def test_ignored_scope(fixture_path):
         "-v", "--order-group-scope=session", "--order-scope=module"
     )
     result.assert_outcomes(passed=14, failed=0)
-    result.stdout.fnmatch_lines([
-        "*UserWarning: Group scope is larger than order scope, ignoring it."
-    ])
+    result.stdout.fnmatch_lines(
+        ["*UserWarning: Group scope is larger than order scope, ignoring it."]
+    )
