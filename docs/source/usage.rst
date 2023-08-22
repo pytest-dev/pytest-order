@@ -399,12 +399,12 @@ supported.
 
 
 Multiple test order markers
--------------------
+---------------------------
 More than one order marker can be set for the test.
 In this scenario test will be executed several times in the defined order.
 
 Combination of absolute and relative ordering
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. code:: python
 
  import pytest
@@ -449,7 +449,7 @@ so it will be run multiple times.
 
 
 Parametrized tests
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 Although multiple test order markers create their own parametrization, it can be used with parametrized tests.
 
 .. code:: python
