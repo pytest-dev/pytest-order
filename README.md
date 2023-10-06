@@ -43,7 +43,7 @@ Features
 - hierarchical module and class-level ordering via the
   [order-group-scope](https://pytest-order.readthedocs.io/en/stable/configuration.html#order-group-scope) option
 - ordering tests with `pytest-dependency` markers if using the
-  [order-dependencies](hhttps://pytest-order.readthedocs.io/en/stable/configuration.html#order-dependencies) option,
+  [order-dependencies](https://pytest-order.readthedocs.io/en/stable/configuration.html#order-dependencies) option,
   more information about `pytest-dependency` compatibility
   [here](https://pytest-order.readthedocs.io/en/stable/other_plugins.html#relationship-with-pytest-dependency)
 - sparse ordering of tests via the
