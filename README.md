@@ -48,6 +48,8 @@ Features
   [here](https://pytest-order.readthedocs.io/en/stable/other_plugins.html#relationship-with-pytest-dependency)
 - sparse ordering of tests via the
   [sparse-ordering](https://pytest-order.readthedocs.io/en/stable/configuration.html#sparse-ordering) option
+- usage of custom markers for ordering using the
+  [sparse-ordering](https://pytest-order.readthedocs.io/en/stable/configuration.html#order-marker-prefix) option
 
 Overview
 --------
