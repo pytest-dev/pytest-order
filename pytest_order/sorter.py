@@ -120,6 +120,14 @@ class Sorter:
         keys = item.item.keywords.keys()
         has_dependency = "dependency" in keys
         has_order = "order" in keys
+        if not has_order and self.settings.marker_prefix:
+            for key in keys:
+                if key.startswith(self.settings.marker_prefix):
+                    try:
+                        index = int(key[len(self.settings.marker_prefix)])
+                        item.order = index
+                    except ValueError:
+                        pass
         if has_dependency or self.settings.auto_mark_dep:
             self.handle_dependency_mark(item, has_order, dep_marks, aliases)
         if has_order:

@@ -420,6 +420,84 @@ adds ordering to the existing functionality if needed.
   detected at collection time and therefore are not included in ordering.
   The same is true for the `dynamic compilation of marked parameters`_.
 
+.. _order-marker-prefix:
+
+``--order-marker-prefix``
+-------------------------
+Consider the following: You have several groups of tests where you want to decide
+which test groups to execute in a certain test run. This is usually done using custom markers,
+so that you can filter the tests by the markers using the "-m" option:
+
+.. code:: python
+
+  import pytest
+
+
+  @pytest.mark.m3
+  def test_a():
+      assert True
+
+
+  @pytest.mark.m1
+  def test_b():
+      assert True
+
+
+  @pytest.mark.m2
+  def test_c():
+      assert True
+
+Running these you get::
+
+    $ pytest tests -vv -m "m2 or m3"
+    ============================= test session starts ==============================
+    ...
+    test_module.py:5: test_a PASSED
+    test_module.py:15: test_c PASSED
+
+Now consider that the test groups shall always be executed in a certain order, e.g.
+the group with the marker "m1" shall always be executed before the tests with "m2" etc.
+This can be achieved by adding an additional order marker to each test:
+
+.. code:: python
+
+  import pytest
+
+
+  @pytest.mark.order(3)
+  @pytest.mark.m3
+  def test_a():
+      assert True
+
+
+  @pytest.mark.order(1)
+  @pytest.mark.m1
+  def test_b():
+      assert True
+
+etc. Running these you get the desired order::
+
+    $ pytest tests -vv -m "m2 or m3"
+    ============================= test session starts ==============================
+    ...
+    test_module.py:18: test_c PASSED
+    test_module.py:6: test_a PASSED
+
+This looks redundant and is also error-prone. If you want to order them instead
+just using your own marker (which has the order index already in the name), you can use
+the option ``--order-marker-prefix``. Running the original tests without any order marker
+gives you now::
+
+    $ pytest tests -vv -m "m2 or m3" --order-merker-prefix=m
+    ============================= test session starts ==============================
+    ...
+    test_module.py:18: test_c PASSED
+    test_module.py:6: test_a PASSED
+
+.. note::
+  As usually, you are responsible for registering your own markers, either in the
+  code or in the ``pytest.ini`` file. If you forget this, pytest will give you warnings about unknown markers.
+
 .. _indulgent-ordering:
 
 ``--indulgent-ordering``

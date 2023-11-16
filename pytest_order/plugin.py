@@ -101,6 +101,15 @@ def pytest_addoption(parser: Parser) -> None:
             "if needed."
         ),
     )
+    group.addoption(
+        "--order-marker-prefix",
+        action="store",
+        dest="order_marker_prefix",
+        help=(
+            "If set, markers starting with the given prefix followed by a number "
+            "are handled like order markers with an index."
+        ),
+    )
 
 
 def _get_mark_description(mark: Mark):

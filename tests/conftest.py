@@ -37,6 +37,7 @@ def ignore_settings(mocker):
     settings.return_value.scope = Scope.SESSION
     settings.return_value.group_scope = Scope.SESSION
     settings.return_value.scope_level = 0
+    settings.return_value.marker_prefix = None
     yield settings
 
 
