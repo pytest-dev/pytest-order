@@ -1,5 +1,8 @@
 # pytest-order Release Notes
 
+## [Version 1.2.0](https://pypi.org/project/pytest-order/1.2.0/) (2023-11-18)
+Allows using custom markers for ordering.
+
 ### New features
 * added option `--order-marker-prefix` to allow using custom markers for ordering
 
