@@ -1,10 +1,14 @@
 # pytest-order Release Notes
 
+## [Version 1.2.0](https://pypi.org/project/pytest-order/1.2.0/) (2023-11-18)
+Allows using custom markers for ordering.
+
 ### New features
 * added option `--order-marker-prefix` to allow using custom markers for ordering
 
 ### Infrastructure
-* added pre-commit hook for linters
+- added pre-commit hook for linters
+- added Python 3.12 to supported versions
 
 ## [Version 1.1.0](https://pypi.org/project/pytest-order/1.1.0/) (2023-03-10)
 Adds support for executing tests more than once using order marks.
