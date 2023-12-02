@@ -488,7 +488,7 @@ just using your own marker (which has the order index already in the name), you 
 the option ``--order-marker-prefix``. Running the original tests without any order marker
 gives you now::
 
-    $ pytest tests -vv -m "m2 or m3" --order-merker-prefix=m
+    $ pytest tests -vv -m "m2 or m3" --order-marker-prefix=m
     ============================= test session starts ==============================
     ...
     test_module.py:18: test_c PASSED
