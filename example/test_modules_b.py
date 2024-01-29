@@ -1,6 +1,7 @@
 """Example showing ordering relative to tests in other modules.
 See https://pytest-order.readthedocs.io/en/stable/#referencing-of-tests-in-other-classes-or-modules  # noqa: E501
 """
+
 import pytest
 
 

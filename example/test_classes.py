@@ -1,6 +1,7 @@
 """Shows how to use relative sorting in test classes, see
 See https://pytest-order.readthedocs.io/en/stable/#referencing-of-tests-in-other-classes-or-modules  # noqa: E501
 """
+
 import pytest
 
 
