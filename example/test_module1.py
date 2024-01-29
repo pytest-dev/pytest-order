@@ -1,6 +1,7 @@
 """One of the test files showing the use of the --order-scope option.
 See https://pytest-order.readthedocs.io/en/stable/#order-scope
 """
+
 import pytest
 
 

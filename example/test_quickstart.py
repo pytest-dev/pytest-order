@@ -1,6 +1,7 @@
 """Test with ordering (as opposed to test.py) from the quick start chapter.
 See https://pytest-order.readthedocs.io/en/stable/#quickstart
 """
+
 import pytest
 
 

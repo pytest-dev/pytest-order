@@ -1,6 +1,7 @@
 """Test showing the behavior of the --order-dependencies option.
 See https://pytest-order.readthedocs.io/en/stable/#order-dependencies
 """
+
 import pytest
 
 
