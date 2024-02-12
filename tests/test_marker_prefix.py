@@ -22,14 +22,35 @@ def marker_test_file():
     )
 
 
+@pytest.fixture(scope="module")
+def conftest_file():
+    yield (
+        """
+        def pytest_configure(config):
+            config.addinivalue_line("markers", "my1: used in marker prefix test")
+            config.addinivalue_line("markers", "my2: used in marker prefix test")
+            config.addinivalue_line("markers", "my3: used in marker prefix test")
+        """
+    )
+
+
 @pytest.fixture
-def marker_test(test_path, marker_test_file):
+def marker_test(test_path, marker_test_file, conftest_file):
+    test_path.makepyfile(conftest=conftest_file)
     test_path.makepyfile(test_marker=marker_test_file)
     yield test_path
 
 
-def test_no_ordering(marker_test_file, item_names_for):
-    assert item_names_for(marker_test_file) == ["test_a", "test_b", "test_c"]
+def test_no_ordering(marker_test):
+    result = marker_test.runpytest("-v")
+    result.assert_outcomes(passed=3, skipped=0)
+    result.stdout.fnmatch_lines(
+        [
+            "test_marker.py::test_a PASSED",
+            "test_marker.py::test_b PASSED",
+            "test_marker.py::test_c PASSED",
+        ]
+    )
 
 
 def test_order_with_marker_prefix(marker_test):
@@ -110,7 +131,8 @@ def test_marker_prefix_does_not_interfere_with_order_marks(test_path):
     )
 
 
-def test_mix_marker_prefix_with_order_marks(test_path):
+def test_mix_marker_prefix_with_order_marks(test_path, conftest_file):
+    test_path.makepyfile(conftest=conftest_file)
     test_path.makepyfile(
         test_marker=(
             """

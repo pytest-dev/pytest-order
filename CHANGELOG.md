@@ -1,10 +1,13 @@
 # pytest-order Release Notes
 
+## Infrastructure
+- avoid unknown marker warning in tests (see [#101](https://github.com/pytest-dev/pytest-order/issues/101))
+
 ## [Version 1.2.0](https://pypi.org/project/pytest-order/1.2.0/) (2023-11-18)
 Allows using custom markers for ordering.
 
 ### New features
-* added option `--order-marker-prefix` to allow using custom markers for ordering
+- added option `--order-marker-prefix` to allow using custom markers for ordering
 
 ### Infrastructure
 - added pre-commit hook for linters
