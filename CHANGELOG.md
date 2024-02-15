@@ -2,6 +2,7 @@
 
 ## Infrastructure
 - avoid unknown marker warning in tests (see [#101](https://github.com/pytest-dev/pytest-order/issues/101))
+- added pytest 8 to CI tests
 
 ## [Version 1.2.0](https://pypi.org/project/pytest-order/1.2.0/) (2023-11-18)
 Allows using custom markers for ordering.

@@ -7,8 +7,8 @@ Tracks the state of all open issues in pytest-ordering for reference.
   manually merged respective [PR](https://github.com/ftobia/pytest-ordering/pull/37)
   by Jonas Zinn :heavy_check_mark:
 - [Custom markers](https://github.com/ftobia/pytest-ordering/issues/10)
-  will not be implemented (see
-  [this issue](https://github.com/ftobia/pytest-ordering/issues/38)) :-1:
+  will not be implemented as proposed (see [this issue](https://github.com/ftobia/pytest-ordering/issues/38)),
+  but `--order-marker-prefix` can be used for this :heavy_check_mark:
 - [Support for ordering testcases](https://github.com/ftobia/pytest-ordering/issues/12)
   unclear question, will ignore :-1:
 - [Test sparse ordinal behavior](https://github.com/ftobia/pytest-ordering/issues/14)
@@ -58,3 +58,5 @@ Tracks the state of all open issues in pytest-ordering for reference.
   obsolete, shall work with respective `order` markers :heavy_check_mark:
 - [license is showing as UNKNOWN in pip show command.](https://github.com/ftobia/pytest-ordering/issues/75)
   fixed by adding the license to `setup.py` :heavy_check_mark:
+- [Ordering a function that has to be executed twice](https://github.com/ftobia/pytest-ordering/issues/80)
+  has been implemented now :heavy_check_mark:
