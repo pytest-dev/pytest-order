@@ -399,6 +399,61 @@ def test_named_dependency_in_modules(test_path):
     )
 
 
+def test_equally_named_dependency_in_modules(test_path):
+    # regression test for #71
+    test_path.makepyfile(
+        test_ndep1=(
+            """
+            import pytest
+
+            class TestOne:
+
+                @pytest.mark.dependency(name="one", depends=["zero"])
+                def test_one(self):
+                    assert True
+
+                @pytest.mark.dependency(name="two", depends=["one"])
+                def test_two(self):
+                    assert True
+
+                @pytest.mark.dependency(name="three", depends=["two"])
+                def test_three(self):
+                    assert True
+
+                @pytest.mark.dependency(name="zero")
+                def test_zero(self):
+                    assert True
+            """
+        ),
+        test_ndep2=(
+            """
+            import pytest
+
+            class TestTwo:
+
+                @pytest.mark.dependency(name="one", depends=["zero"])
+                def test_one(self):
+                    assert True
+
+                @pytest.mark.dependency(name="two", depends=["one"])
+                def test_two(self):
+                    assert True
+
+                @pytest.mark.dependency(name="three", depends=["two"])
+                def test_three(self):
+                    assert True
+
+                @pytest.mark.dependency(name="zero")
+                def test_zero(self):
+                    assert True
+            """
+        ),
+    )
+
+    result = test_path.runpytest("-v", "--order-dependencies")
+    result.assert_outcomes(passed=8, failed=0, skipped=0)
+
+
 @pytest.mark.skipif(
     pytest.__version__.startswith("3.7."),
     reason="pytest-dependency < 0.5 does not support session scope",

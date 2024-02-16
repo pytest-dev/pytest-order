@@ -1,7 +1,9 @@
+import re
 import sys
-from warnings import warn
+from collections import OrderedDict
 from contextlib import suppress
 from typing import Optional, List, Dict, Tuple, cast
+from warnings import warn
 
 from _pytest.config import Config
 from _pytest.mark import Mark
@@ -9,20 +11,6 @@ from _pytest.python import Function
 
 from .item import Item, ItemList, ItemGroup, filter_marks, move_item, RelativeMark
 from .settings import Settings, Scope
-
-try:
-    from typing import OrderedDict
-except ImportError:
-    # In Python <3.7.2, we need to stub it
-    from collections import OrderedDict as OrderedDict_cls
-    from typing import MutableMapping, TypeVar
-
-    KT = TypeVar("KT")
-    VT = TypeVar("VT")
-
-    class OrderedDict(OrderedDict_cls, MutableMapping[KT, VT]):  # type: ignore
-        pass
-
 
 orders_map = {
     "first": 0,
@@ -112,7 +100,7 @@ class Sorter:
         self,
         item: Item,
         dep_marks: Dict[Tuple[str, Scope, str], List[Item]],
-        aliases: Dict[str, Item],
+        aliases: Dict[str, List[Item]],
     ) -> None:
         """
         Collect relevant markers for the given item.
@@ -138,7 +126,7 @@ class Sorter:
         item: Item,
         has_order: bool,
         dep_marks: Dict[Tuple[str, Scope, str], List[Item]],
-        aliases: Dict[str, Item],
+        aliases: Dict[str, List[Item]],
     ) -> None:
         # always order dependencies if an order mark is present
         # otherwise only if order-dependencies is set
@@ -159,7 +147,7 @@ class Sorter:
         # of the nodeid, depending on the scope
         if not name_mark:
             name_mark = item.node_id
-        aliases[name_mark] = item
+        aliases.setdefault(name_mark, []).append(item)
 
     def handle_order_marks(self, item: Item) -> None:
         marks = item.item.iter_markers("order")
@@ -289,7 +277,7 @@ class Sorter:
         )
 
     def collect_markers(self) -> None:
-        aliases: Dict[str, Item] = {}
+        aliases: Dict[str, List[Item]] = {}
         dep_marks: Dict[Tuple[str, Scope, str], List[Item]] = {}
         for item in self.items:
             self.mark_binning(item, dep_marks, aliases)
@@ -298,26 +286,48 @@ class Sorter:
     def resolve_dependency_markers(
         self,
         dep_marks: Dict[Tuple[str, Scope, str], List[Item]],
-        aliases: Dict[str, Item],
+        aliases: Dict[str, List[Item]],
     ) -> None:
         for (name, _, prefix), items in dep_marks.items():
             if name in aliases:
                 for item in items:
-                    self.dep_marks.append(
-                        RelativeMark(aliases[name], item, move_after=True)
-                    )
+                    alias = self.matching_alias(aliases[name], item)
+                    self.dep_marks.append(RelativeMark(alias, item, move_after=True))
             else:
                 label = "::".join((prefix, name))
                 if label in aliases:
                     for item in items:
+                        alias = self.matching_alias(aliases[label], item)
                         self.dep_marks.append(
-                            RelativeMark(aliases[label], item, move_after=True)
+                            RelativeMark(alias, item, move_after=True)
                         )
                 else:
                     sys.stdout.write(
                         "\nWARNING: Cannot resolve the dependency marker '{}' "
                         "- ignoring it.".format(name)
                     )
+
+    @staticmethod
+    def matching_alias(aliases: List[Item], item: Item) -> Item:
+        if len(aliases) == 1:
+            return aliases[0]
+
+        # handle the rare case that several tests have the same alias name
+        # we use the item that best matches the node id of the dependent item
+        max_matching_parts = 0
+        node_id_parts = re.split("(::|/)", item.node_id)
+        matching_item = aliases[0]
+        for alias_item in aliases:
+            alias_node_id_parts = re.split("(::|/)", alias_item.node_id)
+            nr_matching_parts = 0
+            for n, a in zip(node_id_parts, alias_node_id_parts):
+                if n != a:
+                    break
+                nr_matching_parts += 1
+            if nr_matching_parts > max_matching_parts:
+                max_matching_parts = nr_matching_parts
+                matching_item = alias_item
+        return matching_item
 
 
 def module_item_groups(items: List[Item]) -> Dict[str, List[Item]]:
