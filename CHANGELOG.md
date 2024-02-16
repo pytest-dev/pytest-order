@@ -1,5 +1,8 @@
 # pytest-order Release Notes
 
+## Fixes
+- handle dependency markers with the same alias name (see [#71](https://github.com/pytest-dev/pytest-order/issues/71))
+
 ## Infrastructure
 - avoid unknown marker warning in tests (see [#101](https://github.com/pytest-dev/pytest-order/issues/101))
 - added pytest 8 to CI tests
