@@ -59,11 +59,11 @@ def test_xdist_ordering(tmpdir):
             )
         )
     # With `loadfile`, the tests should pass
-    args = ["-n3", "--dist=loadfile", str(tmpdir)]
+    args = ["-n3", "--dist=loadfile", f"--rootdir={tmpdir}", str(tmpdir)]
     ret = pytest.main(args, [pytest_order])
     assert ret == 0
 
     # Without `loadfile`, the tests should fail
-    args = ["-n3", str(tmpdir)]
+    args = ["-n3", f"--rootdir={tmpdir}", str(tmpdir)]
     ret = pytest.main(args, [pytest_order])
     assert ret == 1
