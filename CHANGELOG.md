@@ -1,5 +1,8 @@
 # pytest-order Release Notes
 
+## [Version 1.2.1](https://pypi.org/project/pytest-order/1.2.1/) (2024-04-02)
+Bugfix release.
+
 ## Fixes
 - handle dependency markers with the same alias name (see [#71](https://github.com/pytest-dev/pytest-order/issues/71))
 - specify rootdir to recursive pytest calls to avoid searching a large directory tree unnecessarily (see [#110](https://github.com/pytest-dev/pytest-order/issues/110))
