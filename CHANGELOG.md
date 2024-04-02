@@ -2,6 +2,7 @@
 
 ## Fixes
 - handle dependency markers with the same alias name (see [#71](https://github.com/pytest-dev/pytest-order/issues/71))
+- specify rootdir to recursive pytest calls to avoid searching a large directory tree unnecessarily (see [#110](https://github.com/pytest-dev/pytest-order/issues/110))
 
 ## Infrastructure
 - avoid unknown marker warning in tests (see [#101](https://github.com/pytest-dev/pytest-order/issues/101))
