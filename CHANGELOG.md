@@ -1,5 +1,10 @@
 # pytest-order Release Notes
 
+## Unreleased
+
+## Infrastructure
+- added missing documentation examples, structured examples according to documentation structure
+
 ## [Version 1.2.1](https://pypi.org/project/pytest-order/1.2.1/) (2024-04-02)
 Bugfix release.
 

@@ -389,7 +389,7 @@ without the parameter part, for example:
      assert True
 
 
- @pytest.parametrize(param, [1, 2, 3])
+ @pytest.mark.parametrize("param", [1, 2, 3])
  def test_second(param):
      assert True
 
@@ -397,6 +397,7 @@ Note that using the fully qualified test name, which would include the
 parameter (in this case ``test_second[1]``, ``test_second[2]`` etc) is not
 supported.
 
+.. _multiple-markers:
 
 Multiple test order markers
 ---------------------------

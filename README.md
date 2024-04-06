@@ -114,7 +114,7 @@ initial code has been created by Frank Tobia, the author of that plugin, and
 
 While derived from `pytest_ordering`, `pytest-order` is **not** compatible
 with `pytest-ordering` due to the changed marker name (`order` instead of
-`run`). Additional markers defined `pytest_ordering` are all integrated
+`run`). Additional markers defined in `pytest_ordering` are all integrated
 into the `order` marker (for a rationale see also
 [this issue](https://github.com/ftobia/pytest-ordering/issues/38)).
 
