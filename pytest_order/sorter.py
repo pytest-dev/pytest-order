@@ -162,7 +162,7 @@ class Sorter:
             elif order in orders_map:
                 order = orders_map[order]
             else:
-                warn("Unknown order attribute:'{}'".format(order))
+                warn(f"Unknown order attribute:'{order}'")
                 order = None
         if item.order is None:
             item.order = order
@@ -269,11 +269,15 @@ class Sorter:
                 self.warn_about_unknown_test(item, after_mark)
         return has_relative_marks
 
-    @staticmethod
-    def warn_about_unknown_test(item: Item, rel_mark: str) -> None:
+    def warn_about_unknown_test(self, item: Item, rel_mark: str) -> None:
+        if self.settings.error_on_failed_ordering:
+            item.item.fixturenames.insert(0, "fail_after_cannot_order")
+            ignore_msg = ""
+        else:
+            ignore_msg = " - ignoring the marker"
         sys.stdout.write(
-            "\nWARNING: cannot execute '{}' relative to others: "
-            "'{}' - ignoring the marker.".format(item.item.name, rel_mark)
+            f"\nWARNING: cannot execute '{item.item.name}' relative to others: "
+            f"'{rel_mark}'{ignore_msg}."
         )
 
     def collect_markers(self) -> None:
@@ -303,8 +307,8 @@ class Sorter:
                         )
                 else:
                     sys.stdout.write(
-                        "\nWARNING: Cannot resolve the dependency marker '{}' "
-                        "- ignoring it.".format(name)
+                        f"\nWARNING: Cannot resolve the dependency marker '{name}' "
+                        "- ignoring it."
                     )
 
     @staticmethod

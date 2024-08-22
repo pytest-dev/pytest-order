@@ -12,5 +12,5 @@ class TimedSorter(Sorter):
         start_time = time.time()
         items = super().sort_items()
         self.__class__.elapsed = (time.time() - start_time) / self.nr_marks * 1000
-        print("\nTime per test: {:.3f} ms".format(self.__class__.elapsed))
+        print(f"\nTime per test: {self.__class__.elapsed:.3f} ms")
         return items
