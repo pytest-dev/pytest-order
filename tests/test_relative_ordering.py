@@ -419,6 +419,36 @@ def test_dependency_before_unknown_test(item_names_for, capsys):
     assert warning in out
 
 
+def test_failing_dependency_fails_test(test_path):
+    test_path.makepyfile(
+        test_failed_ordering="""
+        import pytest
+
+        def test_1():
+            pass
+
+        @pytest.mark.order(before="test_4")
+        def test_2():
+            pass
+
+        def test_3():
+            pass
+        """
+    )
+    result = test_path.runpytest("-v", "--error-on-failed-ordering")
+    if int(pytest.__version__.split(".")[0]) < 6:
+        result.assert_outcomes(passed=2, error=1)
+    else:
+        result.assert_outcomes(passed=2, errors=1)
+    result.stdout.fnmatch_lines(
+        [
+            "test_failed_ordering.py::test_1 PASSED",
+            "test_failed_ordering.py::test_2 ERROR",
+            "test_failed_ordering.py::test_3 PASSED",
+        ]
+    )
+
+
 def test_dependency_in_class_before_unknown_test(item_names_for, capsys):
     test_content = """
         import pytest
@@ -468,6 +498,38 @@ def test_dependency_loop(item_names_for, capsys):
         "cannot execute test relative to others: " "test_dependency_loop.py::test_3"
     )
     assert warning in out
+
+
+def test_failed_tests_after_dependency_loop(test_path):
+    test_path.makepyfile(
+        test_failed_ordering="""
+        import pytest
+
+        @pytest.mark.order(after="test_3")
+        def test_1():
+            pass
+
+        @pytest.mark.order(1)
+        def test_2():
+            pass
+
+        @pytest.mark.order(before="test_1")
+        def test_3():
+            pass
+        """
+    )
+    result = test_path.runpytest("-v", "--error-on-failed-ordering")
+    if int(pytest.__version__.split(".")[0]) < 6:
+        result.assert_outcomes(passed=1, error=2)
+    else:
+        result.assert_outcomes(passed=1, errors=2)
+    result.stdout.fnmatch_lines(
+        [
+            "test_failed_ordering.py::test_2 PASSED",
+            "test_failed_ordering.py::test_1 ERROR",
+            "test_failed_ordering.py::test_3 ERROR",
+        ]
+    )
 
 
 def test_dependency_on_parametrized_test(item_names_for):

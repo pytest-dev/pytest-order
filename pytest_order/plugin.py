@@ -110,6 +110,15 @@ def pytest_addoption(parser: Parser) -> None:
             "are handled like order markers with an index."
         ),
     )
+    group.addoption(
+        "--error-on-failed-ordering",
+        action="store_true",
+        dest="error_on_failed_ordering",
+        help=(
+            "If set, tests with relative markers that could not be ordered "
+            "will error instead of generating only a warning."
+        ),
+    )
 
 
 def _get_mark_description(mark: Mark):
@@ -144,6 +153,11 @@ def pytest_generate_tests(metafunc):
                 if "order" not in metafunc.fixturenames:
                     metafunc.fixturenames.append("order")
                 metafunc.parametrize("order", args)
+
+
+@pytest.fixture
+def fail_after_cannot_order():
+    pytest.fail("The test could not be ordered")
 
 
 class OrderingPlugin:
