@@ -10,16 +10,16 @@ pytest_plugins = ["pytester"]
 @pytest.fixture
 def fixture_path_ordinal(testdir):
     for i_mod in range(10):
-        test_name = testdir.tmpdir.join("test_performance{}.py".format(i_mod))
+        test_name = testdir.tmpdir.join(f"test_performance{i_mod}.py")
         test_contents = "import pytest\n"
         for i in range(100):
             test_contents += dedent(
-                """
-                @pytest.mark.order({})
-                def test_{}():
+                f"""
+                @pytest.mark.order({50 - i})
+                def test_{i}():
                     assert True
                 """
-            ).format(50 - i, i)
+            )
         test_name.write(test_contents)
     yield testdir
 

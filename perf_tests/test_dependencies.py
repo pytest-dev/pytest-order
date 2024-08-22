@@ -10,24 +10,24 @@ pytest_plugins = ["pytester"]
 @pytest.fixture
 def fixture_path_relative(testdir):
     for i_mod in range(10):
-        test_name = testdir.tmpdir.join("test_dep_perf{}.py".format(i_mod))
+        test_name = testdir.tmpdir.join(f"test_dep_perf{i_mod}.py")
         test_contents = "import pytest\n"
         for i in range(40):
             test_contents += dedent(
-                """
-                @pytest.mark.dependency(depends=["test_{}"])
-                def test_{}():
+                f"""
+                @pytest.mark.dependency(depends=["test_{i + 50}"])
+                def test_{i}():
                     assert True
                 """
-            ).format(i + 50, i)
+            )
         for i in range(60):
             test_contents += dedent(
-                """
+                f"""
                 @pytest.mark.dependency
-                def test_{}():
+                def test_{i + 40}():
                     assert True
                 """
-            ).format(i + 40)
+            )
         test_name.write(test_contents)
     yield testdir
 

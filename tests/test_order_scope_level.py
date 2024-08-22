@@ -28,7 +28,7 @@ def fixture_path(test_path):
         """
     )
     for i in range(3):
-        sub_path = "feature{}".format(i)
+        sub_path = f"feature{i}"
         test_path.mkpydir(sub_path)
         path = test_path.tmpdir.join(sub_path, "test_a.py")
         path.write(test_a_contents)

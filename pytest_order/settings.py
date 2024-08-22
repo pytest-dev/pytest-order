@@ -32,15 +32,14 @@ class Settings:
         else:
             if scope is not None:
                 warn(
-                    "Unknown order scope '{}', ignoring it. "
-                    "Valid scopes are 'session', 'module' and 'class'.".format(scope)
+                    f"Unknown order scope '{scope}', ignoring it. "
+                    "Valid scopes are 'session', 'module' and 'class'."
                 )
             self.scope = Scope.SESSION
         scope_level: int = config.getoption("order_scope_level") or 0
         if scope_level != 0 and self.scope != Scope.SESSION:
             warn(
-                "order-scope-level cannot be used together with "
-                "--order-scope={}".format(scope)
+                f"order-scope-level cannot be used together with --order-scope={scope}"
             )
             scope_level = 0
         self.scope_level: int = scope_level
@@ -50,10 +49,8 @@ class Settings:
         else:
             if group_scope is not None:
                 warn(
-                    "Unknown order group scope '{}', ignoring it. "
-                    "Valid scopes are 'session', 'module' and 'class'.".format(
-                        group_scope
-                    )
+                    f"Unknown order group scope '{group_scope}', ignoring it. "
+                    "Valid scopes are 'session', 'module' and 'class'."
                 )
             self.group_scope = self.scope
         if self.group_scope.value > self.scope.value:
