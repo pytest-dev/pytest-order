@@ -102,15 +102,20 @@ class ItemList:
         return sorted_list
 
     def print_unhandled_items(self) -> None:
-        msg = " ".join(
-            [mark.item.node_id for mark in self.rel_marks]
-            + [mark.item.node_id for mark in self.dep_marks]
-        )
-        if msg:
-            sys.stdout.write("\nWARNING: cannot execute test relative to others: ")
-            sys.stdout.write(msg)
+        failed_items = [mark.item for mark in self.rel_marks] + [
+            mark.item for mark in self.dep_marks
+        ]
+        msg = " ".join([item.node_id for item in failed_items])
+        sys.stdout.write("\nWARNING: cannot execute test relative to others: ")
+        sys.stdout.write(msg)
+        if self.settings.error_on_failed_ordering:
             sys.stdout.write(" - ignoring the marker.\n")
-            sys.stdout.flush()
+        else:
+            sys.stdout.write(".\n")
+        sys.stdout.flush()
+        if self.settings.error_on_failed_ordering:
+            for item in failed_items:
+                item.item.fixturenames.insert(0, "fail_after_cannot_order")
 
     def number_of_rel_groups(self) -> int:
         return len(self.rel_marks) + len(self.dep_marks)

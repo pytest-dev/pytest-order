@@ -23,6 +23,9 @@ class Settings:
         self.sparse_ordering: bool = config.getoption("sparse_ordering")
         self.order_dependencies: bool = config.getoption("order_dependencies")
         self.marker_prefix: str = config.getoption("order_marker_prefix")
+        self.error_on_failed_ordering: str = config.getoption(
+            "error_on_failed_ordering"
+        )
         scope: str = config.getoption("order_scope")
         if scope in self.valid_scopes:
             self.scope: Scope = self.valid_scopes[scope]

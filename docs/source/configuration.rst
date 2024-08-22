@@ -603,6 +603,49 @@ tests first from the start, then from the end if there are negative numbers,
 and the rest will be in between (e.g. between positive and negative numbers),
 as it is without this option.
 
+``--error-on-failed-ordering``
+------------------------------
+Relative ordering of tests my fail under some circumstances. Mostly this happens if the related marker
+is not found, or if the tests have a cyclic dependency.
+The default behavior in this case is not to order the test in question, issue a warning during test
+collection and execute the test as usual. If you want to make sure that your relative markers work
+without checking all warning messages, you can also make the tests that cannot be ordered fail, so that
+they show up as errored in the report:
+
+.. code:: python
+
+ import pytest
+
+
+ def test_one():
+     assert True
+
+
+ @pytest.mark.order(before="test_three")
+ def test_two():
+     assert True
+
+
+In this example, the test "test_three" on which "test_two" depends, does not exist.
+If you use the option `--error-on-failed-ordering`, "test_two" will now error:
+
+    $ pytest tests -vv --error-on-failed-ordering
+    ============================= test session starts ==============================
+    ...
+    WARNING: cannot execute 'test_two' relative to others: 'test_three'
+
+    test_failed_ordering.py::test_one PASSED
+    test_failed_ordering.py::test_two ERROR
+
+    =================================== ERRORS ====================================
+    __________________________ ERROR at setup of test_two__________________________
+    ...
+    =========================== short test summary info ===========================
+    ERROR test_failed_ordering.py::test_two - Failed: The test could not be ordered
+    ========================= 1 passed, 1 error in 0.75s ==========================
+
+
+
 .. _`pytest-dependency`: https://pypi.org/project/pytest-dependency/
 .. _`dynamic compilation of marked parameters`: https://pytest-dependency.readthedocs.io/en/stable/advanced.html#dynamic-compilation-of-marked-parameters
 .. _`add dependencies at runtime`: https://pytest-dependency.readthedocs.io/en/stable/usage.html#marking-dependencies-at-runtime

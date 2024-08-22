@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### New features
+- added option `--error-on-failed-ordering` to make tests that cannot be ordered fail
+  (see [#140](https://github.com/pytest-dev/pytest-order/issues/140))
+
 ## Infrastructure
 - added missing documentation examples, structured examples according to documentation structure
 
