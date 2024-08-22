@@ -1,6 +1,7 @@
 # pytest-order Release Notes
 
-## Unreleased
+## [Version 1.3.0](https://pypi.org/project/pytest-order/1.3.0/) (2024-08-22)
+Allows to fail tests that cannot be ordered.
 
 ### New features
 - added option `--error-on-failed-ordering` to make tests that cannot be ordered fail
