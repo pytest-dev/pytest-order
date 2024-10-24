@@ -1,5 +1,10 @@
 # pytest-order Release Notes
 
+## Unreleased
+
+### Infrastructure
+* use trusted publisher for release (see https://docs.pypi.org/trusted-publishers/)
+
 ## [Version 1.3.0](https://pypi.org/project/pytest-order/1.3.0/) (2024-08-22)
 Allows to fail tests that cannot be ordered.
 
@@ -7,17 +12,17 @@ Allows to fail tests that cannot be ordered.
 - added option `--error-on-failed-ordering` to make tests that cannot be ordered fail
   (see [#140](https://github.com/pytest-dev/pytest-order/issues/140))
 
-## Infrastructure
+### Infrastructure
 - added missing documentation examples, structured examples according to documentation structure
 
 ## [Version 1.2.1](https://pypi.org/project/pytest-order/1.2.1/) (2024-04-02)
 Bugfix release.
 
-## Fixes
+### Fixes
 - handle dependency markers with the same alias name (see [#71](https://github.com/pytest-dev/pytest-order/issues/71))
 - specify rootdir to recursive pytest calls to avoid searching a large directory tree unnecessarily (see [#110](https://github.com/pytest-dev/pytest-order/issues/110))
 
-## Infrastructure
+### Infrastructure
 - avoid unknown marker warning in tests (see [#101](https://github.com/pytest-dev/pytest-order/issues/101))
 - added pytest 8 to CI tests
 
