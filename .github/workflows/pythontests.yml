@@ -49,7 +49,7 @@ jobs:
         TOX_PYTHON_VERSION=$(if [[ ${{ matrix.python-version }} == pypy* ]]; then echo ${{ matrix.python-version }} | tr -d .-; else echo py${{ matrix.python-version }} | tr -d .-; fi)
         COV_CMD=$(if [ ${{ matrix.python-version }} == 3.10 ]; then echo "--cov=./pytest_order/ --cov-report=xml"; else echo ; fi) tox -e $(tox -l | grep "$TOX_PYTHON_VERSION" | paste -sd "," -)
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
+      uses: codecov/codecov-action@v5
       if: ${{ success() && matrix.python-version == 3.10 }}
       with:
         env_vars: OS
