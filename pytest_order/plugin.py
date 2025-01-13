@@ -17,7 +17,7 @@ def pytest_configure(config: Config) -> None:
     """
 
     provided_by_pytest_order = (
-        "Provided by pytest-order. " "See also: https://pytest-order.readthedocs.io/"
+        "Provided by pytest-order. See also: https://pytest-order.readthedocs.io/"
     )
 
     config_line = (
@@ -88,8 +88,7 @@ def pytest_addoption(parser: Parser) -> None:
         action="store_true",
         dest="sparse_ordering",
         help=(
-            "If there are gaps between ordinals, they are filled "
-            "with unordered tests."
+            "If there are gaps between ordinals, they are filled with unordered tests."
         ),
     )
     group.addoption(
@@ -97,8 +96,7 @@ def pytest_addoption(parser: Parser) -> None:
         action="store_true",
         dest="order_dependencies",
         help=(
-            "If set, dependencies added by pytest-dependency will be ordered "
-            "if needed."
+            "If set, dependencies added by pytest-dependency will be ordered if needed."
         ),
     )
     group.addoption(
