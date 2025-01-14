@@ -4,6 +4,7 @@
 
 ### Infrastructure
 * use trusted publisher for release (see https://docs.pypi.org/trusted-publishers/)
+* pin Python 3.7 builds to ubuntu 22.04 (not available in 24.04)
 
 ## [Version 1.3.0](https://pypi.org/project/pytest-order/1.3.0/) (2024-08-22)
 Allows to fail tests that cannot be ordered.
