@@ -483,3 +483,36 @@ Although multiple test order markers create their own parametrization, it can be
     test_multiple_markers.py::test_two_and_four[index=4-bbb] PASSED          [ 87%]
     test_multiple_markers.py::test_two_and_four[index=4-ccc] PASSED          [100%]
     ============================== 8 passed in 0.02s ==============================
+
+
+Ordering test modules
+---------------------
+
+Sometimes you want to order whole test modules instead of single tests.
+This may be the case if you are testing several steps of a workflow, where each step
+has a number of independent tests in the same test module, but the test modules have
+to be executed in a certain order, because the workflow steps depend on each other,
+as is for example the case with testing a set of API endpoints.
+
+In this case, instead of using the module :ref:`order-scope` and marking single tests,
+you can just mark the whole test module with the same marker using ``pytestmark`` in each
+of the concerned test modules:
+
+.. code:: python
+
+ import pytest
+
+ pytestmark = pytest.mark.order(1)
+
+
+ def test_1():
+     ...
+
+In this case, all tests in the module will have the same order marker. As the test order
+is not changed for tests with the same order number, the tests *inside* each module will be run
+in the same order as without any ordering. The order of the test module execution, however,
+now depends on the defined ``pytestmark``. No extra command line argument is needed in this case.
+
+Modules will be ordered the same way as single tests with order markers: first the modules with
+an order marker >= 0 will be executed in ascending marker order, afterwards all modules without order
+markers in the same order as without ordering, and finally any modules with a negative order marker.
