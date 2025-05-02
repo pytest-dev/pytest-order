@@ -54,8 +54,8 @@ are used in Python lists, e.g. to count from the end:
 
     $ pytest test_foo.py -vv
     ============================= test session starts ==============================
-    platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
-    plugins: order
+    platform linux -- Python 3.13.2, pytest-8.3.5, pluggy-1.5.0 -- /home/user/.venv/pytest-order-3.13/bin/python3.13
+    plugins: order-1.3.0
     collected 4 items
 
     test_foo.py:17: test_one PASSED
@@ -103,8 +103,8 @@ above:
 
     $ pytest test_foo.py -vv
     ============================= test session starts ==============================
-    platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
-    plugins: order
+    platform linux -- Python 3.13.2, pytest-8.3.5, pluggy-1.5.0 -- /home/user/.venv/pytest-order-3.13/bin/python3.13
+    plugins: order-1.3.0
     collected 4 items
 
     test_foo.py:17: test_one PASSED
@@ -213,8 +213,8 @@ define the order relative to these tests:
 
     $ pytest test_foo.py -vv
     ============================= test session starts ==============================
-    platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
-    plugins: order
+    platform linux -- Python 3.13.2, pytest-8.3.5, pluggy-1.5.0 -- /home/user/.venv/pytest-order-3.13/bin/python3.13
+    plugins: order-1.3.0
     collected 3 items
 
     test_foo.py:11: test_first PASSED

@@ -38,10 +38,9 @@ ordering, all configuration options) that are not available in
 
 Supported Python and pytest versions
 ------------------------------------
-``pytest-order`` supports python 3.7 - 3.12 and pypy3, and is
+``pytest-order`` supports python 3.9 - 3.13 and pypy3, and is
 compatible with pytest 5.0.0 or newer (older versions may also work, but are
-not tested) for Python versions up to 3.9, and with pytest >= 6.2.4 for
-Python versions >= 3.10.
+not tested) for Python 3.9, and with pytest >= 6.2.4 for Python versions >= 3.10.
 
 All supported combinations of Python and pytest versions are tested in
 the CI builds. The plugin shall work under Linux, MacOs and Windows.
@@ -83,15 +82,17 @@ For example, for the following tests:
 
 the output is something like::
 
-    $ pytest test_foo.py -vv
-    ============================= test session starts ==============================
-    platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
+
+    $ pytest -vv example/introduction/test_quickstart.py
+    ============================================ test session starts =============================================
+    platform linux -- Python 3.13.2, pytest-8.3.5, pluggy-1.5.0 -- /home/user/.venv/pytest-order-3.13/bin/python3.13
+    rootdir: /home/user/projects/git/pytest-order
+    plugins: order-1.3.0
     collected 2 items
 
-    test_foo.py:2: test_foo PASSED
-    test_foo.py:6: test_bar PASSED
-
-    =========================== 2 passed in 0.01 seconds ===========================
+    example/introduction/test_quickstart.py::test_foo PASSED                                               [ 50%]
+    example/introduction/test_quickstart.py::test_bar PASSED                                               [100%]
+    ============================================= 2 passed in 0.02s ==============================================
 
 With ``pytest-order``, you can change the default ordering as follows:
 
@@ -112,12 +113,14 @@ With ``pytest-order``, you can change the default ordering as follows:
 This will generate the output::
 
     $ pytest test_foo.py -vv
-    ============================= test session starts ==============================
-    platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
-    plugins: order
+    ============================================ test session starts =============================================
+    platform linux -- Python 3.13.2, pytest-8.3.5, pluggy-1.5.0 -- /home/user/.venv/pytest-order-3.13/bin/python3.13
+    rootdir: /home/user/projects/git/pytest-order
+    plugins: order-1.3.0
     collected 2 items
 
-    test_foo.py:7: test_bar PASSED
-    test_foo.py:3: test_foo PASSED
+    example/introduction/test_quickstart.py::test_bar PASSED                                               [ 50%]
+    example/introduction/test_quickstart.py::test_foo PASSED                                               [100%]
+    =========================== 2 passed in 0.02 seconds ===========================
 
-    =========================== 2 passed in 0.01 seconds ===========================
+Note the changed test execution order.
