@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Changes
+* removed official support for Python 3.7 and 3.8 (EOL), added Python 3.13
+
 ### Infrastructure
 * use trusted publisher for release (see https://docs.pypi.org/trusted-publishers/)
 * pin Python 3.7 builds to ubuntu 22.04 (not available in 24.04)

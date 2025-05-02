@@ -14,18 +14,14 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         include:
-          - python-version: "pypy-3.7"
-            os: ubuntu-22.04
           - python-version: "pypy-3.9"
             os: ubuntu-latest
           - python-version: "pypy-3.10"
             os: ubuntu-latest
-          - python-version: "3.7"
-            os: ubuntu-22.04
-          - python-version: "3.7"
-            os: windows-latest
+          - python-version: "pypy-3.11"
+            os: ubuntu-latest
     env:
       OS: ${{ matrix.os }}
     steps:
@@ -51,10 +47,10 @@ jobs:
     - name: Run tests
       run: |
         TOX_PYTHON_VERSION=$(if [[ ${{ matrix.python-version }} == pypy* ]]; then echo ${{ matrix.python-version }} | tr -d .-; else echo py${{ matrix.python-version }} | tr -d .-; fi)
-        COV_CMD=$(if [ ${{ matrix.python-version }} == 3.10 ]; then echo "--cov=./pytest_order/ --cov-report=xml"; else echo ; fi) tox -e $(tox -l | grep "$TOX_PYTHON_VERSION" | paste -sd "," -)
+        COV_CMD=$(if [ ${{ matrix.python-version }} == 3.12 ]; then echo "--cov=./pytest_order/ --cov-report=xml"; else echo ; fi) tox -e $(tox -l | grep "$TOX_PYTHON_VERSION" | paste -sd "," -)
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
-      if: ${{ success() && matrix.python-version == 3.10 }}
+      if: ${{ success() && matrix.python-version == 3.12 }}
       with:
         env_vars: OS
         name: codecov-pytest-order
