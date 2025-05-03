@@ -18,7 +18,7 @@ from typing import List, Dict
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../.."))
+sys.path.insert(0, os.path.abspath("../../src"))
 
 from pytest_order import __version__  # noqa: E402
 

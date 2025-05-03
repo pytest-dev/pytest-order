@@ -1,0 +1,79 @@
+[build-system]
+requires = [
+    "setuptools>=77.0.3",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pytest-order"
+description = "pytest plugin to run tests in a specific order"
+readme = "README.md"
+keywords = [
+    "testing",
+    "pytest",
+    "ordering",
+]
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
+dynamic = ["version"]
+dependencies = [
+    "pytest>=5.0; python_version < '3.10'",
+    "pytest>=6.2.4; python_version >= '3.10'",
+]
+authors = [
+    {name = "mrbean-bremen", email = "hansemrbean@googlemail.com"}
+]
+classifiers = [
+    "Intended Audience :: Developers",
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Utilities",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest-mock>=1.11.0",
+    "pytest-xdist>=1.29.0",
+    "pytest-dependency>=0.5.1",
+]
+
+[project.urls]
+homepage = "https://github.com/pytest-dev/pytest-order"
+documentation = "https://pytest-order.readthedocs.io/"
+download = "https://github.com/pytest-dev/pytest-order/archive/main.zip"
+repository = "https://github.com/pytest-dev/pytest-order"
+changelog = "https://github.com/pytest-dev/pytest-order/blob/main/CHANGELOG.md"
+issues = "https://github.com/pytest-dev/pytest-order/issues"
+
+[project.entry-points.pytest11]
+pytest_order = "pytest_order.plugin"
+
+[tool.setuptools.dynamic]
+version = {attr = "pytest_order.__version__"}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.mypy]
+mypy_path = "src/"
+no_namespace_packages = true
+check_untyped_defs = true
+no_implicit_optional = true
+disallow_any_generics = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+show_error_codes = true
+ignore_missing_imports = true
+show_column_numbers = true
