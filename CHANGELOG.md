@@ -7,7 +7,7 @@
 
 ### Infrastructure
 * use trusted publisher for release (see https://docs.pypi.org/trusted-publishers/)
-* pin Python 3.7 builds to ubuntu 22.04 (not available in 24.04)
+* use `pyproject.toml` for project setup
 
 ### Documentation
 * added use case for ordering test modules (see [#51](https://github.com/pytest-dev/pytest-order/issues/51))

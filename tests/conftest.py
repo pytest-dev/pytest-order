@@ -1,4 +1,5 @@
 import pytest
+
 from pytest_order.settings import Scope
 
 pytest_plugins = ["pytester"]
