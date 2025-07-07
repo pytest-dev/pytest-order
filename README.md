@@ -1,7 +1,7 @@
 _pytest-order_ - a pytest plugin to order test execution
 ========================================================
 
-[![PyPI version](https://badge.fury.io/py/pytest-order.svg)](https://pypi.org/project/pytest-order) [![Testsuite](https://github.com/pytest-dev/pytest-order/workflows/Testsuite/badge.svg)](https://github.com/pytest-dev/pytest-order/actions?query=workflow%3ATestsuite) [![DocBuild](https://readthedocs.org/projects/pytest-order/badge/?version=latest)](https://pytest-order.readthedocs.io/en/latest/?badge=latest) [![codecov](https://codecov.io/gh/pytest-dev/pytest-order/branch/main/graph/badge.svg?token=M9PHWZSHUU)](https://codecov.io/gh/pytest-dev/pytest-order) [![Python version](https://img.shields.io/pypi/pyversions/pytest-order.svg)](https://pypi.org/project/pytest-order)
+[![PyPI version](https://badge.fury.io/py/pytest-order.svg)](https://pypi.org/project/pytest-order) [![Testsuite](https://github.com/pytest-dev/pytest-order/workflows/Testsuite/badge.svg)](https://github.com/pytest-dev/pytest-order/actions?query=workflow%3ATestsuite) [![DocBuild](https://readthedocs.org/projects/pytest-order/badge/?version=latest)](https://pytest-order.readthedocs.io/en/latest/?badge=latest) [![codecov](https://codecov.io/gh/pytest-dev/pytest-order/branch/main/graph/badge.svg?token=M9PHWZSHUU)](https://codecov.io/gh/pytest-dev/pytest-order) [![Python version](https://img.shields.io/pypi/pyversions/pytest-order.svg)](https://pypi.org/project/pytest-order)![PyPI - Downloads](https://img.shields.io/pypi/dw/pytest-order)
 
 `pytest-order` is a pytest plugin that allows you to customize the order in which
 your tests are run. It uses the marker `order` that defines when a specific
