@@ -1,5 +1,5 @@
 import sys
-from typing import Optional, List, Dict, Tuple, Generic, TypeVar
+from typing import Optional, Generic, TypeVar
 
 from _pytest.python import Function
 
@@ -46,20 +46,20 @@ class ItemList:
 
     def __init__(
         self,
-        items: List[Item],
+        items: list[Item],
         settings: Settings,
         scope: Scope,
-        rel_marks: List["RelativeMark[Item]"],
-        dep_marks: List["RelativeMark[Item]"],
+        rel_marks: list["RelativeMark[Item]"],
+        dep_marks: list["RelativeMark[Item]"],
     ) -> None:
         self.items = items
         self.settings = settings
         self.scope = scope
-        self.start_items: List[Tuple[int, List[Item]]] = []
-        self.end_items: List[Tuple[int, List[Item]]] = []
-        self.unordered_items: List[Item] = []
-        self._start_items: Dict[int, List[Item]] = {}
-        self._end_items: Dict[int, List[Item]] = {}
+        self.start_items: list[tuple[int, list[Item]]] = []
+        self.end_items: list[tuple[int, list[Item]]] = []
+        self.unordered_items: list[Item] = []
+        self._start_items: dict[int, list[Item]] = {}
+        self._end_items: dict[int, list[Item]] = {}
         self.all_rel_marks = rel_marks
         self.all_dep_marks = dep_marks
         self.rel_marks = filter_marks(rel_marks, items)
@@ -77,7 +77,7 @@ class ItemList:
             else:
                 self._start_items.setdefault(item.order, []).append(item)
 
-    def sort_numbered_items(self) -> List[Item]:
+    def sort_numbered_items(self) -> list[Item]:
         self.start_items = sorted(self._start_items.items())
         self.end_items = sorted(self._end_items.items())
         sorted_list = []
@@ -120,17 +120,17 @@ class ItemList:
     def number_of_rel_groups(self) -> int:
         return len(self.rel_marks) + len(self.dep_marks)
 
-    def handle_rel_marks(self, sorted_list: List[Item]) -> None:
+    def handle_rel_marks(self, sorted_list: list[Item]) -> None:
         self.handle_relative_marks(self.rel_marks, sorted_list, self.all_rel_marks)
 
-    def handle_dep_marks(self, sorted_list: List[Item]) -> None:
+    def handle_dep_marks(self, sorted_list: list[Item]) -> None:
         self.handle_relative_marks(self.dep_marks, sorted_list, self.all_dep_marks)
 
     @staticmethod
     def handle_relative_marks(
-        marks: List["RelativeMark[Item]"],
-        sorted_list: List[Item],
-        all_marks: List["RelativeMark[Item]"],
+        marks: list["RelativeMark[Item]"],
+        sorted_list: list[Item],
+        all_marks: list["RelativeMark[Item]"],
     ) -> None:
         for mark in reversed(marks):
             if move_item(mark, sorted_list):
@@ -152,9 +152,9 @@ class ItemGroup:
     """
 
     def __init__(
-        self, items: Optional[List[Item]] = None, order: Optional[int] = None
+        self, items: Optional[list[Item]] = None, order: Optional[int] = None
     ) -> None:
-        self.items: List[Item] = items or []
+        self.items: list[Item] = items or []
         self.order = order
         self.nr_rel_items = 0
 
@@ -166,7 +166,7 @@ class ItemGroup:
         if self.order is None:
             self.nr_rel_items -= 1
 
-    def extend(self, groups: List["ItemGroup"], order: Optional[int]) -> None:
+    def extend(self, groups: list["ItemGroup"], order: Optional[int]) -> None:
         for group in groups:
             self.items.extend(group.items)
         self.order = order
@@ -190,8 +190,8 @@ class RelativeMark(Generic[_ItemType]):
 
 
 def filter_marks(
-    marks: List[RelativeMark[_ItemType]], all_items: List[Item]
-) -> List[RelativeMark[_ItemType]]:
+    marks: list[RelativeMark[_ItemType]], all_items: list[Item]
+) -> list[RelativeMark[_ItemType]]:
     result = []
     for mark in marks:
         if mark.item in all_items and mark.item_to_move in all_items:
@@ -201,7 +201,7 @@ def filter_marks(
     return result
 
 
-def move_item(mark: RelativeMark[_ItemType], sorted_items: List[_ItemType]) -> bool:
+def move_item(mark: RelativeMark[_ItemType], sorted_items: list[_ItemType]) -> bool:
     if (
         mark.item not in sorted_items
         or mark.item_to_move not in sorted_items

@@ -2,7 +2,7 @@ import re
 import sys
 from collections import OrderedDict
 from contextlib import suppress
-from typing import Optional, List, Dict, Tuple, cast
+from typing import Optional, cast
 from warnings import warn
 
 from _pytest.config import Config
@@ -37,11 +37,11 @@ class Sorter:
     Sort all items according to the given configuration.
     """
 
-    def __init__(self, config: Config, items: List[Function]) -> None:
+    def __init__(self, config: Config, items: list[Function]) -> None:
         self.settings: Settings = Settings(config)
-        self.items: List[Item] = [Item(item) for item in items]
-        self.node_ids: Dict[str, Item] = OrderedDict()
-        self.node_id_last: Dict[str, List[str]] = {}
+        self.items: list[Item] = [Item(item) for item in items]
+        self.node_ids: dict[str, Item] = OrderedDict()
+        self.node_id_last: dict[str, list[str]] = {}
         for item in self.items:
             self.node_ids[item.node_id] = item
             last_part = item.node_id.rpartition("::")[2]
@@ -50,10 +50,10 @@ class Sorter:
             # save last nodeid component to avoid to iterate over all
             # items for each label
             self.node_id_last.setdefault(last_part, []).append(item.node_id)
-        self.rel_marks: List[RelativeMark[Item]] = []
-        self.dep_marks: List[RelativeMark[Item]] = []
+        self.rel_marks: list[RelativeMark[Item]] = []
+        self.dep_marks: list[RelativeMark[Item]] = []
 
-    def sort_items(self) -> List[Function]:
+    def sort_items(self) -> list[Function]:
         """
         Do the actual sorting and return the sorted items.
         """
@@ -99,8 +99,8 @@ class Sorter:
     def mark_binning(
         self,
         item: Item,
-        dep_marks: Dict[Tuple[str, Scope, str], List[Item]],
-        aliases: Dict[str, List[Item]],
+        dep_marks: dict[tuple[str, Scope, str], list[Item]],
+        aliases: dict[str, list[Item]],
     ) -> None:
         """
         Collect relevant markers for the given item.
@@ -125,8 +125,8 @@ class Sorter:
         self,
         item: Item,
         has_order: bool,
-        dep_marks: Dict[Tuple[str, Scope, str], List[Item]],
-        aliases: Dict[str, List[Item]],
+        dep_marks: dict[tuple[str, Scope, str], list[Item]],
+        aliases: dict[str, list[Item]],
     ) -> None:
         # always order dependencies if an order mark is present
         # otherwise only if order-dependencies is set
@@ -170,7 +170,7 @@ class Sorter:
         if order is not None:
             item.nr_rel_items = 0
 
-    def items_from_label(self, label: str, item: Item, is_cls_mark: bool) -> List[Item]:
+    def items_from_label(self, label: str, item: Item, is_cls_mark: bool) -> list[Item]:
         """
         Return the list of matching items from the given label.
         The list contains one item for a single matching test, several items
@@ -199,7 +199,7 @@ class Sorter:
 
         return items
 
-    def items_from_class_label(self, label: str, item: Item) -> List[Item]:
+    def items_from_class_label(self, label: str, item: Item) -> list[Item]:
         items = []
         item_id = item.node_id
         label_len = len(label)
@@ -281,16 +281,16 @@ class Sorter:
         )
 
     def collect_markers(self) -> None:
-        aliases: Dict[str, List[Item]] = {}
-        dep_marks: Dict[Tuple[str, Scope, str], List[Item]] = {}
+        aliases: dict[str, list[Item]] = {}
+        dep_marks: dict[tuple[str, Scope, str], list[Item]] = {}
         for item in self.items:
             self.mark_binning(item, dep_marks, aliases)
         self.resolve_dependency_markers(dep_marks, aliases)
 
     def resolve_dependency_markers(
         self,
-        dep_marks: Dict[Tuple[str, Scope, str], List[Item]],
-        aliases: Dict[str, List[Item]],
+        dep_marks: dict[tuple[str, Scope, str], list[Item]],
+        aliases: dict[str, list[Item]],
     ) -> None:
         for (name, _, prefix), items in dep_marks.items():
             if name in aliases:
@@ -312,7 +312,7 @@ class Sorter:
                     )
 
     @staticmethod
-    def matching_alias(aliases: List[Item], item: Item) -> Item:
+    def matching_alias(aliases: list[Item], item: Item) -> Item:
         if len(aliases) == 1:
             return aliases[0]
 
@@ -334,33 +334,33 @@ class Sorter:
         return matching_item
 
 
-def module_item_groups(items: List[Item]) -> Dict[str, List[Item]]:
+def module_item_groups(items: list[Item]) -> dict[str, list[Item]]:
     """
     Split items into groups per module.
     """
-    module_items: OrderedDict[str, List[Item]] = OrderedDict()
+    module_items: OrderedDict[str, list[Item]] = OrderedDict()
     for item in items:
         module_items.setdefault(item.module_path, []).append(item)
     return module_items
 
 
-def directory_item_groups(items: List[Item], level: int) -> Dict[str, List[Item]]:
+def directory_item_groups(items: list[Item], level: int) -> dict[str, list[Item]]:
     """
     Split items into groups per directory at the given level.
     The level is relative to the root directory, which is at level 0.
     """
-    module_items: OrderedDict[str, List[Item]] = OrderedDict()
+    module_items: OrderedDict[str, list[Item]] = OrderedDict()
     for item in items:
         module_items.setdefault(item.parent_path(level), []).append(item)
     return module_items
 
 
-def class_item_groups(items: List[Item]) -> Dict[str, List[Item]]:
+def class_item_groups(items: list[Item]) -> dict[str, list[Item]]:
     """
     Split items into groups per class.
     Items outside a class are sorted into a group per module.
     """
-    class_items: OrderedDict[str, List[Item]] = OrderedDict()
+    class_items: OrderedDict[str, list[Item]] = OrderedDict()
     for item in items:
         delimiter_index = item.node_id.index("::")
         if "::" in item.node_id[delimiter_index + 2 :]:
@@ -378,9 +378,9 @@ class ScopeSorter:
     def __init__(
         self,
         settings: Settings,
-        items: List[Item],
-        rel_marks: List[RelativeMark[Item]],
-        dep_marks: List[RelativeMark[Item]],
+        items: list[Item],
+        rel_marks: list[RelativeMark[Item]],
+        dep_marks: list[RelativeMark[Item]],
         session_scope: bool = False,
     ) -> None:
         self.settings = settings
@@ -393,7 +393,7 @@ class ScopeSorter:
             self.rel_marks = filter_marks(rel_marks, self.items)
             self.dep_marks = filter_marks(dep_marks, self.items)
 
-    def sort_items(self) -> List[Item]:
+    def sort_items(self) -> list[Item]:
         if self.settings.group_scope.value < self.settings.scope.value:
             if self.settings.scope == Scope.SESSION:
                 sorted_list = self.sort_in_session_scope()
@@ -404,7 +404,7 @@ class ScopeSorter:
 
         return sorted_list
 
-    def sort_in_session_scope(self) -> List[Item]:
+    def sort_in_session_scope(self) -> list[Item]:
         sorted_list = []
         module_items = module_item_groups(self.items)
         if self.settings.group_scope == Scope.CLASS:
@@ -421,7 +421,7 @@ class ScopeSorter:
             sorted_list.extend(group.items)
         return sorted_list
 
-    def sort_in_module_scope(self) -> List[Item]:
+    def sort_in_module_scope(self) -> list[Item]:
         sorted_list = []
         class_items = class_item_groups(self.items)
         class_groups = [
@@ -432,7 +432,7 @@ class ScopeSorter:
             sorted_list.extend(group.items)
         return sorted_list
 
-    def sort_class_groups(self, module_items: Dict[str, List[Item]]) -> List[ItemGroup]:
+    def sort_class_groups(self, module_items: dict[str, list[Item]]) -> list[ItemGroup]:
         module_groups = []
         for module_item in module_items.values():
             class_items = class_item_groups(module_item)
@@ -449,7 +449,7 @@ class ScopeSorter:
             module_groups.append(module_group)
         return module_groups
 
-    def sort_items_in_scope(self, items: List[Item], scope: Scope) -> ItemGroup:
+    def sort_items_in_scope(self, items: list[Item], scope: Scope) -> ItemGroup:
         item_list = ItemList(
             items, self.settings, scope, self.rel_marks, self.dep_marks
         )
@@ -494,23 +494,23 @@ class GroupSorter:
     def __init__(
         self,
         scope: Scope,
-        groups: List[ItemGroup],
-        rel_marks: List[RelativeMark[Item]],
-        dep_marks: List[RelativeMark[Item]],
+        groups: list[ItemGroup],
+        rel_marks: list[RelativeMark[Item]],
+        dep_marks: list[RelativeMark[Item]],
     ) -> None:
         self.scope: Scope = scope
-        self.groups: List[ItemGroup] = groups
-        self.rel_marks: List[RelativeMark[ItemGroup]] = self.collect_group_marks(
+        self.groups: list[ItemGroup] = groups
+        self.rel_marks: list[RelativeMark[ItemGroup]] = self.collect_group_marks(
             rel_marks
         )
-        self.dep_marks: List[RelativeMark[ItemGroup]] = self.collect_group_marks(
+        self.dep_marks: list[RelativeMark[ItemGroup]] = self.collect_group_marks(
             dep_marks
         )
 
     def collect_group_marks(
-        self, marks: List[RelativeMark[Item]]
-    ) -> List[RelativeMark[ItemGroup]]:
-        group_marks: List[RelativeMark[ItemGroup]] = []
+        self, marks: list[RelativeMark[Item]]
+    ) -> list[RelativeMark[ItemGroup]]:
+        group_marks: list[RelativeMark[ItemGroup]] = []
         for mark in marks:
             group = self.group_for_item(mark.item)
             group_to_move = self.group_for_item(mark.item_to_move)
@@ -525,7 +525,7 @@ class GroupSorter:
                 return group
         return None
 
-    def sorted_groups(self) -> Tuple[Optional[int], List[ItemGroup]]:
+    def sorted_groups(self) -> tuple[Optional[int], list[ItemGroup]]:
         group_order = self.sort_by_ordinal_markers()
         length = len(self.rel_marks) + len(self.dep_marks)
         if length == 0:
@@ -561,7 +561,7 @@ class GroupSorter:
             group_order = None
         return group_order
 
-    def handle_rel_marks(self, marks: List[RelativeMark[ItemGroup]]) -> None:
+    def handle_rel_marks(self, marks: list[RelativeMark[ItemGroup]]) -> None:
         for mark in reversed(marks):
             if move_item(mark, self.groups):
                 marks.remove(mark)

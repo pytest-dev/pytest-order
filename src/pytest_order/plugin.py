@@ -1,5 +1,3 @@
-from typing import List
-
 import pytest
 from _pytest.config import Config
 from _pytest.config.argparsing import Parser
@@ -167,6 +165,6 @@ class OrderingPlugin:
     """
 
 
-def modify_items(session: Session, config: Config, items: List[Function]) -> None:
+def modify_items(session: Session, config: Config, items: list[Function]) -> None:
     sorter = Sorter(config, items)
     items[:] = sorter.sort_items()
