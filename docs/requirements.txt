@@ -1,1 +1,2 @@
 sphinx>=2.3.1
+furo
