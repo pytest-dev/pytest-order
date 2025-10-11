@@ -10,6 +10,9 @@
 * use `pyproject.toml` for project setup
 
 ### Documentation
+* use a theme for documentation supporting dark mode
+
+### Documentation
 * added use case for ordering test modules (see [#51](https://github.com/pytest-dev/pytest-order/issues/51))
 
 ## [Version 1.3.0](https://pypi.org/project/pytest-order/1.3.0/) (2024-08-22)
