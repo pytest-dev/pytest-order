@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Changes
-* removed official support for Python 3.7 and 3.8 (EOL), added Python 3.13
+* removed official support for Python 3.7-3.9 (EOL), added Python 3.13 and 3.14
 
 ### Infrastructure
 * use trusted publisher for release (see https://docs.pypi.org/trusted-publishers/)

@@ -12,8 +12,8 @@ relationship to other tests.
 [pytest-ordering](https://github.com/ftobia/pytest-ordering) that provides
 additional features like ordering relative to other tests.
 
-`pytest-order` works with Python 3.9 - 3.13, with pytest
-versions >= 5.0.0 for Python 3.9, and for pytest >= 6.2.4 for Python >= 3.10.
+`pytest-order` works with all supported Python versions, with pytest versions >= 6.2.4
+for Python < 3.14, and pytest >= 7.4 for Python 3.14.
 `pytest-order` runs on Linux, macOS and Windows.
 
 Documentation
