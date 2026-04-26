@@ -1,6 +1,7 @@
 # pytest-order Release Notes
 
-## Unreleased
+## [Version 1.4.0](https://pypi.org/project/pytest-order/1.4.0/) (2026-04-26)
+Allows the plugin to run after `--failed-first` and similar options.
 
 ### Changes
 * removed official support for Python 3.7-3.9 (EOL), added Python 3.13 and 3.14
