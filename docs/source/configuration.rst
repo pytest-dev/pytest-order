@@ -503,26 +503,35 @@ gives you now::
 ``--indulgent-ordering``
 ------------------------
 You may sometimes find that you want to suggest an ordering of tests, while
-allowing it to be overridden for good reason. For example, if you run your test
-suite in parallel and have a number of tests which are particularly slow, it
-might be desirable to start those tests running first, in order to optimize
-your completion time. You can use the ``pytest-order`` plugin to inform pytest
-of this.
+allowing it to be overridden for good reason. If you have another plugin installed
+that also affects the test order, and you want these changes made after ``pytest-order``
+has ordered the tests, this may not work: ``pytest-order`` always tries to run last.
+Using this option, ``pytest-order`` will try to run first instead, allowing other plugins
+to change the test order afterwards.
 
-Now suppose you also want to prioritize tests which failed during the
-previous run, by using the ``--failed-first`` option. By default,
-pytest-order will override the ``--failed-first`` order, but by adding the
-``--indulgent-ordering`` option, you can ask pytest to run the sort from
-pytest-order *before* the sort from ``--failed-first``, allowing the failed
-tests to be sorted to the front (note that in pytest versions from 6.0 on,
-this seems not to be needed anymore, at least in this specific case).
+.. note::
+  This option was originally added to allow to run ``pytest-order`` before the
+  ``--failed-first`` option hook. This is no longer needed with current ``pytest``
+  version (see also the next option)
+
+.. _order_after_ff:
+
+``--order-after-ff``
+--------------------
+Using the ``pytest`` option ``--failed-first`` runs failing tests first in the next test run.
+Normally, this is done regardless of the ``order`` markers, because the hook implementing
+this option is executed after ``pytest-order``. Usually, this is what you want. However,
+if the failed test depends on the ordering, this may break the test, so it will continue
+to fail for that reason. For such cases, you can instruct ``pytest-order`` to run after
+that hook using the ``--order-after-ff`` option. This will also affect similar hooks
+(like ``failed-last``) or other ordering plugins that try to run last.
 
 .. _sparse-ordering:
 
 ``--sparse-ordering``
 ---------------------
 Ordering tests by ordinals where some numbers are missing by default behaves
-the same as if the the ordinals are consecutive. For example, these tests:
+the same as if the ordinals were consecutive. For example, these tests:
 
 .. code:: python
 
@@ -605,11 +614,11 @@ as it is without this option.
 
 ``--error-on-failed-ordering``
 ------------------------------
-Relative ordering of tests my fail under some circumstances. Mostly this happens if the related marker
+Relative ordering of tests may fail under some circumstances. Mostly this happens if the related marker
 is not found, or if the tests have a cyclic dependency.
 The default behavior in this case is not to order the test in question, issue a warning during test
 collection and execute the test as usual. If you want to make sure that your relative markers work
-without checking all warning messages, you can also make the tests that cannot be ordered fail, so that
+without having to check all warning messages, you can make the tests that cannot be ordered fail, so that
 they show up as errored in the report:
 
 .. code:: python

@@ -1,3 +1,5 @@
+from collections.abc import Generator, Callable
+
 import pytest
 from _pytest.config import Config
 from _pytest.config.argparsing import Parser
@@ -27,12 +29,21 @@ def pytest_configure(config: Config) -> None:
     # only when the CLI option is present should the decorator be added.
     # Thus, we manually run the decorator on the class function and
     # manually replace it.
+    hook_function: Callable[
+        [Session, Config, list[Function]], None | Generator[None]
+    ] = modify_items
     if config.getoption("indulgent_ordering"):
+        # try to run before other plugins
         wrapper = pytest.hookimpl(tryfirst=True)
+    elif config.getoption("order_after_ff"):
+        # run after the LFPlugin plugin, handling --failed-first and --failed-last
+        wrapper = pytest.hookimpl(hookwrapper=True, tryfirst=True)
+        hook_function = modify_items_gen
     else:
+        # try to run after other plugins
         wrapper = pytest.hookimpl(trylast=True)
     OrderingPlugin.pytest_collection_modifyitems = wrapper(  # type:ignore[attr-defined]
-        modify_items
+        hook_function
     )
     config.pluginmanager.register(OrderingPlugin(), "orderingplugin")
 
@@ -115,6 +126,12 @@ def pytest_addoption(parser: Parser) -> None:
             "will error instead of generating only a warning."
         ),
     )
+    group.addoption(
+        "--order-after-ff",
+        action="store_true",
+        dest="order_after_ff",
+        help="If set, the plugin will run after the --failed-first and similar option hooks.",
+    )
 
 
 def _get_mark_description(mark: Mark):
@@ -166,5 +183,13 @@ class OrderingPlugin:
 
 
 def modify_items(session: Session, config: Config, items: list[Function]) -> None:
+    sorter = Sorter(config, items)
+    items[:] = sorter.sort_items()
+
+
+def modify_items_gen(
+    session: Session, config: Config, items: list[Function]
+) -> Generator[None]:
+    yield
     sorter = Sorter(config, items)
     items[:] = sorter.sort_items()
