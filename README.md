@@ -84,7 +84,7 @@ yields the output:
 
     $ pytest test_foo.py -vv
     ============================= test session starts ==============================
-    platform darwin -- Python 3.7.1, pytest-5.4.3, py-1.8.1, pluggy-0.13.1 -- env/bin/python
+    platform linux -- Python 3.11.11, pytest-9.0.3, pluggy-1.6.0 -- env/bin/python
     plugins: order
     collected 2 items
 
