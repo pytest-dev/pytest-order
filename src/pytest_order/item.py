@@ -1,5 +1,6 @@
 import sys
 from typing import Optional, Generic, TypeVar
+from collections import defaultdict, deque
 
 from _pytest.python import Function
 
@@ -100,6 +101,36 @@ class ItemList:
             index -= len(items)
         sorted_list[mid_index:mid_index] = self.unordered_items
         return sorted_list
+
+    def apply_relative_constraints(self, sorted_list: list[Item]) -> bool:
+        """
+        Topologically sort the unordered items in sorted_list according to
+        rel_marks and dep_marks, then re-insert them at their absolute-order
+        positions. Returns True if all constraints were satisfied.
+        """
+        # Partition: pinned items keep their current positions; movable items are re-sorted.
+        pinned = {item for item in sorted_list if item.order is not None}
+        movable = [item for item in sorted_list if item not in pinned]
+
+        sorted_movable, had_cycle = sort_by_topology(
+            movable, self.rel_marks, self.dep_marks
+        )
+
+        # Rebuild the list: slot sorted_movable back into the gaps between pinned items.
+        result: list[Item] = []
+        movable_iter = iter(sorted_movable)
+        for item in sorted_list:
+            if item in pinned:
+                result.append(item)
+            else:
+                result.append(next(movable_iter))
+
+        sorted_list[:] = result
+        # Clear resolved marks so the caller doesn't warn about them.
+        if not had_cycle:
+            self.rel_marks.clear()
+            self.dep_marks.clear()
+        return not had_cycle
 
     def print_unhandled_items(self) -> None:
         failed_items = [mark.item for mark in self.rel_marks] + [
@@ -227,3 +258,55 @@ def move_item(mark: RelativeMark[_ItemType], sorted_items: list[_ItemType]) -> b
             pos_item -= 1
             sorted_items.insert(pos_item + 1, mark.item_to_move)
     return True
+
+
+def sort_by_topology(
+    items: list["Item"],
+    rel_marks: list["RelativeMark[Item]"],
+    dep_marks: list["RelativeMark[Item]"],
+) -> tuple[list["Item"], bool]:
+    """
+    Topologically sort items using relative constraints.
+    Returns (sorted_items, had_cycle).
+    Items not involved in any constraint keep their original relative order.
+    """
+    item_set = set(items)
+    original_pos = {item: i for i, item in enumerate(items)}
+    successors: dict[Item, list[Item]] = defaultdict(list)
+    in_degree: dict[Item, int] = {item: 0 for item in items}
+
+    for mark in rel_marks + dep_marks:
+        # Normalise to a single "A before B" edge.
+        a, b = (mark.item, mark.item_to_move) if mark.move_after \
+               else (mark.item_to_move, mark.item)
+        if a not in item_set or b not in item_set or a is b:
+            continue
+        successors[a].append(b)
+        in_degree[b] += 1
+
+    # Kahn's algorithm; break ties by original position for stability.
+    ready = deque(sorted(
+        (item for item in items if in_degree[item] == 0),
+        key=lambda x: original_pos[x],
+    ))
+    result: list[Item] = []
+    while ready:
+        item = ready.popleft()
+        result.append(item)
+        for successor in sorted(successors[item], key=lambda x: original_pos[x]):
+            in_degree[successor] -= 1
+            if in_degree[successor] == 0:
+                # Keep ready sorted by original position.
+                pos = next(
+                    (i for i, r in enumerate(ready) if original_pos[r] > original_pos[successor]),
+                    len(ready),
+                )
+                ready.insert(pos, successor)
+
+    had_cycle = len(result) < len(items)
+    if had_cycle:
+        # Append cyclic items in original order; the caller will warn.
+        result.extend(
+            sorted((item for item in items if in_degree[item] > 0), key=lambda x: original_pos[x])
+        )
+    return result, had_cycle
