@@ -112,6 +112,7 @@ class ItemList:
         pinned = {item for item in sorted_list if item.order is not None}
         movable = [item for item in sorted_list if item not in pinned]
 
+        warn_ordinal_conflicts(self.rel_marks + self.dep_marks, pinned)
         sorted_movable, had_cycle = sort_by_topology(
             movable, self.rel_marks, self.dep_marks
         )
@@ -258,6 +259,31 @@ def move_item(mark: RelativeMark[_ItemType], sorted_items: list[_ItemType]) -> b
             pos_item -= 1
             sorted_items.insert(pos_item + 1, mark.item_to_move)
     return True
+
+
+def warn_ordinal_conflicts(
+    marks: list["RelativeMark[Item]"],
+    pinned: set["Item"],
+) -> None:
+    """Warn when a relative constraint references a pinned item in a way that
+    can never be satisfied given the absolute ordering section boundaries."""
+    for mark in marks:
+        anchor, moving = mark.item, mark.item_to_move
+        if anchor not in pinned or moving in pinned:
+            continue
+        if mark.move_after and anchor.order is not None and anchor.order < 0:
+            sys.stdout.write(
+                f"\nWARNING: cannot place '{moving.item.name}' after"
+                f" '{anchor.item.name}' - '{anchor.item.name}' has an ordinal"
+                f" marker that places it after all relatively-ordered tests.\n"
+            )
+        elif not mark.move_after and anchor.order is not None and anchor.order >= 0:
+            sys.stdout.write(
+                f"\nWARNING: cannot place '{moving.item.name}' before"
+                f" '{anchor.item.name}' - '{anchor.item.name}' has an ordinal"
+                f" marker that places it before all relatively-ordered tests.\n"
+            )
+    sys.stdout.flush()
 
 
 def sort_by_topology(
