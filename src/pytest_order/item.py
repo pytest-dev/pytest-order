@@ -165,12 +165,20 @@ class ItemList:
         for mark in self.rel_marks + self.dep_marks:
             items_with_rel_constraints.add(mark.item_to_move)
 
-        start_items = [item for item in sorted_list if item.order is not None and item.order >= 0]
-        end_items = [item for item in sorted_list if item.order is not None and item.order < 0]
+        start_items = [
+            item for item in sorted_list if item.order is not None and item.order >= 0
+        ]
+        end_items = [
+            item for item in sorted_list if item.order is not None and item.order < 0
+        ]
         middle_items = [item for item in sorted_list if item.order is None]
 
-        has_start_constraints = any(item in items_with_rel_constraints for item in start_items)
-        has_end_constraints = any(item in items_with_rel_constraints for item in end_items)
+        has_start_constraints = any(
+            item in items_with_rel_constraints for item in start_items
+        )
+        has_end_constraints = any(
+            item in items_with_rel_constraints for item in end_items
+        )
 
         if has_start_constraints:
             start_pinned: list[Item] = []
@@ -375,8 +383,11 @@ def sort_by_topology(
     # Add edges for explicit relative constraints
     for mark in rel_marks + dep_marks:
         # Normalise to a single "A before B" edge.
-        a, b = (mark.item, mark.item_to_move) if mark.move_after \
-               else (mark.item_to_move, mark.item)
+        a, b = (
+            (mark.item, mark.item_to_move)
+            if mark.move_after
+            else (mark.item_to_move, mark.item)
+        )
         if a not in item_set or b not in item_set or a is b:
             continue
         successors[a].append(b)
@@ -397,10 +408,12 @@ def sort_by_topology(
             in_degree[b] += 1
 
     # Kahn's algorithm; break ties by input position for stability.
-    ready = deque(sorted(
-        (item for item in items if in_degree[item] == 0),
-        key=lambda x: item_position[x],
-    ))
+    ready = deque(
+        sorted(
+            (item for item in items if in_degree[item] == 0),
+            key=lambda x: item_position[x],
+        )
+    )
     result: list[Item] = []
     while ready:
         item = ready.popleft()
@@ -410,7 +423,11 @@ def sort_by_topology(
             if in_degree[successor] == 0:
                 # Keep ready sorted by input position.
                 pos = next(
-                    (i for i, r in enumerate(ready) if item_position[r] > item_position[successor]),
+                    (
+                        i
+                        for i, r in enumerate(ready)
+                        if item_position[r] > item_position[successor]
+                    ),
                     len(ready),
                 )
                 ready.insert(pos, successor)
@@ -419,6 +436,9 @@ def sort_by_topology(
     if had_cycle:
         # Append cyclic items in input order; the caller will warn.
         result.extend(
-            sorted((item for item in items if in_degree[item] > 0), key=lambda x: item_position[x])
+            sorted(
+                (item for item in items if in_degree[item] > 0),
+                key=lambda x: item_position[x],
+            )
         )
     return result, had_cycle

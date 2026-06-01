@@ -180,13 +180,15 @@ def test_after_absolute_before_relative_chain_cross_module(test_path):
     )
     result = test_path.runpytest("-v")
     result.assert_outcomes(passed=5)
-    result.stdout.fnmatch_lines([
-        "test_mod_extra.py::test_x PASSED",
-        "test_mod_extra.py::test_y PASSED",
-        "test_mod_extra.py::test_z PASSED",
-        "test_mod_base.py::test_anchor PASSED",
-        "test_mod_base.py::test_last PASSED",
-    ])
+    result.stdout.fnmatch_lines(
+        [
+            "test_mod_extra.py::test_x PASSED",
+            "test_mod_extra.py::test_y PASSED",
+            "test_mod_extra.py::test_z PASSED",
+            "test_mod_base.py::test_anchor PASSED",
+            "test_mod_base.py::test_last PASSED",
+        ]
+    )
     assert "cannot place 'test_x' after 'test_anchor'" in result.stdout.str()
 
 
