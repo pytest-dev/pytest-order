@@ -13,11 +13,12 @@ _ItemType = TypeVar("_ItemType", "Item", "ItemGroup")
 class Item:
     """Represents a single test item."""
 
-    def __init__(self, item: Function) -> None:
+    def __init__(self, item: Function, collection_index: int = 0) -> None:
         self.item: Function = item
         self.nr_rel_items: int = 0
         self.order: Optional[int] = None
         self._node_id: Optional[str] = None
+        self.collection_index: int = collection_index
 
     def inc_rel_marks(self) -> None:
         if self.order is None:
@@ -108,8 +109,16 @@ class ItemList:
         rel_marks and dep_marks, then re-insert them at their absolute-order
         positions. Returns True if all constraints were satisfied.
         """
+        # Collect items involved in any relative constraint
+        items_in_constraints = set()
+        for mark in self.rel_marks + self.dep_marks:
+            items_in_constraints.add(mark.item)
+            items_in_constraints.add(mark.item_to_move)
+
         # Partition: pinned items keep their current positions; movable items are re-sorted.
-        pinned = {item for item in sorted_list if item.order is not None}
+        # Items with relative constraints are not pinned even if they have absolute ordering.
+        pinned = {item for item in sorted_list
+                  if item.order is not None and item not in items_in_constraints}
         movable = [item for item in sorted_list if item not in pinned]
 
         warn_ordinal_conflicts(self.rel_marks + self.dep_marks, pinned)
@@ -294,10 +303,9 @@ def sort_by_topology(
     """
     Topologically sort items using relative constraints.
     Returns (sorted_items, had_cycle).
-    Items not involved in any constraint keep their original relative order.
+    Items not involved in any constraint keep their original collection order.
     """
     item_set = set(items)
-    original_pos = {item: i for i, item in enumerate(items)}
     successors: dict[Item, list[Item]] = defaultdict(list)
     in_degree: dict[Item, int] = {item: 0 for item in items}
 
@@ -310,29 +318,29 @@ def sort_by_topology(
         successors[a].append(b)
         in_degree[b] += 1
 
-    # Kahn's algorithm; break ties by original position for stability.
+    # Kahn's algorithm; break ties by original collection order for stability.
     ready = deque(sorted(
         (item for item in items if in_degree[item] == 0),
-        key=lambda x: original_pos[x],
+        key=lambda x: x.collection_index,
     ))
     result: list[Item] = []
     while ready:
         item = ready.popleft()
         result.append(item)
-        for successor in sorted(successors[item], key=lambda x: original_pos[x]):
+        for successor in sorted(successors[item], key=lambda x: x.collection_index):
             in_degree[successor] -= 1
             if in_degree[successor] == 0:
-                # Keep ready sorted by original position.
+                # Keep ready sorted by original collection order.
                 pos = next(
-                    (i for i, r in enumerate(ready) if original_pos[r] > original_pos[successor]),
+                    (i for i, r in enumerate(ready) if r.collection_index > successor.collection_index),
                     len(ready),
                 )
                 ready.insert(pos, successor)
 
     had_cycle = len(result) < len(items)
     if had_cycle:
-        # Append cyclic items in original order; the caller will warn.
+        # Append cyclic items in original collection order; the caller will warn.
         result.extend(
-            sorted((item for item in items if in_degree[item] > 0), key=lambda x: original_pos[x])
+            sorted((item for item in items if in_degree[item] > 0), key=lambda x: x.collection_index)
         )
     return result, had_cycle

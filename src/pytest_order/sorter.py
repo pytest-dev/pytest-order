@@ -39,7 +39,7 @@ class Sorter:
 
     def __init__(self, config: Config, items: list[Function]) -> None:
         self.settings: Settings = Settings(config)
-        self.items: list[Item] = [Item(item) for item in items]
+        self.items: list[Item] = [Item(item, idx) for idx, item in enumerate(items)]
         self.node_ids: dict[str, Item] = OrderedDict()
         self.node_id_last: dict[str, list[str]] = {}
         for item in self.items:
