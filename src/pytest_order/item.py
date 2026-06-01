@@ -111,6 +111,8 @@ class ItemList:
         ALL items in that section become movable to preserve ordinal order.
         Returns True if all constraints were satisfied.
         """
+        if not self.rel_marks and not self.dep_marks:
+            return True
         # Collect items that HAVE relative constraints (item_to_move, not just anchors)
         # Note: in RelativeMark, 'item' is the anchor, 'item_to_move' is the item with the marker
         items_with_rel_constraints = set()
