@@ -105,21 +105,66 @@ class ItemList:
 
     def apply_relative_constraints(self, sorted_list: list[Item]) -> bool:
         """
-        Topologically sort items according to relative constraints.
-        Items with relative constraints are moved to the middle section, even if
-        they have absolute ordinals. If any start/end item has relative constraints,
-        ALL items in that section become movable to preserve ordinal order.
+        Apply relative constraints to sorted_list.
+
+        Three-phase strategy:
+        1. Pre-screen impossible marks - constraints whose anchor is pinned by
+           an absolute ordinal in a section opposite to where the unpinned
+           mover can land are dropped with a warning, so they do not displace
+           pinned items during the iterative pass.
+        2. Iterative move_item passes - preserves the position of items not
+           involved in constraints, matching the original algorithm.
+        3. Topological fallback - reorders only items whose constraints the
+           iterative pass could not satisfy (e.g. items with both absolute
+           and relative markers).
+
         Returns True if all constraints were satisfied.
         """
         if not self.rel_marks and not self.dep_marks:
             return True
-        # Collect items that HAVE relative constraints (item_to_move, not just anchors)
-        # Note: in RelativeMark, 'item' is the anchor, 'item_to_move' is the item with the marker
+
+        self._drop_impossible_marks()
+        if not self.rel_marks and not self.dep_marks:
+            return True
+
+        self._apply_iterative(sorted_list)
+        if not self.rel_marks and not self.dep_marks:
+            return True
+
+        return self._apply_topological_fallback(sorted_list)
+
+    def _drop_impossible_marks(self) -> None:
+        pinned = {item for item in self.items if item.order is not None}
+        impossible_rel = warn_ordinal_conflicts(self.rel_marks, pinned)
+        self._remove_marks(self.rel_marks, self.all_rel_marks, impossible_rel)
+        impossible_dep = warn_ordinal_conflicts(self.dep_marks, pinned)
+        self._remove_marks(self.dep_marks, self.all_dep_marks, impossible_dep)
+
+    @staticmethod
+    def _remove_marks(
+        marks: list["RelativeMark[Item]"],
+        all_marks: list["RelativeMark[Item]"],
+        to_remove: list["RelativeMark[Item]"],
+    ) -> None:
+        for mark in to_remove:
+            mark.item_to_move.dec_rel_marks()
+            marks.remove(mark)
+            all_marks.remove(mark)
+
+    def _apply_iterative(self, sorted_list: list[Item]) -> None:
+        still_left = 0
+        length = self.number_of_rel_groups()
+        while length and still_left != length:
+            still_left = length
+            self.handle_rel_marks(sorted_list)
+            self.handle_dep_marks(sorted_list)
+            length = self.number_of_rel_groups()
+
+    def _apply_topological_fallback(self, sorted_list: list[Item]) -> bool:
         items_with_rel_constraints = set()
         for mark in self.rel_marks + self.dep_marks:
             items_with_rel_constraints.add(mark.item_to_move)
 
-        # Check if any start/end items have relative constraints
         start_items = [item for item in sorted_list if item.order is not None and item.order >= 0]
         end_items = [item for item in sorted_list if item.order is not None and item.order < 0]
         middle_items = [item for item in sorted_list if item.order is None]
@@ -127,33 +172,28 @@ class ItemList:
         has_start_constraints = any(item in items_with_rel_constraints for item in start_items)
         has_end_constraints = any(item in items_with_rel_constraints for item in end_items)
 
-        # If any item in a section has relative constraints, make the whole section movable
         if has_start_constraints:
-            start_pinned = []
+            start_pinned: list[Item] = []
             middle_movable = start_items + middle_items
         else:
             start_pinned = start_items
             middle_movable = middle_items
 
         if has_end_constraints:
-            end_pinned = []
+            end_pinned: list[Item] = []
             middle_movable += end_items
         else:
             end_pinned = end_items
 
-        # Warn about constraints that reference pinned items in impossible ways
         all_pinned = set(start_pinned + end_pinned)
         warn_ordinal_conflicts(self.rel_marks + self.dep_marks, all_pinned)
 
-        # Topologically sort the middle section
         sorted_middle, had_cycle = sort_by_topology(
             middle_movable, self.rel_marks, self.dep_marks
         )
 
-        # Rebuild: start section + sorted middle + end section
         sorted_list[:] = start_pinned + sorted_middle + end_pinned
 
-        # Clear resolved marks so the caller doesn't warn about them.
         if not had_cycle:
             self.rel_marks.clear()
             self.dep_marks.clear()
@@ -290,26 +330,31 @@ def move_item(mark: RelativeMark[_ItemType], sorted_items: list[_ItemType]) -> b
 def warn_ordinal_conflicts(
     marks: list["RelativeMark[Item]"],
     pinned: set["Item"],
-) -> None:
-    """Warn when a relative constraint references a pinned item in a way that
-    can never be satisfied given the absolute ordering section boundaries."""
+) -> list["RelativeMark[Item]"]:
+    """Warn about relative constraints that reference a pinned anchor in a
+    direction that cannot be satisfied given the absolute ordering section
+    boundaries. Returns the list of such impossible marks."""
+    impossible: list["RelativeMark[Item]"] = []
     for mark in marks:
         anchor, moving = mark.item, mark.item_to_move
-        if anchor not in pinned or moving in pinned:
+        if anchor not in pinned or moving in pinned or anchor.order is None:
             continue
-        if mark.move_after and anchor.order is not None and anchor.order < 0:
+        if mark.move_after and anchor.order < 0:
             sys.stdout.write(
                 f"\nWARNING: cannot place '{moving.item.name}' after"
                 f" '{anchor.item.name}' - '{anchor.item.name}' has an ordinal"
                 f" marker that places it after all relatively-ordered tests.\n"
             )
-        elif not mark.move_after and anchor.order is not None and anchor.order >= 0:
+            impossible.append(mark)
+        elif not mark.move_after and anchor.order >= 0:
             sys.stdout.write(
                 f"\nWARNING: cannot place '{moving.item.name}' before"
                 f" '{anchor.item.name}' - '{anchor.item.name}' has an ordinal"
                 f" marker that places it before all relatively-ordered tests.\n"
             )
+            impossible.append(mark)
     sys.stdout.flush()
+    return impossible
 
 
 def sort_by_topology(
