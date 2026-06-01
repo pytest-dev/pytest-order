@@ -105,37 +105,52 @@ class ItemList:
 
     def apply_relative_constraints(self, sorted_list: list[Item]) -> bool:
         """
-        Topologically sort the unordered items in sorted_list according to
-        rel_marks and dep_marks, then re-insert them at their absolute-order
-        positions. Returns True if all constraints were satisfied.
+        Topologically sort items according to relative constraints.
+        Items with relative constraints are moved to the middle section, even if
+        they have absolute ordinals. If any start/end item has relative constraints,
+        ALL items in that section become movable to preserve ordinal order.
+        Returns True if all constraints were satisfied.
         """
-        # Collect items involved in any relative constraint
-        items_in_constraints = set()
+        # Collect items that HAVE relative constraints (item_to_move, not just anchors)
+        # Note: in RelativeMark, 'item' is the anchor, 'item_to_move' is the item with the marker
+        items_with_rel_constraints = set()
         for mark in self.rel_marks + self.dep_marks:
-            items_in_constraints.add(mark.item)
-            items_in_constraints.add(mark.item_to_move)
+            items_with_rel_constraints.add(mark.item_to_move)
 
-        # Partition: pinned items keep their current positions; movable items are re-sorted.
-        # Items with relative constraints are not pinned even if they have absolute ordering.
-        pinned = {item for item in sorted_list
-                  if item.order is not None and item not in items_in_constraints}
-        movable = [item for item in sorted_list if item not in pinned]
+        # Check if any start/end items have relative constraints
+        start_items = [item for item in sorted_list if item.order is not None and item.order >= 0]
+        end_items = [item for item in sorted_list if item.order is not None and item.order < 0]
+        middle_items = [item for item in sorted_list if item.order is None]
 
-        warn_ordinal_conflicts(self.rel_marks + self.dep_marks, pinned)
-        sorted_movable, had_cycle = sort_by_topology(
-            movable, self.rel_marks, self.dep_marks
+        has_start_constraints = any(item in items_with_rel_constraints for item in start_items)
+        has_end_constraints = any(item in items_with_rel_constraints for item in end_items)
+
+        # If any item in a section has relative constraints, make the whole section movable
+        if has_start_constraints:
+            start_pinned = []
+            middle_movable = start_items + middle_items
+        else:
+            start_pinned = start_items
+            middle_movable = middle_items
+
+        if has_end_constraints:
+            end_pinned = []
+            middle_movable += end_items
+        else:
+            end_pinned = end_items
+
+        # Warn about constraints that reference pinned items in impossible ways
+        all_pinned = set(start_pinned + end_pinned)
+        warn_ordinal_conflicts(self.rel_marks + self.dep_marks, all_pinned)
+
+        # Topologically sort the middle section
+        sorted_middle, had_cycle = sort_by_topology(
+            middle_movable, self.rel_marks, self.dep_marks
         )
 
-        # Rebuild the list: slot sorted_movable back into the gaps between pinned items.
-        result: list[Item] = []
-        movable_iter = iter(sorted_movable)
-        for item in sorted_list:
-            if item in pinned:
-                result.append(item)
-            else:
-                result.append(next(movable_iter))
+        # Rebuild: start section + sorted middle + end section
+        sorted_list[:] = start_pinned + sorted_middle + end_pinned
 
-        sorted_list[:] = result
         # Clear resolved marks so the caller doesn't warn about them.
         if not had_cycle:
             self.rel_marks.clear()
@@ -301,14 +316,16 @@ def sort_by_topology(
     dep_marks: list["RelativeMark[Item]"],
 ) -> tuple[list["Item"], bool]:
     """
-    Topologically sort items using relative constraints.
+    Topologically sort items using relative constraints and ordinal markers.
     Returns (sorted_items, had_cycle).
-    Items not involved in any constraint keep their original collection order.
+    Among items with no constraints between them, ordinal order (if present) is preserved.
     """
     item_set = set(items)
+    item_position = {item: i for i, item in enumerate(items)}
     successors: dict[Item, list[Item]] = defaultdict(list)
     in_degree: dict[Item, int] = {item: 0 for item in items}
 
+    # Add edges for explicit relative constraints
     for mark in rel_marks + dep_marks:
         # Normalise to a single "A before B" edge.
         a, b = (mark.item, mark.item_to_move) if mark.move_after \
@@ -318,29 +335,43 @@ def sort_by_topology(
         successors[a].append(b)
         in_degree[b] += 1
 
-    # Kahn's algorithm; break ties by original collection order for stability.
+    # Add implicit edges for ordinal ordering
+    # If two items both have ordinals, the one with smaller ordinal should come first
+    # BUT don't add an edge that would contradict an explicit relative constraint
+    ordinal_items = [(item, item.order) for item in items if item.order is not None]
+    ordinal_items.sort(key=lambda x: x[1])  # Sort by ordinal value
+    for i in range(len(ordinal_items) - 1):
+        a, _ = ordinal_items[i]
+        b, _ = ordinal_items[i + 1]
+        # Only add edge a→b if there's no path from b to a (which would create a cycle)
+        # For simplicity, just check if b→a is an explicit edge
+        if a not in successors[b] and b not in successors[a]:
+            successors[a].append(b)
+            in_degree[b] += 1
+
+    # Kahn's algorithm; break ties by input position for stability.
     ready = deque(sorted(
         (item for item in items if in_degree[item] == 0),
-        key=lambda x: x.collection_index,
+        key=lambda x: item_position[x],
     ))
     result: list[Item] = []
     while ready:
         item = ready.popleft()
         result.append(item)
-        for successor in sorted(successors[item], key=lambda x: x.collection_index):
+        for successor in sorted(successors[item], key=lambda x: item_position[x]):
             in_degree[successor] -= 1
             if in_degree[successor] == 0:
-                # Keep ready sorted by original collection order.
+                # Keep ready sorted by input position.
                 pos = next(
-                    (i for i, r in enumerate(ready) if r.collection_index > successor.collection_index),
+                    (i for i, r in enumerate(ready) if item_position[r] > item_position[successor]),
                     len(ready),
                 )
                 ready.insert(pos, successor)
 
     had_cycle = len(result) < len(items)
     if had_cycle:
-        # Append cyclic items in original collection order; the caller will warn.
+        # Append cyclic items in input order; the caller will warn.
         result.extend(
-            sorted((item for item in items if in_degree[item] > 0), key=lambda x: x.collection_index)
+            sorted((item for item in items if in_degree[item] > 0), key=lambda x: item_position[x])
         )
     return result, had_cycle
