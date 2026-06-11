@@ -132,11 +132,9 @@ class ItemList:
         if not self.rel_marks and not self.dep_marks:
             return True
 
-        rel_marks = list(self.rel_marks)
-        dep_marks = list(self.dep_marks)
         self._apply_iterative(sorted_list)
 
-        ordered, had_cycle = sort_by_topology(sorted_list, rel_marks, dep_marks)
+        ordered, had_cycle = self._sort_by_topology(sorted_list)
         sorted_list[:] = ordered
         return not had_cycle
 
@@ -191,6 +189,64 @@ class ItemList:
         elif self.end_items:
             return self.end_items[-1][0]
         return None
+
+    def _sort_by_topology(
+        self,
+        items: list["Item"],
+    ) -> tuple[list["Item"], bool]:
+        """
+        Order items so that all relative constraints are satisfied while staying as
+        close as possible to the incoming order (the absolute-ordinal baseline).
+
+        Relative constraints take preference over the baseline: each item is emitted
+        right after the items it must follow, so a conflicting ordinal position is
+        relaxed; items that no constraint orders keep their baseline order. The
+        incoming order already encodes the absolute ordinals, so no extra ordinal
+        edges are needed.
+
+        Returns (ordered_items, had_cycle). On a constraint cycle the offending edge
+        is dropped, all items are still emitted, and had_cycle is True.
+        """
+        rel_marks = list(self.rel_marks)
+        dep_marks = list(self.dep_marks)
+
+        item_set = set(items)
+        position = {item: i for i, item in enumerate(items)}
+        predecessors = _build_predecessors(rel_marks + dep_marks, item_set)
+        for item in items:
+            predecessors[item].sort(key=lambda p: position[p])
+
+        result: list[Item] = []
+        placed: set[Item] = set()
+        on_path: set[Item] = set()
+        had_cycle = False
+
+        # Iterative post-order DFS: emit unplaced predecessors before each item.
+        for start in items:
+            if start in placed:
+                continue
+            stack: list[tuple[Item, int]] = [(start, 0)]
+            on_path.add(start)
+            while stack:
+                item, next_pred = stack[-1]
+                preds = predecessors[item]
+                while next_pred < len(preds) and preds[next_pred] in placed:
+                    next_pred += 1
+                if next_pred < len(preds):
+                    pred = preds[next_pred]
+                    stack[-1] = (item, next_pred + 1)
+                    if pred in on_path:
+                        had_cycle = True
+                    else:
+                        stack.append((pred, 0))
+                        on_path.add(pred)
+                    continue
+                stack.pop()
+                on_path.discard(item)
+                placed.add(item)
+                result.append(item)
+
+        return result, had_cycle
 
 
 class ItemGroup:
@@ -275,63 +331,6 @@ def move_item(mark: RelativeMark[_ItemType], sorted_items: list[_ItemType]) -> b
             pos_item -= 1
             sorted_items.insert(pos_item + 1, mark.item_to_move)
     return True
-
-
-def sort_by_topology(
-    items: list["Item"],
-    rel_marks: list["RelativeMark[Item]"],
-    dep_marks: list["RelativeMark[Item]"],
-) -> tuple[list["Item"], bool]:
-    """
-    Order items so that all relative constraints are satisfied while staying as
-    close as possible to the incoming order (the absolute-ordinal baseline).
-
-    Relative constraints take preference over the baseline: each item is emitted
-    right after the items it must follow, so a conflicting ordinal position is
-    relaxed; items that no constraint orders keep their baseline order. The
-    incoming order already encodes the absolute ordinals, so no extra ordinal
-    edges are needed.
-
-    Returns (ordered_items, had_cycle). On a constraint cycle the offending edge
-    is dropped, all items are still emitted, and had_cycle is True.
-    """
-    item_set = set(items)
-    position = {item: i for i, item in enumerate(items)}
-    predecessors = _build_predecessors(rel_marks + dep_marks, item_set)
-    for item in items:
-        predecessors[item].sort(key=lambda p: position[p])
-
-    result: list[Item] = []
-    placed: set[Item] = set()
-    on_path: set[Item] = set()
-    had_cycle = False
-
-    # Iterative post-order DFS: emit unplaced predecessors before each item.
-    for start in items:
-        if start in placed:
-            continue
-        stack: list[tuple[Item, int]] = [(start, 0)]
-        on_path.add(start)
-        while stack:
-            item, next_pred = stack[-1]
-            preds = predecessors[item]
-            while next_pred < len(preds) and preds[next_pred] in placed:
-                next_pred += 1
-            if next_pred < len(preds):
-                pred = preds[next_pred]
-                stack[-1] = (item, next_pred + 1)
-                if pred in on_path:
-                    had_cycle = True
-                else:
-                    stack.append((pred, 0))
-                    on_path.add(pred)
-                continue
-            stack.pop()
-            on_path.discard(item)
-            placed.add(item)
-            result.append(item)
-
-    return result, had_cycle
 
 
 def _build_predecessors(
