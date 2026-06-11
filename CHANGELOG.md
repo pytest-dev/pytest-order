@@ -3,9 +3,6 @@
 ## Unreleased
 
 ### Fixes
-- relative order markers (`before`/`after`) now always take preference over
-  absolute ordinal markers (`index`, `first`, `last`, …); a conflicting ordinal
-  position is relaxed instead of dropping the relative marker
 - transitive relative chains are resolved as a single globally consistent order
 
 ## [Version 1.4.0](https://pypi.org/project/pytest-order/1.4.0/) (2026-04-26)
