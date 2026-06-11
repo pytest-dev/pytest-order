@@ -226,4 +226,3 @@ def test_long_transitive_chain(item_names_for):
         "test_2",
         "test_4",
     ]
-
