@@ -138,9 +138,6 @@ class ItemList:
 
         ordered, had_cycle = sort_by_topology(sorted_list, rel_marks, dep_marks)
         sorted_list[:] = ordered
-        if not had_cycle:
-            self._discard_satisfied_marks(self.rel_marks, self.all_rel_marks)
-            self._discard_satisfied_marks(self.dep_marks, self.all_dep_marks)
         return not had_cycle
 
     def _apply_iterative(self, sorted_list: list[Item]) -> None:
@@ -171,16 +168,6 @@ class ItemList:
             if move_item(mark, sorted_list):
                 marks.remove(mark)
                 all_marks.remove(mark)
-
-    @staticmethod
-    def _discard_satisfied_marks(
-        marks: list["RelativeMark[Item]"],
-        all_marks: list["RelativeMark[Item]"],
-    ) -> None:
-        for mark in marks:
-            mark.item_to_move.dec_rel_marks()
-            all_marks.remove(mark)
-        marks.clear()
 
     def print_unhandled_items(self) -> None:
         failed_items = [mark.item for mark in self.rel_marks] + [
