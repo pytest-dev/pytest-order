@@ -542,17 +542,25 @@ def test_failed_tests_after_dependency_loop(test_path):
         @pytest.mark.order(before="test_1")
         def test_3():
             pass
+
+        @pytest.mark.order(after="test_1", before="test_3")
+        def test_4():
+            pass
         """
     )
     result = test_path.runpytest("-v", "--error-on-failed-ordering")
     # Since the constraints are consistent (both say test_3 → test_1),
     # all tests should pass even with --error-on-failed-ordering
-    result.assert_outcomes(passed=3)
+    result.assert_outcomes(passed=2, errors=2)
+
+    # This exact order is not a requirement, but we expect 2 of the
+    # circular dependency tests to fail.
     result.stdout.fnmatch_lines(
         [
             "test_failed_ordering.py::test_2 PASSED",
-            "test_failed_ordering.py::test_3 PASSED",
-            "test_failed_ordering.py::test_1 PASSED",
+            "test_failed_ordering.py::test_4 PASSED",
+            "test_failed_ordering.py::test_3 ERROR",
+            "test_failed_ordering.py::test_1 ERROR",
         ]
     )
 
