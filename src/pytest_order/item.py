@@ -132,9 +132,11 @@ class ItemList:
         if not self.rel_marks and not self.dep_marks:
             return True
 
+        rel_marks = list(self.rel_marks)
+        dep_marks = list(self.dep_marks)
         self._apply_iterative(sorted_list)
 
-        ordered, had_cycle = self._sort_by_topology(sorted_list)
+        ordered, had_cycle = self._sort_by_topology(sorted_list, rel_marks, dep_marks)
         sorted_list[:] = ordered
         return not had_cycle
 
@@ -193,6 +195,8 @@ class ItemList:
     def _sort_by_topology(
         self,
         items: list["Item"],
+        rel_marks: list["RelativeMark[Item]"],
+        dep_marks: list["RelativeMark[Item]"],
     ) -> tuple[list["Item"], bool]:
         """
         Order items so that all relative constraints are satisfied while staying as
@@ -207,9 +211,6 @@ class ItemList:
         Returns (ordered_items, had_cycle). On a constraint cycle the offending edge
         is dropped, all items are still emitted, and had_cycle is True.
         """
-        rel_marks = list(self.rel_marks)
-        dep_marks = list(self.dep_marks)
-
         item_set = set(items)
         position = {item: i for i, item in enumerate(items)}
         predecessors = _build_predecessors(rel_marks + dep_marks, item_set)
