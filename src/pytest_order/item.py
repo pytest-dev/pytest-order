@@ -1,6 +1,6 @@
 import sys
 from typing import Optional, Generic, TypeVar
-from collections import defaultdict, deque
+from collections import defaultdict
 
 from _pytest.python import Function
 
@@ -105,51 +105,43 @@ class ItemList:
 
     def apply_relative_constraints(self, sorted_list: list[Item]) -> bool:
         """
-        Apply relative constraints to sorted_list.
+        Reorder sorted_list to satisfy all relative (before/after and
+        dependency) constraints.
 
-        Three-phase strategy:
-        1. Pre-screen impossible marks - constraints whose anchor is pinned by
-           an absolute ordinal in a section opposite to where the unpinned
-           mover can land are dropped with a warning, so they do not displace
-           pinned items during the iterative pass.
-        2. Iterative move_item passes - preserves the position of items not
-           involved in constraints, matching the original algorithm.
-        3. Topological fallback - reorders only items whose constraints the
-           iterative pass could not satisfy (e.g. items with both absolute
-           and relative markers).
+        The incoming sorted_list already reflects the absolute ordinal markers,
+        which act only as a baseline preference: relative markers always take
+        preference, so an ordinal position is relaxed whenever it conflicts with
+        a relative constraint (see "Combination of absolute and relative
+        ordering" in the docs).
 
-        Returns True if all constraints were satisfied.
+        Two phases:
+        1. Iterative move_item passes satisfy the constraints that can be met by
+           moving a single item, preserving the position of items not involved
+           in any constraint and the established tie-breaking.
+        2. A stable topological sort over the full constraint set re-validates
+           the result. It leaves an already-valid baseline unchanged, but
+           resolves constraints the iterative pass cannot keep on its own
+           (transitive chains, or a marker relative to an ordinal-pinned anchor
+           that a later move re-breaks).
+
+        Only a genuine constraint cycle cannot be satisfied; in that case the
+        caller reports the offending markers.
+
+        Returns True if all constraints were satisfied (no cycle).
         """
         if not self.rel_marks and not self.dep_marks:
             return True
 
-        self._drop_impossible_marks()
-        if not self.rel_marks and not self.dep_marks:
-            return True
-
+        rel_marks = list(self.rel_marks)
+        dep_marks = list(self.dep_marks)
         self._apply_iterative(sorted_list)
-        if not self.rel_marks and not self.dep_marks:
-            return True
 
-        return self._apply_topological_fallback(sorted_list)
-
-    def _drop_impossible_marks(self) -> None:
-        pinned = {item for item in self.items if item.order is not None}
-        impossible_rel = warn_ordinal_conflicts(self.rel_marks, pinned)
-        self._remove_marks(self.rel_marks, self.all_rel_marks, impossible_rel)
-        impossible_dep = warn_ordinal_conflicts(self.dep_marks, pinned)
-        self._remove_marks(self.dep_marks, self.all_dep_marks, impossible_dep)
-
-    @staticmethod
-    def _remove_marks(
-        marks: list["RelativeMark[Item]"],
-        all_marks: list["RelativeMark[Item]"],
-        to_remove: list["RelativeMark[Item]"],
-    ) -> None:
-        for mark in to_remove:
-            mark.item_to_move.dec_rel_marks()
-            marks.remove(mark)
-            all_marks.remove(mark)
+        ordered, had_cycle = sort_by_topology(sorted_list, rel_marks, dep_marks)
+        sorted_list[:] = ordered
+        if not had_cycle:
+            self._discard_satisfied_marks(self.rel_marks, self.all_rel_marks)
+            self._discard_satisfied_marks(self.dep_marks, self.all_dep_marks)
+        return not had_cycle
 
     def _apply_iterative(self, sorted_list: list[Item]) -> None:
         still_left = 0
@@ -159,69 +151,6 @@ class ItemList:
             self.handle_rel_marks(sorted_list)
             self.handle_dep_marks(sorted_list)
             length = self.number_of_rel_groups()
-
-    def _apply_topological_fallback(self, sorted_list: list[Item]) -> bool:
-        items_with_rel_constraints = set()
-        for mark in self.rel_marks + self.dep_marks:
-            items_with_rel_constraints.add(mark.item_to_move)
-
-        start_items = [
-            item for item in sorted_list if item.order is not None and item.order >= 0
-        ]
-        end_items = [
-            item for item in sorted_list if item.order is not None and item.order < 0
-        ]
-        middle_items = [item for item in sorted_list if item.order is None]
-
-        has_start_constraints = any(
-            item in items_with_rel_constraints for item in start_items
-        )
-        has_end_constraints = any(
-            item in items_with_rel_constraints for item in end_items
-        )
-
-        if has_start_constraints:
-            start_pinned: list[Item] = []
-            middle_movable = start_items + middle_items
-        else:
-            start_pinned = start_items
-            middle_movable = middle_items
-
-        if has_end_constraints:
-            end_pinned: list[Item] = []
-            middle_movable += end_items
-        else:
-            end_pinned = end_items
-
-        all_pinned = set(start_pinned + end_pinned)
-        warn_ordinal_conflicts(self.rel_marks + self.dep_marks, all_pinned)
-
-        sorted_middle, had_cycle = sort_by_topology(
-            middle_movable, self.rel_marks, self.dep_marks
-        )
-
-        sorted_list[:] = start_pinned + sorted_middle + end_pinned
-
-        if not had_cycle:
-            self.rel_marks.clear()
-            self.dep_marks.clear()
-        return not had_cycle
-
-    def print_unhandled_items(self) -> None:
-        failed_items = [mark.item for mark in self.rel_marks] + [
-            mark.item for mark in self.dep_marks
-        ]
-        msg = " ".join([item.node_id for item in failed_items])
-        sys.stdout.write("\nWARNING: cannot execute test relative to others: ")
-        sys.stdout.write(msg)
-        if self.settings.error_on_failed_ordering:
-            sys.stdout.write(" - ignoring the marker.\n")
-        else:
-            sys.stdout.write(".\n")
-        sys.stdout.flush()
-        if self.settings.error_on_failed_ordering:
-            for item in failed_items:
-                item.item.fixturenames.insert(0, "fail_after_cannot_order")
 
     def number_of_rel_groups(self) -> int:
         return len(self.rel_marks) + len(self.dep_marks)
@@ -242,6 +171,32 @@ class ItemList:
             if move_item(mark, sorted_list):
                 marks.remove(mark)
                 all_marks.remove(mark)
+
+    @staticmethod
+    def _discard_satisfied_marks(
+        marks: list["RelativeMark[Item]"],
+        all_marks: list["RelativeMark[Item]"],
+    ) -> None:
+        for mark in marks:
+            mark.item_to_move.dec_rel_marks()
+            all_marks.remove(mark)
+        marks.clear()
+
+    def print_unhandled_items(self) -> None:
+        failed_items = [mark.item for mark in self.rel_marks] + [
+            mark.item for mark in self.dep_marks
+        ]
+        msg = " ".join([item.node_id for item in failed_items])
+        sys.stdout.write("\nWARNING: cannot execute test relative to others: ")
+        sys.stdout.write(msg)
+        if self.settings.error_on_failed_ordering:
+            sys.stdout.write(" - ignoring the marker.\n")
+        else:
+            sys.stdout.write(".\n")
+        sys.stdout.flush()
+        if self.settings.error_on_failed_ordering:
+            for item in failed_items:
+                item.item.fixturenames.insert(0, "fail_after_cannot_order")
 
     def group_order(self) -> Optional[int]:
         if self.start_items:
@@ -335,110 +290,77 @@ def move_item(mark: RelativeMark[_ItemType], sorted_items: list[_ItemType]) -> b
     return True
 
 
-def warn_ordinal_conflicts(
-    marks: list["RelativeMark[Item]"],
-    pinned: set["Item"],
-) -> list["RelativeMark[Item]"]:
-    """Warn about relative constraints that reference a pinned anchor in a
-    direction that cannot be satisfied given the absolute ordering section
-    boundaries. Returns the list of such impossible marks."""
-    impossible: list["RelativeMark[Item]"] = []
-    for mark in marks:
-        anchor, moving = mark.item, mark.item_to_move
-        if anchor not in pinned or moving in pinned or anchor.order is None:
-            continue
-        if mark.move_after and anchor.order < 0:
-            sys.stdout.write(
-                f"\nWARNING: cannot place '{moving.item.name}' after"
-                f" '{anchor.item.name}' - '{anchor.item.name}' has an ordinal"
-                f" marker that places it after all relatively-ordered tests.\n"
-            )
-            impossible.append(mark)
-        elif not mark.move_after and anchor.order >= 0:
-            sys.stdout.write(
-                f"\nWARNING: cannot place '{moving.item.name}' before"
-                f" '{anchor.item.name}' - '{anchor.item.name}' has an ordinal"
-                f" marker that places it before all relatively-ordered tests.\n"
-            )
-            impossible.append(mark)
-    sys.stdout.flush()
-    return impossible
-
-
 def sort_by_topology(
     items: list["Item"],
     rel_marks: list["RelativeMark[Item]"],
     dep_marks: list["RelativeMark[Item]"],
 ) -> tuple[list["Item"], bool]:
     """
-    Topologically sort items using relative constraints and ordinal markers.
-    Returns (sorted_items, had_cycle).
-    Among items with no constraints between them, ordinal order (if present) is preserved.
+    Order items so that all relative constraints are satisfied while staying as
+    close as possible to the incoming order (the absolute-ordinal baseline).
+
+    Relative constraints take preference over the baseline: each item is emitted
+    right after the items it must follow, so a conflicting ordinal position is
+    relaxed; items that no constraint orders keep their baseline order. The
+    incoming order already encodes the absolute ordinals, so no extra ordinal
+    edges are needed.
+
+    Returns (ordered_items, had_cycle). On a constraint cycle the offending edge
+    is dropped, all items are still emitted, and had_cycle is True.
     """
     item_set = set(items)
-    item_position = {item: i for i, item in enumerate(items)}
-    successors: dict[Item, list[Item]] = defaultdict(list)
-    in_degree: dict[Item, int] = {item: 0 for item in items}
+    position = {item: i for i, item in enumerate(items)}
+    predecessors = _build_predecessors(rel_marks + dep_marks, item_set)
+    for item in items:
+        predecessors[item].sort(key=lambda p: position[p])
 
-    # Add edges for explicit relative constraints
-    for mark in rel_marks + dep_marks:
-        # Normalise to a single "A before B" edge.
-        a, b = (
+    result: list[Item] = []
+    placed: set[Item] = set()
+    on_path: set[Item] = set()
+    had_cycle = False
+
+    # Iterative post-order DFS: emit unplaced predecessors before each item.
+    for start in items:
+        if start in placed:
+            continue
+        stack: list[tuple[Item, int]] = [(start, 0)]
+        on_path.add(start)
+        while stack:
+            item, next_pred = stack[-1]
+            preds = predecessors[item]
+            while next_pred < len(preds) and preds[next_pred] in placed:
+                next_pred += 1
+            if next_pred < len(preds):
+                pred = preds[next_pred]
+                stack[-1] = (item, next_pred + 1)
+                if pred in on_path:
+                    had_cycle = True
+                else:
+                    stack.append((pred, 0))
+                    on_path.add(pred)
+                continue
+            stack.pop()
+            on_path.discard(item)
+            placed.add(item)
+            result.append(item)
+
+    return result, had_cycle
+
+
+def _build_predecessors(
+    marks: list["RelativeMark[Item]"],
+    item_set: set["Item"],
+) -> "defaultdict[Item, list[Item]]":
+    """Map each item to the items that must run before it, derived from the
+    relative marks. A mark either places item_to_move after item (move_after)
+    or before it."""
+    predecessors: defaultdict[Item, list[Item]] = defaultdict(list)
+    for mark in marks:
+        before, after = (
             (mark.item, mark.item_to_move)
             if mark.move_after
             else (mark.item_to_move, mark.item)
         )
-        if a not in item_set or b not in item_set or a is b:
-            continue
-        successors[a].append(b)
-        in_degree[b] += 1
-
-    # Add implicit edges for ordinal ordering
-    # If two items both have ordinals, the one with smaller ordinal should come first
-    # BUT don't add an edge that would contradict an explicit relative constraint
-    ordinal_items = [(item, item.order) for item in items if item.order is not None]
-    ordinal_items.sort(key=lambda x: x[1])  # Sort by ordinal value
-    for i in range(len(ordinal_items) - 1):
-        a, _ = ordinal_items[i]
-        b, _ = ordinal_items[i + 1]
-        # Only add edge a→b if there's no path from b to a (which would create a cycle)
-        # For simplicity, just check if b→a is an explicit edge
-        if a not in successors[b] and b not in successors[a]:
-            successors[a].append(b)
-            in_degree[b] += 1
-
-    # Kahn's algorithm; break ties by input position for stability.
-    ready = deque(
-        sorted(
-            (item for item in items if in_degree[item] == 0),
-            key=lambda x: item_position[x],
-        )
-    )
-    result: list[Item] = []
-    while ready:
-        item = ready.popleft()
-        result.append(item)
-        for successor in sorted(successors[item], key=lambda x: item_position[x]):
-            in_degree[successor] -= 1
-            if in_degree[successor] == 0:
-                # Keep ready sorted by input position.
-                pos = next(
-                    (
-                        i
-                        for i, r in enumerate(ready)
-                        if item_position[r] > item_position[successor]
-                    ),
-                    len(ready),
-                )
-                ready.insert(pos, successor)
-
-    had_cycle = len(result) < len(items)
-    if had_cycle:
-        # Append cyclic items in input order; the caller will warn.
-        result.extend(
-            sorted(
-                (item for item in items if in_degree[item] > 0),
-                key=lambda x: item_position[x],
-            )
-        )
-    return result, had_cycle
+        if before in item_set and after in item_set and before is not after:
+            predecessors[after].append(before)
+    return predecessors

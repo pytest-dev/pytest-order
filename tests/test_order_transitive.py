@@ -1,13 +1,14 @@
 """
 Tests for relative ordering constraints that interact with absolute ordinal markers.
 
-When a test carries both a relative constraint (after=/before=) and the anchor
-is pinned to an absolute ordinal position (last, second_to_last, first, …),
-the constraint is structurally impossible: relatively-ordered tests always fill
-the middle section, between start-ordinal and end-ordinal items.
+Absolute ordinals (first, last, second_to_last, index=N, …) only provide a
+baseline order. Relative constraints (after=/before=) always take preference:
+when a relative constraint conflicts with an anchor's ordinal position, the
+ordinal is relaxed so the relative constraint is satisfied (see "Combination of
+absolute and relative ordering" in the docs).
 
-pytest-order emits a WARNING for each such impossible constraint and preserves
-the absolute ordinal positions unchanged.
+These tests also cover transitive relative chains, which are resolved as a
+single globally-consistent order rather than by greedy pairwise moves.
 """
 
 
@@ -43,16 +44,15 @@ def test_simple_after_chain(item_names_for):
 #   collection order: test_setup, test_middle, test_anchor (second_to_last),
 #                     test_last (last)
 #   markers:
-#     test_anchor  → order("second_to_last")   ← end-ordinal, pinned
-#     test_last    → order("last")              ← end-ordinal, pinned
+#     test_anchor  → order("second_to_last")
+#     test_last    → order("last")
 #     test_middle  → after=test_anchor, before=test_last
 #
-#   `after=test_anchor` is impossible: test_middle is relatively-ordered and
-#   always runs before the end-ordinal section.  pytest-order warns and keeps
-#   absolute positions intact.
-#   actual order: test_setup, test_middle, test_anchor, test_last
+#   Relative ordering takes preference: test_middle is placed after test_anchor
+#   and before test_last, relaxing test_anchor's second_to_last position.
+#   order: test_setup, test_anchor, test_middle, test_last
 # ---------------------------------------------------------------------------
-def test_between_absolute_anchors(item_names_for, capsys):
+def test_between_absolute_anchors(item_names_for):
     test_content = """
         import pytest
 
@@ -73,12 +73,10 @@ def test_between_absolute_anchors(item_names_for, capsys):
         """
     assert item_names_for(test_content) == [
         "test_setup",
-        "test_middle",
         "test_anchor",
+        "test_middle",
         "test_last",
     ]
-    out, _ = capsys.readouterr()
-    assert "cannot place 'test_middle' after 'test_anchor'" in out
 
 
 # ---------------------------------------------------------------------------
@@ -93,11 +91,12 @@ def test_between_absolute_anchors(item_names_for, capsys):
 #     test_c           → before=test_d
 #     test_b           → after=test_penultimate, before=test_c
 #
-#   `after=test_penultimate` is impossible for the same reason as scenario 2.
-#   The relative chain test_b→test_c→test_d is resolved correctly.
-#   actual order: test_a, test_b, test_c, test_d, test_penultimate, test_final
+#   Relative ordering takes preference: test_b is placed after test_penultimate
+#   (relaxing its second_to_last position) and the chain test_b→test_c→test_d→
+#   test_final is satisfied.
+#   order: test_a, test_penultimate, test_b, test_c, test_d, test_final
 # ---------------------------------------------------------------------------
-def test_after_absolute_before_relative_chain(item_names_for, capsys):
+def test_after_absolute_before_relative_chain(item_names_for):
     test_content = """
         import pytest
 
@@ -126,14 +125,12 @@ def test_after_absolute_before_relative_chain(item_names_for, capsys):
         """
     assert item_names_for(test_content) == [
         "test_a",
+        "test_penultimate",
         "test_b",
         "test_c",
         "test_d",
-        "test_penultimate",
         "test_final",
     ]
-    out, _ = capsys.readouterr()
-    assert "cannot place 'test_b' after 'test_penultimate'" in out
 
 
 # ---------------------------------------------------------------------------
@@ -144,10 +141,10 @@ def test_after_absolute_before_relative_chain(item_names_for, capsys):
 #                      test_y (before=test_z),
 #                      test_z (before=test_mod_base::test_last)
 #
-#   `after=test_anchor` is impossible (end-ordinal anchor).  The relative
-#   chain test_x→test_y→test_z is satisfied; test_anchor and test_last keep
-#   their absolute end positions.
-#   actual order: test_x, test_y, test_z, test_anchor, test_last
+#   Relative ordering takes preference across modules too: test_x is placed
+#   after test_anchor (relaxing its second_to_last position) and the chain
+#   test_x→test_y→test_z→test_last is satisfied.
+#   order: test_anchor, test_x, test_y, test_z, test_last
 # ---------------------------------------------------------------------------
 def test_after_absolute_before_relative_chain_cross_module(test_path):
     test_path.makepyfile(
@@ -182,14 +179,13 @@ def test_after_absolute_before_relative_chain_cross_module(test_path):
     result.assert_outcomes(passed=5)
     result.stdout.fnmatch_lines(
         [
+            "test_mod_base.py::test_anchor PASSED",
             "test_mod_extra.py::test_x PASSED",
             "test_mod_extra.py::test_y PASSED",
             "test_mod_extra.py::test_z PASSED",
-            "test_mod_base.py::test_anchor PASSED",
             "test_mod_base.py::test_last PASSED",
         ]
     )
-    assert "cannot place 'test_x' after 'test_anchor'" in result.stdout.str()
 
 
 # ---------------------------------------------------------------------------

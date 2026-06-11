@@ -256,7 +256,7 @@ def test_mixed_markers1(item_names_for):
     assert item_names_for(test_content) == ["test_3", "test_1", "test_2"]
 
 
-def test_mixed_markers2(item_names_for, capsys):
+def test_mixed_markers2(item_names_for):
     test_content = """
         import pytest
 
@@ -272,11 +272,32 @@ def test_mixed_markers2(item_names_for, capsys):
         def test_3():
             pass
         """
-    # test_2 has absolute order(1), so it stays pinned at the start.
-    # test_3's before="test_2" constraint is impossible and ignored with a warning.
-    assert item_names_for(test_content) == ["test_2", "test_1", "test_3"]
-    out, _ = capsys.readouterr()
-    assert "cannot place 'test_3' before 'test_2'" in out
+    # Relative ordering takes preference over the absolute ordinals: test_3 is
+    # placed before test_2, relaxing test_2's ordinal position. test_1 keeps its
+    # ordinal order relative to test_2.
+    assert item_names_for(test_content) == ["test_3", "test_2", "test_1"]
+
+
+def test_combination_doc_example(item_names_for):
+    # The documented combination example (docs/source/usage.rst): an item with
+    # both an ordinal (index=0) and a relative marker (after another item that
+    # is pinned later by an ordinal). Relative ordering takes preference, so the
+    # ordinal index=0 is relaxed and test_second runs before test_first.
+    test_content = """
+        import pytest
+
+        @pytest.mark.order(index=0, after="test_second")
+        def test_first():
+            assert True
+
+        @pytest.mark.order(1)
+        def test_second():
+            assert True
+        """
+    assert item_names_for(test_content) == [
+        "test_second",
+        "test_first",
+    ]
 
 
 def test_combined_markers1(item_names_for):
