@@ -39,7 +39,7 @@ class Sorter:
 
     def __init__(self, config: Config, items: list[Function]) -> None:
         self.settings: Settings = Settings(config)
-        self.items: list[Item] = [Item(item) for item in items]
+        self.items: list[Item] = [Item(item, idx) for idx, item in enumerate(items)]
         self.node_ids: dict[str, Item] = OrderedDict()
         self.node_id_last: dict[str, list[str]] = {}
         for item in self.items:
@@ -458,14 +458,7 @@ class ScopeSorter:
 
         sorted_list = item_list.sort_numbered_items()
 
-        still_left = 0
-        length = item_list.number_of_rel_groups()
-        while length and still_left != length:
-            still_left = length
-            item_list.handle_rel_marks(sorted_list)
-            item_list.handle_dep_marks(sorted_list)
-            length = item_list.number_of_rel_groups()
-        if length:
+        if not item_list.apply_relative_constraints(sorted_list):
             item_list.print_unhandled_items()
         return ItemGroup(sorted_list, item_list.group_order())
 

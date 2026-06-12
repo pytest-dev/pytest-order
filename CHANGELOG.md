@@ -1,5 +1,10 @@
 # pytest-order Release Notes
 
+## Unreleased
+
+### Fixes
+- transitive relative chains are resolved as a single globally consistent order
+
 ## [Version 1.4.0](https://pypi.org/project/pytest-order/1.4.0/) (2026-04-26)
 Allows the plugin to run after `--failed-first` and similar options.
 

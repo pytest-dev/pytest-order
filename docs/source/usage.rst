@@ -352,6 +352,41 @@ ones. This means that relative ordering always takes preference:
 In this case, ``test_second`` will be executed before ``test_first``,
 regardless of the ordinal markers.
 
+This also applies to a relative marker that references an ordinal-pinned
+anchor, and to transitive relative chains, which are resolved as a single
+globally consistent order:
+
+.. code:: python
+
+ import pytest
+
+
+ def test_setup():
+     assert True
+
+
+ @pytest.mark.order(after="test_anchor", before="test_last")
+ def test_middle():
+     assert True
+
+
+ @pytest.mark.order("second_to_last")
+ def test_anchor():
+     assert True
+
+
+ @pytest.mark.order("last")
+ def test_last():
+     assert True
+
+Here ``test_middle`` is placed after ``test_anchor`` and before ``test_last``,
+relaxing the ``second_to_last`` ordinal so that the relative constraints hold::
+
+    test_setup
+    test_anchor
+    test_middle
+    test_last
+
 Several relationships for the same marker
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you need to order a certain test relative to more than one other test, you
