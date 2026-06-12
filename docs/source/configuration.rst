@@ -653,6 +653,36 @@ If you use the option `--error-on-failed-ordering`, "test_two" will now error:
     ERROR test_failed_ordering.py::test_two - Failed: The test could not be ordered
     ========================= 1 passed, 1 error in 0.75s ==========================
 
+``--fail-all-on-failed-ordering``
+---------------------------------
+This option is analogous to ``--error-on-failed-ordering``, but instead of failing only
+the tests that could not be ordered, it aborts the whole test run immediately, without
+executing any tests. This is useful if running the tests in a wrong order has
+unwanted effects.
+
+Using the example shown above::
+
+    $ pytest tests -vv --fail-all-on-failed-ordering
+    ============================= test session starts ==============================
+    ...
+    collected 2 items
+
+    ============================ no tests ran in 0.02s =============================
+    ERROR: pytest-order: cannot execute 'test_two' relative to others: 'test_three'
+
+The test run exits with the usage error exit code (4).
+
+The option also works with ``--collect-only``, as the ordering happens during test
+collection. This allows validating the ordering, e.g. in CI, without executing any
+tests::
+
+    $ pytest tests --collect-only --fail-all-on-failed-ordering
+    ERROR: pytest-order: cannot execute 'test_two' relative to others: 'test_three'
+    ============================= test session starts ==============================
+    ...
+    ========================== 2 tests collected in 0.01s ==========================
+
+The exit code is 4 in this case as well, and 0 if all tests could be ordered.
 
 
 .. _`pytest-dependency`: https://pypi.org/project/pytest-dependency/

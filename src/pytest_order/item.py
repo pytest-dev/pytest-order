@@ -2,7 +2,7 @@ import sys
 from typing import Optional, Generic, TypeVar
 from collections import defaultdict
 
-from _pytest.python import Function
+from pytest import Function, UsageError
 
 from .settings import Scope, Settings
 
@@ -176,6 +176,10 @@ class ItemList:
         msg = " ".join([item.node_id for item in failed_items])
         sys.stdout.write("\nWARNING: cannot execute test relative to others: ")
         sys.stdout.write(msg)
+        if self.settings.fail_all_on_failed_ordering:
+            raise UsageError(
+                f"pytest-order: cannot execute test relative to others: {msg}"
+            )
         if self.settings.error_on_failed_ordering:
             sys.stdout.write(" - ignoring the marker.\n")
         else:

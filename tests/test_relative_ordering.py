@@ -474,6 +474,30 @@ def test_failing_dependency_fails_test(test_path):
     )
 
 
+def test_failing_dependency_fails_run(test_path):
+    test_path.makepyfile(
+        test_failed_ordering="""
+        import pytest
+
+        def test_1():
+            pass
+
+        @pytest.mark.order(before="test_4")
+        def test_2():
+            pass
+
+        def test_3():
+            pass
+        """
+    )
+    result = test_path.runpytest("-v", "--fail-all-on-failed-ordering")
+    assert result.ret == pytest.ExitCode.USAGE_ERROR
+    result.assert_outcomes(passed=0, failed=0)
+    result.stderr.fnmatch_lines(
+        ["ERROR: pytest-order: cannot execute 'test_2' relative to others: 'test_4'"]
+    )
+
+
 def test_dependency_in_class_before_unknown_test(item_names_for, capsys):
     test_content = """
         import pytest
@@ -561,6 +585,35 @@ def test_failed_tests_after_dependency_loop(test_path):
             "test_failed_ordering.py::test_4 PASSED",
             "test_failed_ordering.py::test_3 ERROR",
             "test_failed_ordering.py::test_1 ERROR",
+        ]
+    )
+
+
+def test_failed_run_after_dependency_loop(test_path):
+    test_path.makepyfile(
+        test_failed_ordering="""
+        import pytest
+
+        @pytest.mark.order(after="test_3")
+        def test_1():
+            pass
+
+        @pytest.mark.order(1)
+        def test_2():
+            pass
+
+        @pytest.mark.order(after="test_1")
+        def test_3():
+            pass
+        """
+    )
+    result = test_path.runpytest("-v", "--fail-all-on-failed-ordering")
+    assert result.ret == pytest.ExitCode.USAGE_ERROR
+    result.assert_outcomes(passed=0, failed=0)
+    result.stderr.fnmatch_lines(
+        [
+            "ERROR: pytest-order: cannot execute test relative to others: "
+            "test_failed_ordering.py::test_* test_failed_ordering.py::test_*"
         ]
     )
 

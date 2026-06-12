@@ -7,7 +7,7 @@ from warnings import warn
 
 from _pytest.config import Config
 from _pytest.mark import Mark
-from _pytest.python import Function
+from pytest import Function, UsageError
 
 from .item import Item, ItemList, ItemGroup, filter_marks, move_item, RelativeMark
 from .settings import Settings, Scope
@@ -270,15 +270,15 @@ class Sorter:
         return has_relative_marks
 
     def warn_about_unknown_test(self, item: Item, rel_mark: str) -> None:
+        msg = f"cannot execute '{item.item.name}' relative to others: '{rel_mark}'"
+        if self.settings.fail_all_on_failed_ordering:
+            raise UsageError(f"pytest-order: {msg}")
         if self.settings.error_on_failed_ordering:
             item.item.fixturenames.insert(0, "fail_after_cannot_order")
             ignore_msg = ""
         else:
             ignore_msg = " - ignoring the marker"
-        sys.stdout.write(
-            f"\nWARNING: cannot execute '{item.item.name}' relative to others: "
-            f"'{rel_mark}'{ignore_msg}."
-        )
+        sys.stdout.write(f"\nWARNING: {msg}{ignore_msg}.")
 
     def collect_markers(self) -> None:
         aliases: dict[str, list[Item]] = {}

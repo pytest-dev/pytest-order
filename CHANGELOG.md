@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### New features
+* added option `--fail-all-on-failed-ordering` to abort the whole test run
+  without executing any tests if some tests could not be ordered
+
 ### Fixes
 - transitive relative chains are resolved as a single globally consistent order
 

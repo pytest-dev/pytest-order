@@ -1,11 +1,11 @@
 from collections.abc import Generator, Callable
 
 import pytest
+from pytest import Function
 from _pytest.config import Config
 from _pytest.config.argparsing import Parser
 from _pytest.main import Session
 from _pytest.mark import Mark
-from _pytest.python import Function
 
 from .sorter import Sorter
 
@@ -124,6 +124,15 @@ def pytest_addoption(parser: Parser) -> None:
         help=(
             "If set, tests with relative markers that could not be ordered "
             "will error instead of generating only a warning."
+        ),
+    )
+    group.addoption(
+        "--fail-all-on-failed-ordering",
+        action="store_true",
+        dest="fail_all_on_failed_ordering",
+        help=(
+            "If set, the whole test run fails immediately without running "
+            "any tests if some tests with relative markers could not be ordered."
         ),
     )
     group.addoption(
