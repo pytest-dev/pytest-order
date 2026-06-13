@@ -1,6 +1,7 @@
 # pytest-order Release Notes
 
-## Unreleased
+## [Version 1.5.0](https://pypi.org/project/pytest-order/1.5.0/) (2026-06-13)
+Adds option to abort tests after a failed ordering.
 
 ### New features
 * added option `--fail-all-on-failed-ordering` to abort the whole test run
