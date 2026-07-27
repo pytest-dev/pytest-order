@@ -1,11 +1,11 @@
-from collections.abc import Generator, Callable
+from collections.abc import Callable, Generator
 
 import pytest
-from pytest import Function
 from _pytest.config import Config
 from _pytest.config.argparsing import Parser
 from _pytest.main import Session
 from _pytest.mark import Mark
+from pytest import Function
 
 from .sorter import Sorter
 

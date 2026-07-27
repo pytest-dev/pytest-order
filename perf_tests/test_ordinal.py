@@ -1,7 +1,8 @@
-from unittest import mock
 from textwrap import dedent
+from unittest import mock
 
 import pytest
+
 from perf_tests.util import TimedSorter
 
 pytest_plugins = ["pytester"]
