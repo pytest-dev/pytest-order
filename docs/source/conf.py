@@ -18,7 +18,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath("../../src"))
 
-from pytest_order import __version__  # noqa: E402
+from pytest_order import __version__
 
 # -- General configuration ------------------------------------------------
 

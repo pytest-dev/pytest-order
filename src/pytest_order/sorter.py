@@ -9,8 +9,8 @@ from _pytest.config import Config
 from _pytest.mark import Mark
 from pytest import Function, UsageError
 
-from .item import Item, ItemList, ItemGroup, filter_marks, move_item, RelativeMark
-from .settings import Settings, Scope
+from .item import Item, ItemGroup, ItemList, RelativeMark, filter_marks, move_item
+from .settings import Scope, Settings
 
 orders_map = {
     "first": 0,

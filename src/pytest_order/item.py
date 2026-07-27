@@ -1,11 +1,10 @@
 import sys
-from typing import Optional, Generic, TypeVar
 from collections import defaultdict
+from typing import Generic, Optional, TypeVar
 
 from pytest import Function, UsageError
 
 from .settings import Scope, Settings
-
 
 _ItemType = TypeVar("_ItemType", "Item", "ItemGroup")
 
