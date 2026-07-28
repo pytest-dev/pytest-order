@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import ClassVar
 from warnings import warn
 
 from _pytest.config import Config
@@ -13,7 +14,7 @@ class Scope(Enum):
 class Settings:
     """Holds all configuration settings."""
 
-    valid_scopes = {
+    valid_scopes: ClassVar = {
         "class": Scope.CLASS,
         "module": Scope.MODULE,
         "session": Scope.SESSION,

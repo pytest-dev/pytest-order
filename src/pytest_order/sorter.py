@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import re
 import sys
 from collections import OrderedDict
 from contextlib import suppress
-from typing import Optional, cast
+from typing import cast
 from warnings import warn
 
 from _pytest.config import Config
@@ -298,7 +300,7 @@ class Sorter:
                     alias = self.matching_alias(aliases[name], item)
                     self.dep_marks.append(RelativeMark(alias, item, move_after=True))
             else:
-                label = "::".join((prefix, name))
+                label = f"{prefix}::{name}"
                 if label in aliases:
                     for item in items:
                         alias = self.matching_alias(aliases[label], item)
@@ -512,13 +514,13 @@ class GroupSorter:
                 group_to_move.inc_rel_marks()
         return group_marks
 
-    def group_for_item(self, item: Item) -> Optional[ItemGroup]:
+    def group_for_item(self, item: Item) -> ItemGroup | None:
         for group in self.groups:
             if item in group.items:
                 return group
         return None
 
-    def sorted_groups(self) -> tuple[Optional[int], list[ItemGroup]]:
+    def sorted_groups(self) -> tuple[int | None, list[ItemGroup]]:
         group_order = self.sort_by_ordinal_markers()
         length = len(self.rel_marks) + len(self.dep_marks)
         if length == 0:
@@ -532,7 +534,7 @@ class GroupSorter:
             self.handle_rel_marks(self.dep_marks)
         return group_order, self.groups
 
-    def sort_by_ordinal_markers(self) -> Optional[int]:
+    def sort_by_ordinal_markers(self) -> int | None:
         start_groups = []
         middle_groups = []
         end_groups = []

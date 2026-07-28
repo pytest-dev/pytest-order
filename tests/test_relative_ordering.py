@@ -414,7 +414,7 @@ def test_dependency_after_unknown_test(item_names_for, capsys):
             pass
         """
     assert item_names_for(test_content) == ["test_1", "test_2"]
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     warning = (
         "cannot execute 'test_1' relative to others: 'some_module.py::test_2' "
         "- ignoring the marker"
@@ -437,7 +437,7 @@ def test_dependency_before_unknown_test(item_names_for, capsys):
             pass
         """
     assert item_names_for(test_content) == ["test_1", "test_2", "test_3"]
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     warning = (
         "cannot execute 'test_2' relative to others: 'test_4' - ignoring the marker"
     )
@@ -518,7 +518,7 @@ def test_dependency_in_class_before_unknown_test(item_names_for, capsys):
         "Test::test_2",
         "Test::test_3",
     ]
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     warning = (
         "cannot execute 'test_2' relative to others: 'test_4' - ignoring the marker"
     )
@@ -546,7 +546,7 @@ def test_dependency_loop(item_names_for, capsys):
     # test_3 and test_1 are topologically sorted: test_3 → test_1
     assert item_names_for(test_content) == ["test_2", "test_3", "test_1"]
     # No warning should be issued since the constraints are consistent
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     assert "cannot execute test relative to others" not in out
 
 
@@ -612,8 +612,10 @@ def test_failed_run_after_dependency_loop(test_path):
     result.assert_outcomes(passed=0, failed=0)
     result.stderr.fnmatch_lines(
         [
-            "ERROR: pytest-order: cannot execute test relative to others: "
-            "test_failed_ordering.py::test_* test_failed_ordering.py::test_*"
+            (
+                "ERROR: pytest-order: cannot execute test relative to others: "
+                "test_failed_ordering.py::test_* test_failed_ordering.py::test_*"
+            )
         ]
     )
 
