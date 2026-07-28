@@ -19,7 +19,7 @@ def test_version_valid():
 
 def test_markers_registered(capsys):
     pytest.main(["--markers"])
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     assert "@pytest.mark.order" in out
     # only order is supported as marker
     assert out.count("Provided by pytest-order.") == 1

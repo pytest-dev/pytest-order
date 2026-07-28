@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import sys
 from collections import defaultdict
-from typing import Generic, Optional, TypeVar
+from typing import Generic, TypeVar
 
 from pytest import Function, UsageError
 
@@ -15,8 +17,8 @@ class Item:
     def __init__(self, item: Function, collection_index: int = 0) -> None:
         self.item: Function = item
         self.nr_rel_items: int = 0
-        self.order: Optional[int] = None
-        self._node_id: Optional[str] = None
+        self.order: int | None = None
+        self._node_id: str | None = None
         self.collection_index: int = collection_index
 
     def inc_rel_marks(self) -> None:
@@ -50,8 +52,8 @@ class ItemList:
         items: list[Item],
         settings: Settings,
         scope: Scope,
-        rel_marks: list["RelativeMark[Item]"],
-        dep_marks: list["RelativeMark[Item]"],
+        rel_marks: list[RelativeMark[Item]],
+        dep_marks: list[RelativeMark[Item]],
     ) -> None:
         self.items = items
         self.settings = settings
@@ -159,9 +161,9 @@ class ItemList:
 
     @staticmethod
     def handle_relative_marks(
-        marks: list["RelativeMark[Item]"],
+        marks: list[RelativeMark[Item]],
         sorted_list: list[Item],
-        all_marks: list["RelativeMark[Item]"],
+        all_marks: list[RelativeMark[Item]],
     ) -> None:
         for mark in reversed(marks):
             if move_item(mark, sorted_list):
@@ -188,7 +190,7 @@ class ItemList:
             for item in failed_items:
                 item.item.fixturenames.insert(0, "fail_after_cannot_order")
 
-    def group_order(self) -> Optional[int]:
+    def group_order(self) -> int | None:
         if self.start_items:
             return self.start_items[0][0]
         elif self.end_items:
@@ -197,10 +199,10 @@ class ItemList:
 
     def _sort_by_topology(
         self,
-        items: list["Item"],
-        rel_marks: list["RelativeMark[Item]"],
-        dep_marks: list["RelativeMark[Item]"],
-    ) -> tuple[list["Item"], bool]:
+        items: list[Item],
+        rel_marks: list[RelativeMark[Item]],
+        dep_marks: list[RelativeMark[Item]],
+    ) -> tuple[list[Item], bool]:
         """
         Order items so that all relative constraints are satisfied while staying as
         close as possible to the incoming order (the absolute-ordinal baseline).
@@ -260,7 +262,7 @@ class ItemGroup:
     """
 
     def __init__(
-        self, items: Optional[list[Item]] = None, order: Optional[int] = None
+        self, items: list[Item] | None = None, order: int | None = None
     ) -> None:
         self.items: list[Item] = items or []
         self.order = order
@@ -274,7 +276,7 @@ class ItemGroup:
         if self.order is None:
             self.nr_rel_items -= 1
 
-    def extend(self, groups: list["ItemGroup"], order: Optional[int]) -> None:
+    def extend(self, groups: list[ItemGroup], order: int | None) -> None:
         for group in groups:
             self.items.extend(group.items)
         self.order = order
@@ -338,9 +340,9 @@ def move_item(mark: RelativeMark[_ItemType], sorted_items: list[_ItemType]) -> b
 
 
 def _build_predecessors(
-    marks: list["RelativeMark[Item]"],
-    item_set: set["Item"],
-) -> "defaultdict[Item, list[Item]]":
+    marks: list[RelativeMark[Item]],
+    item_set: set[Item],
+) -> defaultdict[Item, list[Item]]:
     """Map each item to the items that must run before it, derived from the
     relative marks. A mark either places item_to_move after item (move_after)
     or before it."""

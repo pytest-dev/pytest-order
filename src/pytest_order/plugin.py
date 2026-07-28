@@ -157,24 +157,25 @@ def pytest_generate_tests(metafunc):
 
     Make parametrized tests with corresponding order marks.
     """
-    if getattr(metafunc, "function", False):
-        if getattr(metafunc.function, "pytestmark", False):
-            # Get list of order marks
-            marks = metafunc.function.pytestmark
-            order_marks = [mark for mark in marks if mark.name == "order"]
-            if len(order_marks) > 1:
-                # Remove all order marks
-                metafunc.function.pytestmark = [
-                    mark for mark in marks if mark.name != "order"
-                ]
-                # Prepare arguments for parametrization with order marks
-                args = [
-                    pytest.param(_get_mark_description(mark), marks=[mark])
-                    for mark in order_marks
-                ]
-                if "order" not in metafunc.fixturenames:
-                    metafunc.fixturenames.append("order")
-                metafunc.parametrize("order", args)
+    if getattr(metafunc, "function", False) and getattr(
+        metafunc.function, "pytestmark", False
+    ):
+        # Get list of order marks
+        marks = metafunc.function.pytestmark
+        order_marks = [mark for mark in marks if mark.name == "order"]
+        if len(order_marks) > 1:
+            # Remove all order marks
+            metafunc.function.pytestmark = [
+                mark for mark in marks if mark.name != "order"
+            ]
+            # Prepare arguments for parametrization with order marks
+            args = [
+                pytest.param(_get_mark_description(mark), marks=[mark])
+                for mark in order_marks
+            ]
+            if "order" not in metafunc.fixturenames:
+                metafunc.fixturenames.append("order")
+            metafunc.parametrize("order", args)
 
 
 @pytest.fixture

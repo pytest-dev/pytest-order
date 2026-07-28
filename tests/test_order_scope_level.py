@@ -135,7 +135,9 @@ def test_invalid_scope(fixture_path):
     result.assert_outcomes(passed=12, failed=0)
     result.stdout.fnmatch_lines(
         [
-            "*UserWarning: order-scope-level cannot be used "
-            "together with --order-scope=module*"
+            (
+                "*UserWarning: order-scope-level cannot be used "
+                "together with --order-scope=module*"
+            )
         ]
     )

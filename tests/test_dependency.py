@@ -262,7 +262,7 @@ def test_unresolved_dependency_in_class(item_names_for, order_dependencies, caps
         "Test::test_b",
         "Test::test_c",
     ]
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     warning = "Cannot resolve the dependency marker 'test_c' - ignoring it"
     assert warning in out
 
@@ -565,7 +565,7 @@ def test_unknown_dependency(item_names_for, order_dependencies, capsys):
         "Test::test_b",
         "Test::test_c",
     ]
-    out, err = capsys.readouterr()
+    out, _ = capsys.readouterr()
     warning = "Cannot resolve the dependency marker 'test_3' - ignoring it."
     assert warning in out
 
