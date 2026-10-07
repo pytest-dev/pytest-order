@@ -1,2 +1,8 @@
 [run]
 branch = True
+
+[paths]
+source =
+    src/pytest_order
+    .tox/*/lib/python*/site-packages/pytest_order
+    .tox/*/Lib/site-packages/pytest_order
