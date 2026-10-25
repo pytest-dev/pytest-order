@@ -113,8 +113,10 @@ class Sorter:
         if not has_order and self.settings.marker_prefix:
             for key in keys:
                 if key.startswith(self.settings.marker_prefix):
+                    suffix = key[len(self.settings.marker_prefix) :]
+                    negative = re.fullmatch(r"_?neg(\d+)", suffix)
                     try:
-                        index = int(key[len(self.settings.marker_prefix)])
+                        index = -int(negative[1]) if negative else int(suffix)
                         item.order = index
                     except ValueError:
                         pass
