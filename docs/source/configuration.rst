@@ -495,8 +495,27 @@ gives you now::
     test_module.py:6: test_a PASSED
 
 The complete suffix after the prefix is used as the integer order index. For
-example, ``m11`` has index 11 and ``m-1`` has index -1. A marker without an
-integer suffix is ignored. An explicit ``order`` marker takes precedence.
+example, ``m11`` has index 11. A marker without an integer suffix is ignored.
+An explicit ``order`` marker takes precedence.
+
+A minus sign cannot be written in ``@pytest.mark.<name>``, so for a negative
+index write ``neg`` in its place, optionally preceded by an underscore:
+``m_neg1`` (or ``mneg1``) has index -1. You can also use the minus sign itself
+by looking the marker up by name:
+
+.. code:: python
+
+  import pytest
+
+
+  @pytest.mark.m_neg1
+  def test_last():
+      assert True
+
+
+  @getattr(pytest.mark, "m-2")
+  def test_second_to_last():
+      assert True
 
 .. note::
   As usually, you are responsible for registering your own markers, either in the

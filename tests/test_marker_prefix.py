@@ -245,7 +245,48 @@ def test_marker_prefix_supports_negative_indices(test_path):
     )
 
 
-@pytest.mark.parametrize("suffix", ["", "0", "11", "1special", "-1"])
+@pytest.mark.parametrize(
+    "suffix, expected",
+    [
+        ("_neg1", ["test_c", "test_b", "test_a"]),
+        ("neg1", ["test_c", "test_b", "test_a"]),
+        ("_neg", ["test_c", "test_a", "test_b"]),
+        ("neg-1", ["test_c", "test_a", "test_b"]),
+        ("_negative1", ["test_c", "test_a", "test_b"]),
+    ],
+)
+def test_marker_prefix_supports_neg_placeholder(test_path, suffix, expected):
+    test_path.makeini(
+        f"""
+        [pytest]
+        console_output_style = classic
+        markers =
+            my{suffix}: custom order
+            my2: custom order
+        """
+    )
+    test_path.makepyfile(
+        test_marker=f"""
+        import pytest
+
+        @getattr(pytest.mark, "my{suffix}")
+        def test_a():
+            pass
+
+        def test_b():
+            pass
+
+        @pytest.mark.my2
+        def test_c():
+            pass
+        """
+    )
+    result = test_path.runpytest("-v", "--order-marker-prefix=my")
+    result.assert_outcomes(passed=3)
+    result.stdout.fnmatch_lines([f"test_marker.py::{name} PASSED" for name in expected])
+
+
+@pytest.mark.parametrize("suffix", ["", "0", "11", "1special", "-1", "_neg1"])
 def test_explicit_order_overrides_marker_prefix(test_path, suffix):
     test_path.makeini(
         f"""
