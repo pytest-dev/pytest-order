@@ -494,6 +494,10 @@ gives you now::
     test_module.py:18: test_c PASSED
     test_module.py:6: test_a PASSED
 
+The complete suffix after the prefix is used as the integer order index. For
+example, ``m11`` has index 11 and ``m-1`` has index -1. A marker without an
+integer suffix is ignored. An explicit ``order`` marker takes precedence.
+
 .. note::
   As usually, you are responsible for registering your own markers, either in the
   code or in the ``pytest.ini`` file. If you forget this, pytest will give you warnings about unknown markers.

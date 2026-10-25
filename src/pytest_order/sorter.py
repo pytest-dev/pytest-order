@@ -114,7 +114,7 @@ class Sorter:
             for key in keys:
                 if key.startswith(self.settings.marker_prefix):
                     try:
-                        index = int(key[len(self.settings.marker_prefix)])
+                        index = int(key[len(self.settings.marker_prefix) :])
                         item.order = index
                     except ValueError:
                         pass
