@@ -9,7 +9,7 @@ from warnings import warn
 
 from _pytest.config import Config
 from _pytest.mark import Mark
-from pytest import Function, UsageError
+from pytest import Class, Function, UsageError
 
 from .item import Item, ItemGroup, ItemList, RelativeMark, filter_marks, move_item
 from .settings import Scope, Settings
@@ -366,10 +366,8 @@ def class_item_groups(items: list[Item]) -> dict[str, list[Item]]:
     """
     class_items: OrderedDict[str, list[Item]] = OrderedDict()
     for item in items:
-        delimiter_index = item.node_id.index("::")
-        if "::" in item.node_id[delimiter_index + 2 :]:
-            delimiter_index = item.node_id.index("::", delimiter_index + 2)
-        class_path = item.node_id[:delimiter_index]
+        class_node = item.item.getparent(Class)
+        class_path = item.module_path if class_node is None else class_node.nodeid
         class_items.setdefault(class_path, []).append(item)
     return class_items
 
