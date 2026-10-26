@@ -1,6 +1,40 @@
 import pytest
 
 
+@pytest.mark.parametrize(
+    "options",
+    [
+        ["--order-scope=class"],
+        ["--order-group-scope=class"],
+        ["--order-scope=module", "--order-group-scope=class"],
+    ],
+)
+def test_class_scope_with_node_separators_in_parameter_ids(test_path, options):
+    test_path.makepyfile("""
+        import pytest
+
+        @pytest.mark.parametrize("host", ["::1", "2001:db8::1"])
+        @pytest.mark.order(2)
+        def test_last(host):
+            pass
+
+        @pytest.mark.parametrize("host", ["::1", "2001:db8::1"])
+        @pytest.mark.order(1)
+        def test_first(host):
+            pass
+    """)
+    result = test_path.runpytest("-v", *options)
+    result.assert_outcomes(passed=4)
+    result.stdout.fnmatch_lines(
+        [
+            "*::test_first[[]::1] PASSED",
+            "*::test_first[[]2001:db8::1] PASSED",
+            "*::test_last[[]::1] PASSED",
+            "*::test_last[[]2001:db8::1] PASSED",
+        ]
+    )
+
+
 @pytest.fixture
 def fixture_path(test_path):
     test_path.makepyfile(
