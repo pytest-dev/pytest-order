@@ -2,9 +2,12 @@
 
 ## Unreleased
 
+### Changes
+- added official support for Python 3.15
+
 ### Fixes
-* Class-scoped ordering handles parameter IDs containing `::`, such as IPv6 addresses.
-* `--order-marker-prefix` uses the complete marker suffix as the order index,
+- Class-scoped ordering handles parameter IDs containing `::`, such as IPv6 addresses.
+- `--order-marker-prefix` uses the complete marker suffix as the order index,
   so multi-digit and negative indices work; negative indices can be written
   as `neg` (for example `m_neg1` for -1)
 
@@ -12,7 +15,7 @@
 Adds option to abort tests after a failed ordering.
 
 ### New features
-* added option `--fail-all-on-failed-ordering` to abort the whole test run
+- added option `--fail-all-on-failed-ordering` to abort the whole test run
   without executing any tests if some tests could not be ordered
 
 ### Fixes
@@ -22,20 +25,20 @@ Adds option to abort tests after a failed ordering.
 Allows the plugin to run after `--failed-first` and similar options.
 
 ### Changes
-* removed official support for Python 3.7-3.9 (EOL), added Python 3.13 and 3.14
+- removed official support for Python 3.7-3.9 (EOL), added Python 3.13 and 3.14
 
 ### New features
-* added option `--order-after-ff`, that allows to run `pytest-order` after built-in hooks
+- added option `--order-after-ff`, that allows to run `pytest-order` after built-in hooks
   like the `--failed-first` option  (see [#234](https://github.com/pytest-dev/pytest-order/issues/234))
 
 ### Infrastructure
-* use trusted publisher for release (see https://docs.pypi.org/trusted-publishers/)
-* use `pyproject.toml` for project setup
+- use trusted publisher for release (see https://docs.pypi.org/trusted-publishers/)
+- use `pyproject.toml` for project setup
 
 ### Documentation
-* use a theme for documentation supporting dark mode
-* added use case for ordering test modules (see [#51](https://github.com/pytest-dev/pytest-order/issues/51))
-* fixed documentation for `--indulgent-ordering` option
+- use a theme for documentation supporting dark mode
+- added use case for ordering test modules (see [#51](https://github.com/pytest-dev/pytest-order/issues/51))
+- fixed documentation for `--indulgent-ordering` option
 
 ## [Version 1.3.0](https://pypi.org/project/pytest-order/1.3.0/) (2024-08-22)
 Allows to fail tests that cannot be ordered.
