@@ -39,8 +39,7 @@ class Item:
     @property
     def node_id(self) -> str:
         if self._node_id is None:
-            # in pytest < 4 the nodeid has an unwanted ::() part
-            self._node_id = self.item.nodeid.replace("::()", "")
+            self._node_id = self.item.nodeid
         return self._node_id
 
     @property

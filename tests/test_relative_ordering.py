@@ -655,8 +655,8 @@ def test_relative_labels_ignore_parameter_id_syntax(item_names_for, in_class):
         def test_after():
             pass
 
-        @pytest.mark.parametrize("value", [1, 2, 3],
-                                 ids=["outer[inner]", "::1", "path/with[::parts]"])
+        @pytest.mark.parametrize("value", [1, 2, 3, 4, 5],
+                                 ids=["outer[inner]", "::1", "path/with[::parts]", "::()", "outer[::()]"])
         def test_source(value):
             pass
 
@@ -676,6 +676,8 @@ def test_relative_labels_ignore_parameter_id_syntax(item_names_for, in_class):
         prefix + "test_source[outer[inner]]",
         prefix + "test_source[::1]",
         prefix + "test_source[path/with[::parts]]",
+        prefix + "test_source[::()]",
+        prefix + "test_source[outer[::()]]",
         prefix + "test_after",
     ]
 
