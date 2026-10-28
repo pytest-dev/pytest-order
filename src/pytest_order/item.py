@@ -43,6 +43,12 @@ class Item:
             self._node_id = self.item.nodeid.replace("::()", "")
         return self._node_id
 
+    @property
+    def node_id_without_parameters(self) -> str:
+        if not isinstance(self.item, Function) or self.item.originalname is None:
+            return self.node_id
+        return self.node_id.removesuffix(self.item.name) + self.item.originalname
+
 
 class ItemList:
     """Handles a group of items with the same scope."""

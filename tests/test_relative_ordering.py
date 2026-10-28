@@ -644,3 +644,58 @@ def test_dependency_on_parametrized_test(item_names_for):
         "test_2[ddddd]",
         "test_1",
     ]
+
+
+@pytest.mark.parametrize("in_class", [False, True])
+def test_relative_labels_ignore_parameter_id_syntax(item_names_for, in_class):
+    tests = dedent("""
+        import pytest
+
+        @pytest.mark.order(after="test_source")
+        def test_after():
+            pass
+
+        @pytest.mark.parametrize("value", [1, 2, 3],
+                                 ids=["outer[inner]", "::1", "path/with[::parts]"])
+        def test_source(value):
+            pass
+
+        @pytest.mark.order(before="test_source")
+        def test_before():
+            pass
+    """)
+    prefix = ""
+    if in_class:
+        methods = tests.replace("():", "(self):").replace("(value):", "(self, value):")
+        tests = "import pytest\nclass TestGroup:\n" + "\n".join(
+            "    " + line for line in methods.splitlines()
+        )
+        prefix = "TestGroup::"
+    assert item_names_for(tests) == [
+        prefix + "test_before",
+        prefix + "test_source[outer[inner]]",
+        prefix + "test_source[::1]",
+        prefix + "test_source[path/with[::parts]]",
+        prefix + "test_after",
+    ]
+
+
+def test_class_label_ignores_parameter_id_syntax(item_names_for):
+    tests = """
+        import pytest
+
+        @pytest.mark.order(after="TestSource")
+        class TestAfter:
+            def test_after(self):
+                pass
+
+        class TestSource:
+            @pytest.mark.parametrize("value", [1, 2], ids=["::1", "nested[::id]"])
+            def test_source(self, value):
+                pass
+    """
+    assert item_names_for(tests) == [
+        "TestSource::test_source[::1]",
+        "TestSource::test_source[nested[::id]]",
+        "TestAfter::test_after",
+    ]
