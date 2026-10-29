@@ -46,9 +46,7 @@ class Sorter:
         self.node_id_last: dict[str, list[str]] = {}
         for item in self.items:
             self.node_ids[item.node_id] = item
-            last_part = item.node_id.rpartition("::")[2]
-            if "[" in last_part:
-                last_part = last_part.rpartition("[")[0]
+            last_part = item.node_id_without_parameters.rpartition("::")[2]
             # save last nodeid component to avoid to iterate over all
             # items for each label
             self.node_id_last.setdefault(last_part, []).append(item.node_id)
@@ -190,10 +188,10 @@ class Sorter:
             for node_id in node_ids:
                 if node_id.endswith(label):
                     id_start = node_id[:-label_len]
-                elif node_id.endswith("]") and node_id.rpartition("[")[0].endswith(
-                    label
-                ):
-                    id_start = node_id.rpartition("[")[0][:-label_len]
+                elif self.node_ids[node_id].node_id_without_parameters.endswith(label):
+                    id_start = self.node_ids[node_id].node_id_without_parameters[
+                        :-label_len
+                    ]
                 else:
                     continue
                 if is_cls_mark and id_start.count("::") == 2:
@@ -207,13 +205,14 @@ class Sorter:
         items = []
         item_id = item.node_id
         label_len = len(label)
-        for node_id in self.node_ids:
+        for candidate in self.node_ids.values():
+            node_id = candidate.node_id_without_parameters
             if node_id.count("::") == 2:
                 cls_index = node_id.rindex("::")
                 if node_id[:cls_index].endswith(label):
                     id_start = node_id[: cls_index - label_len]
                     if item_id.startswith(id_start):
-                        items.append(self.node_ids[node_id])
+                        items.append(candidate)
         return items
 
     def handle_before_or_after_mark(
