@@ -7,7 +7,8 @@
 
 ### Fixes
 - relative ordering resolves whole-test labels when parameter IDs contain brackets or node separators
-- Class-scoped ordering handles parameter IDs containing `::`, such as IPv6 addresses
+  (see [#272](https://github.com/pytest-dev/pytest-order/issues/272))
+- class-scoped ordering handles parameter IDs containing `::`, such as IPv6 addresses
 - `--order-marker-prefix` uses the complete marker suffix as the order index,
   so multi-digit and negative indices work; negative indices can be written
   as `neg` (for example `m_neg1` for -1)
