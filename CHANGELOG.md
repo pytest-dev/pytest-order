@@ -12,6 +12,9 @@
 - `--order-marker-prefix` uses the complete marker suffix as the order index,
   so multi-digit and negative indices work; negative indices can be written
   as `neg` (for example `m_neg1` for -1)
+- a test with multiple order markers is run once per marker even if it is
+  collected more than once, e.g. as a method inherited by several test classes;
+  previously only the first collected instance kept its order markers
 
 ## [Version 1.5.0](https://pypi.org/project/pytest-order/1.5.0/) (2026-06-13)
 Adds option to abort tests after a failed ordering.

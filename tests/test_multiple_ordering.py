@@ -113,3 +113,61 @@ def test_multiple_markers_in_class(item_names_for):
         "TestA::test_1_and_3[index=3]",
         "TestA::test_4",
     ]
+
+
+def test_multiple_markers_in_inherited_classes(item_names_for):
+    test_content = """
+        import pytest
+
+        class Base:
+            @pytest.mark.order(1)
+            @pytest.mark.order(-1)
+            def test_1_and_last(self):
+                pass
+
+        class TestA(Base):
+            pass
+
+        class TestB(Base):
+            pass
+
+        def test_2():
+            pass
+        """
+    assert item_names_for(test_content) == [
+        "TestA::test_1_and_last[index=1]",
+        "TestB::test_1_and_last[index=1]",
+        "test_2",
+        "TestA::test_1_and_last[index=-1]",
+        "TestB::test_1_and_last[index=-1]",
+    ]
+
+
+def test_multiple_markers_on_imported_test(test_path):
+    test_path.makepyfile(
+        test_a="""
+            import pytest
+
+            @pytest.mark.order(1)
+            @pytest.mark.order(-1)
+            def test_1_and_last():
+                pass
+            """,
+        test_b="""
+            from test_a import test_1_and_last
+
+            def test_2():
+                pass
+            """,
+    )
+    result = test_path.runpytest("-v")
+    result.assert_outcomes(passed=5)
+    result.stdout.fnmatch_lines(
+        [
+            "test_a.py::test_1_and_last[[]index=1] PASSED",
+            "test_b.py::test_1_and_last[[]index=1] PASSED",
+            "test_b.py::test_2 PASSED",
+            "test_a.py::test_1_and_last[[]index=-1] PASSED",
+            "test_b.py::test_1_and_last[[]index=-1] PASSED",
+        ]
+    )
