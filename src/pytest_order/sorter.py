@@ -531,6 +531,7 @@ class GroupSorter:
             still_left = length
             self.handle_rel_marks(self.rel_marks)
             self.handle_rel_marks(self.dep_marks)
+            length = len(self.rel_marks) + len(self.dep_marks)
         return group_order, self.groups
 
     def sort_by_ordinal_markers(self) -> int | None:

@@ -15,6 +15,10 @@
 - a test with multiple order markers is run once per marker even if it is
   collected more than once, e.g. as a method inherited by several test classes;
   previously only the first collected instance kept its order markers
+- with `--order-group-scope`, relative and dependency markers between modules
+  or classes are resolved in repeated passes, so a chain such as A after C,
+  B after A is now applied; previously only one pass was made and part of such
+  a chain could be ignored without a warning
 
 ## [Version 1.5.0](https://pypi.org/project/pytest-order/1.5.0/) (2026-06-13)
 Adds option to abort tests after a failed ordering.
