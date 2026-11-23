@@ -170,3 +170,60 @@ def test_rel_class_mark_with_order_mark(test_path):
             "test_class_rel.py::Test1::test_1 PASSED",
         ]
     )
+
+
+def test_module_group_scope_relative_chain(test_path):
+    test_path.makepyfile(
+        test_chain1="""
+        import pytest
+
+        @pytest.mark.order(after="test_chain3.py::test_three")
+        def test_one(): pass
+        """,
+        test_chain2="""
+        import pytest
+
+        @pytest.mark.order(after="test_chain1.py::test_one")
+        def test_two(): pass
+        """,
+        test_chain3="""
+        def test_three(): pass
+        """,
+    )
+    result = test_path.runpytest("-v", "--order-group-scope=module")
+    result.assert_outcomes(passed=3, failed=0)
+    result.stdout.fnmatch_lines(
+        [
+            "test_chain3.py::test_three PASSED",
+            "test_chain1.py::test_one PASSED",
+            "test_chain2.py::test_two PASSED",
+        ]
+    )
+
+
+def test_class_group_scope_relative_chain(test_path):
+    test_path.makepyfile(
+        test_class_chain="""
+        import pytest
+
+        class Test1:
+            @pytest.mark.order(after="Test3::test_three")
+            def test_one(self): pass
+
+        class Test2:
+            @pytest.mark.order(after="Test1::test_one")
+            def test_two(self): pass
+
+        class Test3:
+            def test_three(self): pass
+        """
+    )
+    result = test_path.runpytest("-v", "--order-group-scope=class")
+    result.assert_outcomes(passed=3, failed=0)
+    result.stdout.fnmatch_lines(
+        [
+            "test_class_chain.py::Test3::test_three PASSED",
+            "test_class_chain.py::Test1::test_one PASSED",
+            "test_class_chain.py::Test2::test_two PASSED",
+        ]
+    )
