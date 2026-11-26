@@ -1,4 +1,4 @@
-from textwrap import dedent
+from textwrap import dedent, indent
 
 import pytest
 
@@ -700,4 +700,115 @@ def test_class_label_ignores_parameter_id_syntax(item_names_for):
         "TestSource::test_source[::1]",
         "TestSource::test_source[nested[::id]]",
         "TestAfter::test_after",
+    ]
+
+
+@pytest.mark.parametrize("depth", [1, 2])
+@pytest.mark.parametrize("direction", ["before", "after"])
+def test_relative_nested_classes(item_names_for, depth, direction):
+    anchor = """class TestAnchor:
+    @pytest.mark.parametrize("value", [1, 2], ids=["nested[::id]", "path/::id"])
+    def test_anchor(self, value):
+        pass
+"""
+    dependent = f"""@pytest.mark.order({direction}="TestAnchor")
+class TestDependent:
+    def test_dependent(self):
+        pass
+"""
+    tests = anchor + dependent if direction == "before" else dependent + anchor
+    for level in range(depth):
+        tests = f"class TestOuter{level}:\n" + indent(tests, "    ")
+    expected = [
+        "TestAnchor::test_anchor[nested[::id]]",
+        "TestAnchor::test_anchor[path/::id]",
+    ]
+    if direction == "before":
+        expected.insert(0, "TestDependent::test_dependent")
+    else:
+        expected.append("TestDependent::test_dependent")
+    assert item_names_for("import pytest\n" + tests) == expected
+
+
+@pytest.mark.parametrize("direction", ["before", "after"])
+def test_relative_class_includes_nested_tests(item_names_for, direction):
+    anchor = """class TestAnchor:
+    def test_direct(self):
+        pass
+
+    class TestNested:
+        def test_nested(self):
+            pass
+"""
+    dependent = f"""@pytest.mark.order({direction}="TestAnchor")
+class TestDependent:
+    def test_dependent(self):
+        pass
+"""
+    tests = anchor + dependent if direction == "before" else dependent + anchor
+    expected = ["TestAnchor::test_direct", "TestNested::test_nested"]
+    if direction == "before":
+        expected.insert(0, "TestDependent::test_dependent")
+    else:
+        expected.append("TestDependent::test_dependent")
+    assert item_names_for("import pytest\n" + tests) == expected
+
+
+def test_class_marker_references_nested_method(item_names_for):
+    tests = """
+        import pytest
+
+        class TestOuter:
+            @pytest.mark.order(after="TestAnchor::test_anchor")
+            class TestDependent:
+                def test_dependent(self):
+                    pass
+
+            class TestAnchor:
+                def test_anchor(self):
+                    pass
+    """
+    assert item_names_for(tests) == [
+        "TestAnchor::test_anchor",
+        "TestDependent::test_dependent",
+    ]
+
+
+def test_nested_class_marker_does_not_reference_bare_method(item_names_for):
+    tests = """
+        import pytest
+
+        class TestOuter:
+            @pytest.mark.order(after="test_anchor")
+            class TestDependent:
+                def test_dependent(self):
+                    pass
+
+                def test_anchor(self):
+                    pass
+    """
+    assert item_names_for(tests) == [
+        "TestDependent::test_dependent",
+        "TestDependent::test_anchor",
+    ]
+
+
+def test_relative_class_marker_inherited_by_nested_class(item_names_for):
+    tests = """
+        import pytest
+
+        @pytest.mark.order(after="TestAnchor")
+        class TestDependent:
+            class TestNestedDependent:
+                def test_dependent(self):
+                    pass
+
+        class TestAnchor:
+            class TestNestedAnchor:
+                def test_anchor(self):
+                    pass
+    """
+    assert item_names_for(tests) == [
+        "TestNestedAnchor::test_anchor",
+        "TestNestedDependent::test_dependent",
     ]

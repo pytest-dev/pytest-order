@@ -194,7 +194,11 @@ class Sorter:
                     ]
                 else:
                     continue
-                if is_cls_mark and id_start.count("::") == 2:
+                if (
+                    is_cls_mark
+                    and "::" not in label
+                    and self.node_ids[node_id].item.cls
+                ):
                     continue
                 if item_id.startswith(id_start):
                     items.append(self.node_ids[node_id])
@@ -206,13 +210,12 @@ class Sorter:
         item_id = item.node_id
         label_len = len(label)
         for candidate in self.node_ids.values():
-            node_id = candidate.node_id_without_parameters
-            if node_id.count("::") == 2:
-                cls_index = node_id.rindex("::")
-                if node_id[:cls_index].endswith(label):
-                    id_start = node_id[: cls_index - label_len]
+            for node in candidate.item.listchain():
+                if isinstance(node, Class) and node.nodeid.endswith(label):
+                    id_start = node.nodeid[:-label_len]
                     if item_id.startswith(id_start):
                         items.append(candidate)
+                        break
         return items
 
     def handle_before_or_after_mark(
