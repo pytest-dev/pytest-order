@@ -6,6 +6,7 @@
 - added official support for Python 3.15
 
 ### Fixes
+- class-level relative ordering resolves nested classes and includes their nested tests
 - relative ordering resolves whole-test labels when parameter IDs contain brackets or node separators
   (see [#272](https://github.com/pytest-dev/pytest-order/issues/272))
 - class-scoped ordering handles parameter IDs containing `::`, such as IPv6 addresses
